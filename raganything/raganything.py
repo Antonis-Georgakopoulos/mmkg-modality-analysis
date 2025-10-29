@@ -137,8 +137,13 @@ class RAGAnything(QueryMixin, ProcessorMixin, BatchMixin):
         """Cleanup resources when object is destroyed"""
         try:
             import asyncio
+            
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None 
 
-            if asyncio.get_event_loop().is_running():
+            if loop and asyncio.get_event_loop().is_running():
                 # If we're in an async context, schedule cleanup
                 asyncio.create_task(self.finalize_storages())
             else:
