@@ -78,3 +78,5 @@ memory-bank/
 .claude/
 .cursor/
 CLAUDE.md
+uv.lock
+supersimplepdf.pdf
