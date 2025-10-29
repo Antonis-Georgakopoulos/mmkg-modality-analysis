@@ -53,6 +53,7 @@ from lightrag.api.routers.document_routes import (
 )
 from lightrag.api.routers.query_routes import create_query_routes
 from lightrag.api.routers.graph_routes import create_graph_routes
+from lightrag.api.routers.evidence_routes import create_evidence_routes
 from lightrag.api.routers.ollama_api import OllamaAPI
 
 from lightrag.utils import logger, set_verbose_debug
@@ -768,11 +769,28 @@ def create_app(args):
     )
     app.include_router(create_query_routes(rag, api_key, args.top_k))
     app.include_router(create_graph_routes(rag, api_key))
+    app.include_router(create_evidence_routes(rag, api_key))
 
     # Add Ollama API routes
     ollama_api = OllamaAPI(rag, top_k=args.top_k, api_key=api_key)
     app.include_router(ollama_api.router, prefix="/api")
 
+    # Evidence Search UI page
+    @app.get("/evidence-search", include_in_schema=False)
+    async def evidence_search_ui():
+        """Serve the Evidence Search UI page."""
+        from fastapi.responses import HTMLResponse
+        html_content = Path(__file__).parent / "webui" / "evidence_search.html"
+        if html_content.exists():
+            with open(html_content, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+        else:
+            # Fallback: generate inline HTML if file doesn't exist
+            return HTMLResponse(content="""<!DOCTYPE html><html><body>
+            <h1>Evidence Search UI not found</h1>
+            <p>Please create evidence_search.html in the webui folder.</p>
+            </body></html>""")
+    
     # Custom Swagger UI endpoint for offline support
     @app.get("/docs", include_in_schema=False)
     async def custom_swagger_ui_html():
@@ -794,7 +812,7 @@ def create_app(args):
 
     @app.get("/")
     async def redirect_to_webui():
-        """Redirect root path to /webui"""
+        """Redirect root to WebUI"""
         return RedirectResponse(url="/webui")
 
     @app.get("/auth-status")

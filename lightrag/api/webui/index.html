@@ -13,5 +13,108 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Inject Evidence Search button into navigation
+      let evidenceButtonAdded = false;
+      
+      function createEvidenceButton() {
+        const evidenceBtn = document.createElement('a');
+        evidenceBtn.href = '/evidence-search';
+        evidenceBtn.innerHTML = '🔍 Evidence';
+        evidenceBtn.className = 'evidence-nav-btn';
+        evidenceBtn.style.cssText = `
+          display: inline-flex !important;
+          align-items: center;
+          padding: 8px 16px;
+          margin: 0 8px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white !important;
+          text-decoration: none;
+          border-radius: 6px;
+          font-weight: 500;
+          transition: all 0.2s;
+          cursor: pointer;
+          border: none;
+          font-size: 14px;
+        `;
+        evidenceBtn.onmouseover = () => {
+          evidenceBtn.style.transform = 'translateY(-2px)';
+          evidenceBtn.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+        };
+        evidenceBtn.onmouseout = () => {
+          evidenceBtn.style.transform = 'translateY(0)';
+          evidenceBtn.style.boxShadow = 'none';
+        };
+        return evidenceBtn;
+      }
+      
+      function tryAddEvidenceButton() {
+        if (evidenceButtonAdded) return;
+        
+        // Strategy 1: Look for common navigation patterns
+        const selectors = [
+          'header nav',
+          'header div[class*="nav"]',
+          'nav',
+          '[role="navigation"]',
+          'header > div',
+          '.header nav',
+          '.navigation',
+          '[class*="Navigation"]',
+          '[class*="header"] [class*="nav"]'
+        ];
+        
+        for (const selector of selectors) {
+          const navContainers = document.querySelectorAll(selector);
+          for (const container of navContainers) {
+            // Check if this container has navigation-like children
+            const children = container.children;
+            if (children.length >= 2) {
+              const evidenceBtn = createEvidenceButton();
+              container.appendChild(evidenceBtn);
+              evidenceButtonAdded = true;
+              console.log('✓ Evidence button added to navigation');
+              return true;
+            }
+          }
+        }
+        
+        // Strategy 2: Find any element with multiple button/link children
+        const allElements = document.querySelectorAll('div, nav, header');
+        for (const el of allElements) {
+          const buttons = el.querySelectorAll('button, a[href]');
+          if (buttons.length >= 3 && buttons.length <= 10) {
+            const evidenceBtn = createEvidenceButton();
+            el.appendChild(evidenceBtn);
+            evidenceButtonAdded = true;
+            console.log('✓ Evidence button added using fallback strategy');
+            return true;
+          }
+        }
+        
+        return false;
+      }
+      
+      // Try immediately
+      setTimeout(tryAddEvidenceButton, 500);
+      
+      // Use MutationObserver to watch for DOM changes
+      const observer = new MutationObserver(() => {
+        tryAddEvidenceButton();
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+      
+      // Stop observing after 10 seconds
+      setTimeout(() => {
+        observer.disconnect();
+        if (!evidenceButtonAdded) {
+          console.warn('Could not find navigation to add Evidence button');
+        }
+      }, 10000);
+    </script>
   </body>
 </html>
