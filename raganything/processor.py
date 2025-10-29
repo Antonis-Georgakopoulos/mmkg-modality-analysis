@@ -22,6 +22,14 @@ from raganything.utils import (
 import asyncio
 from lightrag.utils import compute_mdhash_id
 
+# Import evidence tracking (optional - graceful fallback if not available)
+try:
+    from evidence import track_evidence_for_document
+    EVIDENCE_TRACKING_AVAILABLE = True
+except ImportError:
+    EVIDENCE_TRACKING_AVAILABLE = False
+    track_evidence_for_document = None
+
 
 class ProcessorMixin:
     """ProcessorMixin class containing document processing functionality for RAGAnything"""
@@ -1413,6 +1421,42 @@ class ProcessorMixin:
                 "chunks_count": 0,
             }
 
+    async def _track_evidence_for_document(self, doc_id: str) -> int:
+        """Track evidence for all relationships in a document.
+        
+        This method records provenance information (source chunks, modalities, documents)
+        for each triple in the knowledge graph.
+        
+        Args:
+            doc_id: Document ID to track evidence for
+            
+        Returns:
+            Number of relationships tracked
+        """
+        if not EVIDENCE_TRACKING_AVAILABLE:
+            self.logger.warning(
+                "Evidence tracking is enabled but evidence.py module is not available. "
+                "Skipping evidence tracking."
+            )
+            return 0
+        
+        try:
+            self.logger.info(f"Tracking evidence for knowledge graph triples in document {doc_id}...")
+            evidence_count = await track_evidence_for_document(
+                self.lightrag,
+                doc_id,
+                ensure_flushed=True
+            )
+            self.logger.info(
+                f"✓ Successfully tracked evidence for {evidence_count} relationships "
+                f"(source chunks, modality types, document references)"
+            )
+            return evidence_count
+        except Exception as e:
+            self.logger.error(f"Failed to track evidence for document {doc_id}: {e}")
+            self.logger.debug("Evidence tracking error details:", exc_info=True)
+            return 0
+
     async def process_document_complete(
         self,
         file_path: str,
@@ -1493,6 +1537,10 @@ class ProcessorMixin:
             self.logger.debug(
                 f"No multimodal content found in document {doc_id}, marked multimodal processing as complete"
             )
+
+        # Step 5: Track evidence for knowledge graph triples (if enabled)
+        if self.config.enable_evidence_tracking:
+            await self._track_evidence_for_document(doc_id)
 
         self.logger.info(f"Document {file_path} processing complete!")
 
@@ -1670,6 +1718,10 @@ class ProcessorMixin:
                     scheme_name=scheme_name,
                 )
 
+            # Step 4: Track evidence for knowledge graph triples (if enabled)
+            if self.config.enable_evidence_tracking:
+                await self._track_evidence_for_document(doc_id)
+
             self.logger.info(f"Document {file_path} processing completed successfully")
             return True
 
@@ -1820,5 +1872,9 @@ class ProcessorMixin:
             self.logger.debug(
                 f"No multimodal content found in document {doc_id}, marked multimodal processing as complete"
             )
+
+        # Step 4: Track evidence for knowledge graph triples (if enabled)
+        if self.config.enable_evidence_tracking:
+            await self._track_evidence_for_document(doc_id)
 
         self.logger.info(f"Content list insertion complete for: {file_path}")

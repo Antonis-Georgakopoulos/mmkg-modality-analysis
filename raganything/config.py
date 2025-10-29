@@ -51,6 +51,11 @@ class RAGAnythingConfig:
     )
     """Enable equation content processing."""
 
+    enable_evidence_tracking: bool = field(
+        default=get_env_value("ENABLE_EVIDENCE_TRACKING", True, bool)
+    )
+    """Enable evidence tracking for knowledge graph triples to track source chunks and modality types."""
+
     # Batch Processing Configuration
     # ---
     max_concurrent_files: int = field(
