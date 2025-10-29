@@ -353,6 +353,17 @@
         <div class="search-card">
             <form id="searchForm">
                 <div class="form-group">
+                    <label for="search_mode">Search Mode</label>
+                    <select id="search_mode" name="search_mode">
+                        <option value="keyword" selected>Keyword Match (Fast, No LLM)</option>
+                        <option value="llm">Natural Language (LLM-powered)</option>
+                    </select>
+                    <small style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
+                        Keyword: Direct matching. Natural Language: AI understands your question.
+                    </small>
+                </div>
+
+                <div class="form-group">
                     <label for="query">Search Query</label>
                     <input 
                         type="text" 
@@ -361,8 +372,28 @@
                         placeholder="e.g., dog, chase, duck"
                         required
                     >
+                    <small id="query-hint" style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
+                        Keywords: Space-separated terms to match (e.g., "dog chase")
+                    </small>
+                </div>
+
+                <div class="form-group" id="generate-answer-section">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="generate_answer" name="generate_answer" style="margin-right: 8px;">
+                        <span>Generate Natural Language Answer (uses LLM)</span>
+                    </label>
+                </div>
+
+                <div class="form-group" id="question-section" style="display: none;">
+                    <label for="question">Question for Answer Generation (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="question" 
+                        name="question" 
+                        placeholder="e.g., Why does the dog chase the duck?"
+                    >
                     <small style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
-                        Search entities, relations, and content. Use multiple words to match any of them.
+                        If empty, uses the search query above as the question.
                     </small>
                 </div>
 
@@ -466,19 +497,34 @@
             resultsContainer.innerHTML = '<div class="results-card"><div class="loading"><div class="spinner"></div>Searching knowledge graph...</div></div>';
 
             try {
+                // Read new form fields
+                const searchMode = document.getElementById('search_mode').value;
+                const generateAnswer = document.getElementById('generate_answer').checked;
+                const question = document.getElementById('question').value;
+                
+                // Build request body
+                const requestBody = {
+                    search_mode: searchMode,
+                    query: query,
+                    modalities: modalities,
+                    modality_operator: operator,
+                    min_evidence_count: minEvidence,
+                    include_evidence_details: true,
+                    top_k: topK,
+                    generate_answer: generateAnswer
+                };
+                
+                // Add question if provided
+                if (question && question.trim()) {
+                    requestBody.question = question.trim();
+                }
+                
                 const response = await fetch(`${API_BASE}/evidence/query`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        query: query,
-                        modalities: modalities,
-                        modality_operator: operator,
-                        min_evidence_count: minEvidence,
-                        include_evidence_details: true,
-                        top_k: topK
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
@@ -527,12 +573,42 @@
             // Show active filters
             html += '<div style="margin-bottom: 20px; padding: 12px; background: #f0f4ff; border-radius: 8px; font-size: 0.9rem;">';
             html += '<strong>Active Filters:</strong> ';
+            html += `<span style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Mode: ${escapeHtml(data.search_mode)}</span>`;
             if (data.query) {
                 html += `<span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Query: "${escapeHtml(data.query)}"</span>`;
             }
             html += `<span style="background: #764ba2; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Modalities: ${data.modality_filter.join(', ')}</span>`;
             html += `<span style="background: #999; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Operator: ${data.modality_operator}</span>`;
             html += '</div>';
+            
+            // Show extracted keywords if available (LLM mode)
+            if (data.extracted_keywords) {
+                html += '<div style="margin-bottom: 20px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">';
+                html += '<strong>🤖 LLM Extracted Keywords:</strong><br>';
+                if (data.extracted_keywords.high_level && data.extracted_keywords.high_level.length > 0) {
+                    html += '<div style="margin-top: 8px;"><em>High-Level:</em> ';
+                    data.extracted_keywords.high_level.forEach(kw => {
+                        html += `<span style="background: #fbbf24; color: #78350f; padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block;">${escapeHtml(kw)}</span>`;
+                    });
+                    html += '</div>';
+                }
+                if (data.extracted_keywords.low_level && data.extracted_keywords.low_level.length > 0) {
+                    html += '<div style="margin-top: 8px;"><em>Low-Level:</em> ';
+                    data.extracted_keywords.low_level.forEach(kw => {
+                        html += `<span style="background: #fbbf24; color: #78350f; padding: 2px 6px; border-radius: 3px; margin: 2px; display: inline-block;">${escapeHtml(kw)}</span>`;
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            
+            // Show generated answer if available
+            if (data.generated_answer) {
+                html += '<div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">';
+                html += '<strong style="font-size: 1.1rem; display: block; margin-bottom: 8px;">💡 Generated Answer:</strong>';
+                html += `<div style="line-height: 1.6;">${escapeHtml(data.generated_answer)}</div>`;
+                html += '</div>';
+            }
             
             data.relationships.forEach(rel => {
                 html += '<div class="result-item">';
@@ -616,6 +692,27 @@
 
         // Load stats on page load
         loadStats();
+        
+        // Handle search mode change - update hints
+        document.getElementById('search_mode').addEventListener('change', function(e) {
+            const mode = e.target.value;
+            const queryHint = document.getElementById('query-hint');
+            const queryInput = document.getElementById('query');
+            
+            if (mode === 'llm') {
+                queryHint.textContent = 'Natural Language: Ask a question (e.g., "What does the dog do?")';
+                queryInput.placeholder = 'e.g., What is the relationship between the dog and duck?';
+            } else {
+                queryHint.textContent = 'Keywords: Space-separated terms to match (e.g., "dog chase")';
+                queryInput.placeholder = 'e.g., dog, chase, duck';
+            }
+        });
+        
+        // Handle generate answer checkbox - show/hide question field
+        document.getElementById('generate_answer').addEventListener('change', function(e) {
+            const questionSection = document.getElementById('question-section');
+            questionSection.style.display = e.target.checked ? 'block' : 'none';
+        });
     </script>
 </body>
 </html>
