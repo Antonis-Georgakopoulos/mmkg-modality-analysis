@@ -781,10 +781,10 @@ def create_app(args):
             openapi_url=app.openapi_url,
             title=app.title + " - Swagger UI",
             oauth2_redirect_url="/docs/oauth2-redirect",
-            swagger_js_url="/static/swagger-ui/swagger-ui-bundle.js",
-            swagger_css_url="/static/swagger-ui/swagger-ui.css",
-            swagger_favicon_url="/static/swagger-ui/favicon-32x32.png",
             swagger_ui_parameters=app.swagger_ui_parameters,
+            # swagger_js_url="/static/swagger-ui/swagger-ui-bundle.js",
+            # swagger_css_url="/static/swagger-ui/swagger-ui.css",
+            # swagger_favicon_url="/static/swagger-ui/favicon-32x32.png",
         )
 
     @app.get("/docs/oauth2-redirect", include_in_schema=False)
