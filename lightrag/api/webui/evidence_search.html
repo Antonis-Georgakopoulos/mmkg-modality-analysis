@@ -806,6 +806,27 @@
             html += `<span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Sort: ${sortByLabel}</span>`;
             html += '</div>';
             
+            // Show timing information
+            if (data.total_time_seconds !== undefined) {
+                html += '<div style="margin-bottom: 20px; padding: 12px; background: #e0f2fe; border-left: 4px solid #0ea5e9; border-radius: 8px;">';
+                html += '<strong>⏱️ Processing Time:</strong> ';
+                html += `<span style="font-size: 1.1rem; font-weight: bold; color: #0369a1;">${data.total_time_seconds.toFixed(3)}s</span>`;
+                
+                // Show breakdown if available
+                if (data.timing_breakdown && Object.keys(data.timing_breakdown).length > 0) {
+                    html += '<div style="margin-top: 8px; font-size: 0.85rem; color: #666;">';
+                    html += '<em>Breakdown:</em> ';
+                    const stages = [];
+                    for (const [stage, time] of Object.entries(data.timing_breakdown)) {
+                        const stageName = stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        stages.push(`${stageName}: ${time.toFixed(3)}s`);
+                    }
+                    html += stages.join(' • ');
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            
             // Show extracted keywords if available (LLM mode)
             if (data.extracted_keywords) {
                 html += '<div style="margin-bottom: 20px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">';
