@@ -7,12 +7,15 @@ knowledge graph relationships.
 
 import json
 import logging
+from dataclasses import asdict
 from typing import Any, Dict, List, Literal, Optional, Set
 from enum import Enum
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from lightrag.api.utils_api import get_combined_auth_dependency
+from lightrag.base import QueryParam
+from lightrag.operate import kg_query, extract_keywords_only
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +32,9 @@ class ModalityType(str, Enum):
 
 class LogicalOperator(str, Enum):
     """Logical operators for combining modality filters."""
-    AND = "AND"
-    OR = "OR"
+    AND = "AND"  # All requested modalities must be present
+    OR = "OR"    # At least one requested modality must be present
+    ONLY = "ONLY"  # Exactly the requested modalities (no more, no less)
 
 
 class SearchMode(str, Enum):
@@ -75,9 +79,9 @@ class ModalityQueryRequest(BaseModel):
         description="Logical operator for combining modalities: AND requires all modalities, OR requires at least one"
     )
     
-    mode: Literal["local", "global", "hybrid", "naive"] = Field(
-        default="hybrid",
-        description="Query mode for graph traversal"
+    mode: Literal["local", "global", "hybrid", "naive", "mix"] = Field(
+        default="mix",
+        description="Query mode: local, global, hybrid, naive, or mix (mix is recommended for most comprehensive results)"
     )
     
     min_evidence_count: int = Field(
@@ -95,7 +99,32 @@ class ModalityQueryRequest(BaseModel):
         default=10,
         ge=1,
         le=100,
-        description="Maximum number of results to return"
+        description="Maximum number of relationship results to return"
+    )
+    
+    sort_by: Literal["relevance", "evidence_strength"] = Field(
+        default="relevance",
+        description="Sort relationships by query relevance (similarity) or evidence strength (support count)"
+    )
+    
+    # Additional parameters for LLM mode (kg_query)
+    entity_top_k: int = Field(
+        default=40,
+        ge=1,
+        le=100,
+        description="Number of top entities to retrieve in LLM mode (matches system DEFAULT_TOP_K)"
+    )
+    
+    chunk_top_k: int = Field(
+        default=20,
+        ge=1,
+        le=50,
+        description="Number of top chunks to retrieve in LLM mode (matches system DEFAULT_CHUNK_TOP_K)"
+    )
+    
+    response_type: str = Field(
+        default="Multiple Paragraphs",
+        description="Response format preference for LLM answer generation"
     )
 
 
@@ -106,6 +135,7 @@ class EvidenceDetail(BaseModel):
     modality: str
     doc_id: Optional[str] = None
     timestamp: Optional[int] = None
+    content: Optional[str] = Field(None, description="The actual content of the chunk")
 
 
 class RelationshipWithEvidence(BaseModel):
@@ -127,6 +157,7 @@ class ModalityQueryResponse(BaseModel):
     search_mode: str = Field(description="Search mode used (keyword or llm)")
     modality_filter: List[str]
     modality_operator: str
+    sort_by: str = Field(description="Sorting method used (relevance or evidence_strength)")
     total_relationships_found: int
     relationships: List[RelationshipWithEvidence]
     extracted_keywords: Optional[Dict[str, List[str]]] = Field(
@@ -160,13 +191,18 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
         
         This endpoint allows you to:
         - Filter relationships by evidence modalities (text, image, table, equation)
-        - Combine modality filters with AND/OR logic
+        - Combine modality filters with AND/OR/ONLY logic
         - Retrieve detailed evidence metadata
         - Get answers based only on evidence from specific modalities
         
+        Modality Operators:
+        - OR: Relationship has at least one of the selected modalities
+        - AND: Relationship has all of the selected modalities (can have others too)
+        - ONLY: Relationship has exactly the selected modalities (no more, no less)
+        
         Example use cases:
         - Find relationships supported by images AND tables
-        - Get all text-based evidence for a query
+        - Get relationships with ONLY text evidence (no images/tables)
         - Search only mathematical formulas and equations
         """,
     )
@@ -177,49 +213,351 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
         """Query knowledge graph with modality-based evidence filtering."""
         try:
             logger.info(
-                f"[EVIDENCE_QUERY] Mode: {request.search_mode} | Query: '{request.query}' | "
-                f"Modalities: {request.modalities} | Operator: {request.modality_operator}"
+                f"[EVIDENCE_QUERY] Mode: {request.search_mode.value} | RAG Mode: {request.mode} | "
+                f"Query: '{request.query}' | Modalities: {request.modalities} | Operator: {request.modality_operator.value}"
             )
             
-            # Step 1: Extract keywords (either direct or via LLM)
+            modality_set = set(m.value for m in request.modalities)
             extracted_keywords_dict = None
-            query_terms = []
-            
-            if request.search_mode == SearchMode.LLM:
-                # Use LLM to extract keywords from natural language
-                logger.info("[EVIDENCE_QUERY] Using LLM to extract keywords")
-                try:
-                    query_param = QueryParam()
-                    hl_keywords, ll_keywords = await extract_keywords_only(
-                        request.query,
-                        query_param,
-                        asdict(rag),
-                        rag.llm_response_cache
-                    )
-                    extracted_keywords_dict = {
-                        "high_level": hl_keywords,
-                        "low_level": ll_keywords
-                    }
-                    # Combine all keywords for filtering
-                    all_keywords = hl_keywords + ll_keywords
-                    query_terms = [term.lower().strip() for term in all_keywords if term.strip()]
-                    logger.info(f"[EVIDENCE_QUERY] Extracted keywords: {extracted_keywords_dict}")
-                except Exception as e:
-                    logger.warning(f"[EVIDENCE_QUERY] LLM keyword extraction failed: {e}, falling back to direct query")
-                    query_terms = [term.lower().strip() for term in request.query.split() if term.strip()]
-            else:
-                # Direct keyword matching
-                query_terms = [term.lower().strip() for term in request.query.split() if term.strip()]
-            
-            # Step 2: Get all relationships from the graph
+            generated_answer = None
             relationships_with_evidence = []
             
-            try:
-                all_edges = await rag.chunk_entity_relation_graph.get_all_edges()
-                logger.info(f"[EVIDENCE_QUERY] Retrieved {len(all_edges)} total edges from graph")
-            except Exception as e:
-                logger.error(f"[EVIDENCE_QUERY] Failed to retrieve edges: {e}")
-                all_edges = []
+            # ========== LLM MODE: Use full kg_query pipeline (same as Retrieval page) ==========
+            if request.search_mode == SearchMode.LLM:
+                logger.info("[EVIDENCE_QUERY] ===== LLM MODE: Using full RAG pipeline (kg_query) =====")
+                
+                # Build QueryParam for kg_query (match all parameters from original query)
+                # Set only_need_context=True to get context without generating answer yet
+                query_param = QueryParam(
+                    mode=request.mode,
+                    only_need_context=True,  # Get context only, we'll generate answer after filtering
+                    top_k=request.entity_top_k,
+                    chunk_top_k=request.chunk_top_k,
+                    response_type=request.response_type,
+                    stream=False,  # Never stream in this endpoint
+                    enable_rerank=True,  # Enable reranking for better relevance
+                    # Use system defaults for token limits (critical for complete retrieval!)
+                    max_entity_tokens=6000,
+                    max_relation_tokens=8000,
+                    max_total_tokens=30000,
+                )
+                
+                global_config = asdict(rag)
+                
+                try:
+                    # Call the FULL RAG pipeline (same as WebUI Retrieval)
+                    logger.info(f"[EVIDENCE_QUERY] Calling kg_query with mode={request.mode}, top_k={request.entity_top_k}")
+                    kg_result = await kg_query(
+                        request.query,
+                        rag.chunk_entity_relation_graph,
+                        rag.entities_vdb,
+                        rag.relationships_vdb,
+                        rag.text_chunks,
+                        query_param,
+                        global_config,
+                        hashing_kv=rag.llm_response_cache,  # Cache is fine - we generate our own answer from filtered context
+                        chunks_vdb=rag.chunks_vdb,
+                    )
+                    
+                    logger.info(f"[EVIDENCE_QUERY] kg_query completed. Got context without answer generation.")
+                    logger.info(f"[EVIDENCE_QUERY] DEBUG: kg_result.content length: {len(kg_result.content) if kg_result.content else 0} chars")
+                    logger.info(f"[EVIDENCE_QUERY] DEBUG: kg_result.content preview: {kg_result.content[:100] if kg_result.content else 'None'}...")
+                    
+                    # Extract keywords from metadata
+                    metadata = kg_result.metadata
+                    if metadata and "keywords" in metadata:
+                        kw = metadata["keywords"]
+                        extracted_keywords_dict = {
+                            "high_level": kw.get("high_level", []),
+                            "low_level": kw.get("low_level", [])
+                        }
+                        logger.info(f"[EVIDENCE_QUERY] Extracted keywords: {extracted_keywords_dict}")
+                    
+                    # Get the ACTUAL relationships that kg_query used (from raw_data)
+                    logger.info("[EVIDENCE_QUERY] Filtering relationships from kg_query by modality")
+                    raw_data = kg_result.raw_data or {}
+                    data_section = raw_data.get("data", {})
+                    kg_relationships = data_section.get("relationships", [])
+                    logger.info(f"[EVIDENCE_QUERY] kg_query used {len(kg_relationships)} relationships")
+                    
+                    # Now filter those relationships by modality
+                    # Need to get modality info from graph edges
+                    for kg_rel in kg_relationships:
+                        try:
+                            # Extract src/tgt from kg_query relationship format
+                            src_id = kg_rel.get("src_id", "")
+                            tgt_id = kg_rel.get("tgt_id", "")
+                            keywords = kg_rel.get("keywords", "")
+                            
+                            if not src_id or not tgt_id:
+                                continue
+                            
+                            # Get the edge from graph to check modalities
+                            edge = await rag.chunk_entity_relation_graph.get_edge(src_id, tgt_id)
+                            if not edge:
+                                continue
+                            
+                            # Check modality filtering
+                            edge_modalities_str = edge.get("modality", "")
+                            if not edge_modalities_str:
+                                continue
+                            
+                            edge_modalities = set(m.strip().lower() for m in edge_modalities_str.split(",") if m.strip())
+                            
+                            # Apply modality operator logic
+                            matches = False
+                            if request.modality_operator == LogicalOperator.AND:
+                                matches = modality_set.issubset(edge_modalities)
+                            elif request.modality_operator == LogicalOperator.OR:
+                                matches = bool(modality_set.intersection(edge_modalities))
+                            elif request.modality_operator == LogicalOperator.ONLY:
+                                matches = modality_set == edge_modalities
+                            
+                            if not matches:
+                                continue
+                            
+                            # Check minimum evidence count
+                            evidence_count = edge.get("evidence_total_count", 0)
+                            if evidence_count < request.min_evidence_count:
+                                continue
+                            
+                            # Build relationship object (includes details from kg_query)
+                            evidence_details = None
+                            if request.include_evidence_details:
+                                evidence_summary_json = edge.get("evidence_summary_json")
+                                if evidence_summary_json:
+                                    try:
+                                        evidence_summary = json.loads(evidence_summary_json)
+                                        # Create evidence details with chunk_ids
+                                        evidence_details = []
+                                        chunk_ids_to_fetch = []
+                                        for src in evidence_summary.get("sources", []):
+                                            chunk_id = src.get("chunk_id", "")
+                                            evidence_details.append(EvidenceDetail(
+                                                chunk_id=chunk_id,
+                                                file_path=src.get("file_path"),
+                                                modality=src.get("modality", "unknown"),
+                                                doc_id=src.get("doc_id"),
+                                                timestamp=src.get("timestamp"),
+                                                content=None  # Will be populated below
+                                            ))
+                                            if chunk_id:
+                                                chunk_ids_to_fetch.append(chunk_id)
+                                        
+                                        # Fetch chunk content for all evidence sources
+                                        if chunk_ids_to_fetch:
+                                            try:
+                                                chunk_data_list = await rag.text_chunks.get_by_ids(chunk_ids_to_fetch)
+                                                chunk_content_map = {
+                                                    cid: cdata.get("content") if cdata else None
+                                                    for cid, cdata in zip(chunk_ids_to_fetch, chunk_data_list)
+                                                }
+                                                # Populate content in evidence_details
+                                                for evidence in evidence_details:
+                                                    if evidence.chunk_id in chunk_content_map:
+                                                        evidence.content = chunk_content_map[evidence.chunk_id]
+                                            except Exception as e:
+                                                logger.debug(f"Could not fetch chunk content: {e}")
+                                    except json.JSONDecodeError:
+                                        pass
+                            
+                            relationship = RelationshipWithEvidence(
+                                src_entity=src_id,
+                                tgt_entity=tgt_id,
+                                relation=keywords,
+                                content=kg_rel.get("content"),
+                                fact_key=edge.get("fact_key"),
+                                evidence_total_count=evidence_count,
+                                evidence_doc_count=edge.get("evidence_doc_count", 0),
+                                modalities=list(edge_modalities),
+                                evidence_details=evidence_details,
+                            )
+                            relationships_with_evidence.append(relationship)
+                            
+                        except Exception as e:
+                            logger.debug(f"[EVIDENCE_QUERY] Error processing relationship: {e}")
+                            continue
+                    
+                    logger.info(
+                        f"[EVIDENCE_QUERY] LLM mode: {len(relationships_with_evidence)} relationships "
+                        f"after modality filtering (from {len(kg_relationships)} kg_query relationships)"
+                    )
+                    
+                    # Sort based on user preference
+                    if request.sort_by == "evidence_strength":
+                        relationships_with_evidence.sort(
+                            key=lambda r: r.evidence_total_count,
+                            reverse=True
+                        )
+                        logger.info(f"[EVIDENCE_QUERY] Sorted by evidence strength (support count)")
+                    else:
+                        # Preserve kg_query's relevance ranking (already sorted by similarity)
+                        logger.info(f"[EVIDENCE_QUERY] Preserving relevance order from kg_query (similarity-based)")
+                    
+                    # Limit to top_k
+                    relationships_with_evidence = relationships_with_evidence[:request.top_k]
+                    logger.info(f"[EVIDENCE_QUERY] Limited to top {len(relationships_with_evidence)} relationships (top_k={request.top_k})")
+                    
+                    # Generate answer from filtered relationships (if requested)
+                    logger.info(f"[EVIDENCE_QUERY] Checking answer generation: generate_answer={request.generate_answer}, filtered_relations={len(relationships_with_evidence)}")
+                    if request.generate_answer and relationships_with_evidence:
+                        logger.info(f"[EVIDENCE_QUERY] ===== Generating answer from {len(relationships_with_evidence)} modality-filtered relationships =====")
+                        try:
+                            # Step 1: Extract entity IDs from filtered relationships
+                            entity_ids_in_filtered = set()
+                            fact_keys = set()
+                            for rel in relationships_with_evidence:
+                                entity_ids_in_filtered.add(rel.src_entity.lower())
+                                entity_ids_in_filtered.add(rel.tgt_entity.lower())
+                                if rel.fact_key:
+                                    fact_keys.add(rel.fact_key)
+                            
+                            logger.info(f"[EVIDENCE_QUERY] Extracted {len(entity_ids_in_filtered)} unique entities from filtered relationships")
+                            
+                            # Step 2: Filter entities to only those in filtered relationships
+                            kg_entities_all = data_section.get("entities", [])
+                            kg_entities = [
+                                e for e in kg_entities_all
+                                if e.get("entity_name", "").lower() in entity_ids_in_filtered
+                            ]
+                            logger.info(f"[EVIDENCE_QUERY] Filtered entities: {len(kg_entities)} (from {len(kg_entities_all)} total)")
+                            
+                            # Step 3: Get modality-specific chunks from relationships' evidence
+                            # Extract chunk_ids and count how many relationships reference each chunk
+                            chunk_reference_count = {}
+                            
+                            for rel in relationships_with_evidence:
+                                if rel.evidence_details:
+                                    for evidence in rel.evidence_details:
+                                        # evidence.modality already matches our filter (from relationship filtering)
+                                        if evidence.chunk_id:
+                                            chunk_reference_count[evidence.chunk_id] = chunk_reference_count.get(evidence.chunk_id, 0) + 1
+                            
+                            logger.info(f"[EVIDENCE_QUERY] Extracted {len(chunk_reference_count)} unique chunk_ids from relationship evidence")
+                            
+                            # Step 4: Retrieve chunk content from text_chunks storage
+                            kg_chunks = []
+                            if chunk_reference_count:
+                                try:
+                                    # Use rag.text_chunks directly (already initialized)
+                                    chunk_ids_list = list(chunk_reference_count.keys())
+                                    chunk_data_list = await rag.text_chunks.get_by_ids(chunk_ids_list)
+                                    
+                                    # Convert to the format expected by prompt builder, with reference count
+                                    for chunk_id, chunk_data in zip(chunk_ids_list, chunk_data_list):
+                                        if chunk_data and "content" in chunk_data:
+                                            kg_chunks.append({
+                                                "chunk_id": chunk_id,
+                                                "content": chunk_data["content"],
+                                                "tokens": chunk_data.get("tokens", 0),
+                                                "full_doc_id": chunk_data.get("full_doc_id", chunk_id),
+                                                "reference_count": chunk_reference_count[chunk_id],  # How many relationships reference this chunk
+                                            })
+                                    
+                                    # Sort chunks by reference count (most referenced first)
+                                    # These are the chunks most important to the answer
+                                    kg_chunks.sort(key=lambda c: c["reference_count"], reverse=True)
+                                    
+                                    logger.info(f"[EVIDENCE_QUERY] Retrieved {len(kg_chunks)} modality-specific chunks from storage (sorted by relevance)")
+                                
+                                except Exception as e:
+                                    logger.warning(f"[EVIDENCE_QUERY] Could not retrieve chunks: {e}")
+                                    kg_chunks = []
+                            
+                            if not kg_chunks:
+                                logger.info("[EVIDENCE_QUERY] No modality-specific chunks found, answer will be based on entities and relationships only")
+                            
+                            # Build context string from filtered relationships + entities + chunks
+                            # Use same format as kg_query
+                            from lightrag.prompt import PROMPTS
+                            
+                            entities_str = "\n".join(
+                                json.dumps({"entity": e.get("entity_name", ""), "type": e.get("entity_type", ""), "description": e.get("description", "")}, ensure_ascii=False)
+                                for e in kg_entities
+                            )
+                            
+                            relations_str = "\n".join(
+                                json.dumps({"src_id": r.src_entity, "tgt_id": r.tgt_entity, "keywords": r.relation, "description": r.content or ""}, ensure_ascii=False)
+                                for r in relationships_with_evidence
+                            )
+                            
+                            chunks_str = "\n".join(
+                                json.dumps({"content": c.get("content", "")}, ensure_ascii=False)
+                                for c in kg_chunks
+                            )
+                            
+                            # Build reference list
+                            references = data_section.get("references", [])
+                            reference_list_str = "\n".join(
+                                f"[{ref['reference_id']}] {ref['file_path']}"
+                                for ref in references
+                                if ref.get("reference_id")
+                            )
+                            
+                            # Build knowledge graph context using same template
+                            kg_context = PROMPTS["kg_query_context"].format(
+                                entities_str=entities_str,
+                                relations_str=relations_str,
+                                text_chunks_str=chunks_str,
+                                reference_list_str=reference_list_str,
+                            )
+                            
+                            # Build system prompt using same template
+                            sys_prompt = PROMPTS["rag_response"].format(
+                                response_type=request.response_type,
+                                user_prompt="n/a",
+                                context_data=kg_context,
+                            )
+                            
+                            logger.info(f"[EVIDENCE_QUERY] Calling LLM with {len(kg_entities)} filtered entities, {len(relationships_with_evidence)} filtered relations, {len(kg_chunks)} modality-specific chunks")
+                            
+                            # Call LLM with filtered context
+                            response = await rag.llm_model_func(
+                                request.query,
+                                system_prompt=sys_prompt,
+                            )
+                            
+                            generated_answer = response if isinstance(response, str) else str(response)
+                            logger.info(f"[EVIDENCE_QUERY] Answer generated from filtered context, length: {len(generated_answer)} chars")
+                            
+                        except Exception as e:
+                            logger.error(f"[EVIDENCE_QUERY] Answer generation failed: {e}", exc_info=True)
+                            generated_answer = None
+                    elif request.generate_answer and not relationships_with_evidence:
+                        generated_answer = f"No information found for the query in the selected modalities: {', '.join(m.value for m in request.modalities)}."
+                        logger.info("[EVIDENCE_QUERY] No relationships found after filtering - returning no-info message")
+                    
+                except Exception as e:
+                    logger.error(f"[EVIDENCE_QUERY] kg_query failed: {e}", exc_info=True)
+                    # Fall back to simple filtering if kg_query fails
+                    relationships_with_evidence = []
+                
+                # LLM mode complete - return with answer generated from filtered relationships
+                return ModalityQueryResponse(
+                    query=request.query,
+                    search_mode=request.search_mode.value,
+                    modality_filter=[m.value for m in request.modalities],
+                    modality_operator=request.modality_operator.value,
+                    sort_by=request.sort_by,
+                    total_relationships_found=len(relationships_with_evidence),
+                    relationships=relationships_with_evidence,
+                    extracted_keywords=extracted_keywords_dict,
+                    generated_answer=generated_answer,
+                )
+            
+            # ========== KEYWORD MODE: Fast direct filtering ==========
+            else:
+                logger.info("[EVIDENCE_QUERY] ===== KEYWORD MODE: Fast direct filtering =====")
+                query_terms = [term.lower().strip() for term in request.query.split() if term.strip()]
+                relationships_with_evidence = []
+                
+                # KEYWORD MODE: Get all edges and filter
+                try:
+                    all_edges = await rag.chunk_entity_relation_graph.get_all_edges()
+                    logger.info(f"[EVIDENCE_QUERY] Retrieved {len(all_edges)} total edges from graph")
+                except Exception as e:
+                    logger.error(f"[EVIDENCE_QUERY] Failed to retrieve edges: {e}")
+                    all_edges = []
             
             # Filter edges based on modality criteria
             modality_set = set(m.value for m in request.modalities)
@@ -244,11 +582,14 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
                     # Apply modality filter based on operator
                     matches = False
                     if request.modality_operator == LogicalOperator.AND:
-                        # All requested modalities must be present
+                        # All requested modalities must be present (can have additional ones)
                         matches = modality_set.issubset(edge_modalities)
-                    else:  # OR
+                    elif request.modality_operator == LogicalOperator.OR:
                         # At least one requested modality must be present
                         matches = bool(modality_set.intersection(edge_modalities))
+                    elif request.modality_operator == LogicalOperator.ONLY:
+                        # Exactly the requested modalities (no more, no less)
+                        matches = modality_set == edge_modalities
                     
                     if not matches:
                         continue
@@ -279,16 +620,36 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
                         if evidence_summary_json:
                             try:
                                 evidence_summary = json.loads(evidence_summary_json)
-                                evidence_details = [
-                                    EvidenceDetail(
-                                        chunk_id=src.get("chunk_id", ""),
+                                # Create evidence details with chunk_ids
+                                evidence_details = []
+                                chunk_ids_to_fetch = []
+                                for src in evidence_summary.get("sources", []):
+                                    chunk_id = src.get("chunk_id", "")
+                                    evidence_details.append(EvidenceDetail(
+                                        chunk_id=chunk_id,
                                         file_path=src.get("file_path"),
                                         modality=src.get("modality", "unknown"),
                                         doc_id=src.get("doc_id"),
                                         timestamp=src.get("timestamp"),
-                                    )
-                                    for src in evidence_summary.get("sources", [])
-                                ]
+                                        content=None  # Will be populated below
+                                    ))
+                                    if chunk_id:
+                                        chunk_ids_to_fetch.append(chunk_id)
+                                
+                                # Fetch chunk content for all evidence sources
+                                if chunk_ids_to_fetch:
+                                    try:
+                                        chunk_data_list = await rag.text_chunks.get_by_ids(chunk_ids_to_fetch)
+                                        chunk_content_map = {
+                                            cid: cdata.get("content") if cdata else None
+                                            for cid, cdata in zip(chunk_ids_to_fetch, chunk_data_list)
+                                        }
+                                        # Populate content in evidence_details
+                                        for evidence in evidence_details:
+                                            if evidence.chunk_id in chunk_content_map:
+                                                evidence.content = chunk_content_map[evidence.chunk_id]
+                                    except Exception as e:
+                                        logger.debug(f"Could not fetch chunk content: {e}")
                             except json.JSONDecodeError:
                                 logger.warning(f"Failed to parse evidence_summary_json for edge {src_id}->{tgt_id}")
                     
@@ -310,11 +671,18 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
                     logger.debug(f"[EVIDENCE_QUERY] Error processing edge: {e}")
                     continue
             
-            # Sort by evidence count (descending) and limit to top_k
-            relationships_with_evidence.sort(
-                key=lambda r: r.evidence_total_count,
-                reverse=True
-            )
+            # Sort based on user preference
+            if request.sort_by == "evidence_strength":
+                relationships_with_evidence.sort(
+                    key=lambda r: r.evidence_total_count,
+                    reverse=True
+                )
+                logger.info(f"[EVIDENCE_QUERY] Sorted by evidence strength (support count)")
+            else:
+                # Preserve match order (order relationships were found by text matching)
+                logger.info(f"[EVIDENCE_QUERY] Preserving match order from keyword search")
+            
+            # Limit to top_k
             relationships_with_evidence = relationships_with_evidence[:request.top_k]
             
             logger.info(
@@ -387,6 +755,7 @@ def create_evidence_routes(rag, api_key: Optional[str] = None):
                 search_mode=request.search_mode.value,
                 modality_filter=[m.value for m in request.modalities],
                 modality_operator=request.modality_operator.value,
+                sort_by=request.sort_by,
                 total_relationships_found=len(relationships_with_evidence),
                 relationships=relationships_with_evidence,
                 extracted_keywords=extracted_keywords_dict,

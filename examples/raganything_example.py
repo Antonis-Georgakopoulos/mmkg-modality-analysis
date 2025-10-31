@@ -221,7 +221,7 @@ async def process_with_rag(
 
         for query in text_queries:
             logger.info(f"\n[Text Query]: {query}")
-            result = await rag.aquery(query, mode="hybrid")
+            result = await rag.aquery(query, mode="hybrid", top_k=20, chunk_top_k=10, max_total_tokens=18000)
             logger.info(f"Answer: {result}")
 
         # 2. Multimodal query with specific multimodal content using aquery_with_multimodal()
@@ -240,7 +240,7 @@ async def process_with_rag(
                     "table_caption": "Performance comparison results",
                 }
             ],
-            mode="hybrid",
+            mode="hybrid", top_k=20, chunk_top_k=10, max_total_tokens=18000
         )
         logger.info(f"Answer: {multimodal_result}")
 
@@ -255,7 +255,7 @@ async def process_with_rag(
                     "equation_caption": "F1-score calculation formula",
                 }
             ],
-            mode="hybrid",
+            mode="hybrid", top_k=20, chunk_top_k=10, max_total_tokens=18000
         )
         logger.info(f"Answer: {equation_result}")
 

@@ -60,6 +60,58 @@
             font-size: 0.95rem;
         }
 
+        .tooltip-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: help;
+            position: relative;
+        }
+
+        .info-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: #333;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: normal;
+            border-radius: 6px;
+            white-space: normal;
+            min-width: 280px;
+            max-width: 400px;
+            text-align: left;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .info-icon:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 8px;
+            margin-bottom: 2px;
+            border: 5px solid transparent;
+            border-top-color: #333;
+            z-index: 1001;
+        }
+
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group select {
@@ -300,6 +352,106 @@
             font-size: 0.9rem;
         }
 
+        .evidence-item-clickable {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .evidence-item-clickable:hover {
+            background: #e7f1ff;
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .modal-meta-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .modal-meta-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .modal-body {
+            margin-top: 20px;
+        }
+
+        .modal-body pre {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
+            color: #333;
+            border-left: 4px solid #667eea;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -358,9 +510,9 @@
                         <option value="keyword" selected>Keyword Match (Fast, No LLM)</option>
                         <option value="llm">Natural Language (LLM-powered)</option>
                     </select>
-                    <small style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
-                        Keyword: Direct matching. Natural Language: AI understands your question.
-                    </small>
+                    <div id="searchModeDescription" style="color: #666; font-size: 0.85rem; margin-top: 8px; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #667eea;">
+                        <!-- Dynamic description will be inserted here -->
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -369,11 +521,11 @@
                         type="text" 
                         id="query" 
                         name="query" 
-                        placeholder="e.g., dog, chase, duck"
+                        placeholder="Enter search terms or question..."
                         required
                     >
                     <small id="query-hint" style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
-                        Keywords: Space-separated terms to match (e.g., "dog chase")
+                        Keywords: Space-separated terms to match
                     </small>
                 </div>
 
@@ -390,7 +542,7 @@
                         type="text" 
                         id="question" 
                         name="question" 
-                        placeholder="e.g., Why does the dog chase the duck?"
+                        placeholder="Optional: Provide a specific question for the LLM..."
                     >
                     <small style="color: #666; font-size: 0.85rem; margin-top: 4px; display: block;">
                         If empty, uses the search query above as the question.
@@ -430,11 +582,23 @@
                             <input type="radio" id="op-and" name="operator" value="AND">
                             <label for="op-and">AND (All required)</label>
                         </div>
+                        <div class="operator-option">
+                            <input type="radio" id="op-only" name="operator" value="ONLY">
+                            <label for="op-only">ONLY (Exact match)</label>
+                        </div>
+                    </div>
+                    <div id="operatorDescription" style="color: #666; font-size: 0.85rem; margin-top: 8px; padding: 10px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid #667eea;">
+                        <!-- Dynamic description will be inserted here -->
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="minEvidence">Minimum Evidence Count</label>
+                    <label for="minEvidence">
+                        <span class="tooltip-wrapper">
+                            Minimum Evidence Count
+                            <span class="info-icon" data-tooltip="Filter by evidence strength. Only show relationships backed by at least this many source chunks. Higher = more confident/well-supported facts.">?</span>
+                        </span>
+                    </label>
                     <input 
                         type="number" 
                         id="minEvidence" 
@@ -445,7 +609,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="topK">Maximum Results</label>
+                    <label for="topK">
+                        <span class="tooltip-wrapper">
+                            Maximum Results
+                            <span class="info-icon" data-tooltip="Limit the number of relationships returned (after sorting by your chosen method)">?</span>
+                        </span>
+                    </label>
                     <input 
                         type="number" 
                         id="topK" 
@@ -454,6 +623,19 @@
                         min="1" 
                         max="100"
                     >
+                </div>
+
+                <div class="form-group">
+                    <label for="sortBy">
+                        <span class="tooltip-wrapper">
+                            Sort By
+                            <span class="info-icon" data-tooltip="Choose how to rank relationships: by relevance to your query or by evidence strength">?</span>
+                        </span>
+                    </label>
+                    <select id="sortBy" name="sortBy">
+                        <option value="relevance" selected>Relevance (Query Similarity)</option>
+                        <option value="evidence_strength">Evidence Strength (Support Count)</option>
+                    </select>
                 </div>
 
                 <button type="submit" class="search-button" id="searchBtn">
@@ -468,6 +650,45 @@
 
     <script>
         const API_BASE = window.location.origin;
+
+        // Operator descriptions
+        const operatorDescriptions = {
+            'OR': 'Show relationships that contain <strong>at least one</strong> of the selected modalities. Results may include additional modalities beyond those selected.',
+            'AND': 'Show relationships that contain <strong>all</strong> of the selected modalities. Results may also include additional modalities beyond those selected.',
+            'ONLY': 'Show relationships that contain <strong>exactly</strong> the selected modalities, with no additional modalities included.'
+        };
+
+        // Search mode descriptions
+        const searchModeDescriptions = {
+            'keyword': '<strong>Keyword Match:</strong> Fast text-based search. Splits your query into words and finds relationships containing those exact terms. No LLM calls for retrieval (only for answer generation if enabled). Best for quick lookups with specific terms.',
+            'llm': '<strong>Natural Language:</strong> AI-powered semantic search. Uses LLM to extract concepts from your question, then performs vector similarity search to find semantically related relationships. Understands meaning, not just exact words. Best for complex questions and natural language queries.'
+        };
+
+        // Update operator description
+        function updateOperatorDescription() {
+            const selectedOperator = document.querySelector('input[name="operator"]:checked').value;
+            const descriptionDiv = document.getElementById('operatorDescription');
+            descriptionDiv.innerHTML = operatorDescriptions[selectedOperator];
+        }
+
+        // Update search mode description
+        function updateSearchModeDescription() {
+            const selectedMode = document.getElementById('search_mode').value;
+            const descriptionDiv = document.getElementById('searchModeDescription');
+            descriptionDiv.innerHTML = searchModeDescriptions[selectedMode];
+        }
+
+        // Initialize descriptions on page load
+        updateOperatorDescription();
+        updateSearchModeDescription();
+
+        // Add event listeners to operator radio buttons
+        document.querySelectorAll('input[name="operator"]').forEach(radio => {
+            radio.addEventListener('change', updateOperatorDescription);
+        });
+
+        // Add event listener to search mode dropdown
+        document.getElementById('search_mode').addEventListener('change', updateSearchModeDescription);
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -487,6 +708,7 @@
             const operator = document.querySelector('input[name="operator"]:checked').value;
             const minEvidence = parseInt(document.getElementById('minEvidence').value);
             const topK = parseInt(document.getElementById('topK').value);
+            const sortBy = document.getElementById('sortBy').value;
 
             const searchBtn = document.getElementById('searchBtn');
             searchBtn.disabled = true;
@@ -511,7 +733,8 @@
                     min_evidence_count: minEvidence,
                     include_evidence_details: true,
                     top_k: topK,
-                    generate_answer: generateAnswer
+                    generate_answer: generateAnswer,
+                    sort_by: sortBy
                 };
                 
                 // Add question if provided
@@ -579,6 +802,8 @@
             }
             html += `<span style="background: #764ba2; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Modalities: ${data.modality_filter.join(', ')}</span>`;
             html += `<span style="background: #999; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Operator: ${data.modality_operator}</span>`;
+            const sortByLabel = data.sort_by === 'relevance' ? 'Relevance' : 'Evidence Strength';
+            html += `<span style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; margin: 0 4px;">Sort: ${sortByLabel}</span>`;
             html += '</div>';
             
             // Show extracted keywords if available (LLM mode)
@@ -634,12 +859,18 @@
                 
                 if (rel.evidence_details && rel.evidence_details.length > 0) {
                     html += '<div class="evidence-details">';
-                    html += '<strong>Evidence Sources:</strong>';
-                    rel.evidence_details.slice(0, 3).forEach(ev => {
-                        html += '<div class="evidence-item">';
+                    html += '<strong>Evidence Sources:</strong> <span style="font-size: 0.85rem; color: #666; font-weight: normal;">(ordered by relevance)</span>';
+                    rel.evidence_details.slice(0, 3).forEach((ev, idx) => {
+                        const hasContent = ev.content && ev.content.trim().length > 0;
+                        const clickable = hasContent ? 'evidence-item-clickable' : '';
+                        const dataAttr = hasContent ? `data-content="${escapeHtml(ev.content)}" data-chunk-id="${ev.chunk_id}" data-modality="${ev.modality}" data-file="${ev.file_path || 'N/A'}"` : '';
+                        html += `<div class="evidence-item ${clickable}" ${dataAttr} onclick="${hasContent ? 'showChunkContent(this)' : ''}">`;
+                        html += `<span style="display: inline-flex; align-items: center; gap: 6px;">`;
                         html += `<strong>${ev.modality}</strong>`;
+                        html += '</span>';
                         if (ev.file_path) html += ` from ${ev.file_path}`;
                         if (ev.chunk_id) html += ` <span style="color: #999;">(${ev.chunk_id.substring(0, 12)}...)</span>`;
+                        if (hasContent) html += ' <span style="color: #667eea; font-size: 0.85rem;">👁️ View</span>';
                         html += '</div>';
                     });
                     if (rel.evidence_details.length > 3) {
@@ -666,6 +897,35 @@
                 console.error('Failed to load stats:', error);
             }
         }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showChunkContent(element) {
+            const content = element.getAttribute('data-content');
+            const chunkId = element.getAttribute('data-chunk-id');
+            const modality = element.getAttribute('data-modality');
+            const file = element.getAttribute('data-file');
+            
+            const modal = document.getElementById('chunkModal');
+            document.getElementById('modalChunkId').textContent = chunkId;
+            document.getElementById('modalModality').textContent = modality;
+            document.getElementById('modalFile').textContent = file;
+            document.getElementById('modalContent').textContent = content;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('chunkModal').style.display = 'none';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
 
         function displayStats(stats) {
             const statsContainer = document.getElementById('statsContainer');
@@ -700,11 +960,11 @@
             const queryInput = document.getElementById('query');
             
             if (mode === 'llm') {
-                queryHint.textContent = 'Natural Language: Ask a question (e.g., "What does the dog do?")';
-                queryInput.placeholder = 'e.g., What is the relationship between the dog and duck?';
+                queryHint.textContent = 'Natural Language: Ask a question in plain English';
+                queryInput.placeholder = 'e.g., What datasets were used in this research?';
             } else {
-                queryHint.textContent = 'Keywords: Space-separated terms to match (e.g., "dog chase")';
-                queryInput.placeholder = 'e.g., dog, chase, duck';
+                queryHint.textContent = 'Keywords: Space-separated terms to match';
+                queryInput.placeholder = 'e.g., datasets, methods, results';
             }
         });
         
@@ -714,5 +974,32 @@
             questionSection.style.display = e.target.checked ? 'block' : 'none';
         });
     </script>
+
+    <!-- Chunk Content Modal -->
+    <div id="chunkModal" class="modal" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2>📄 Chunk Content</h2>
+                <div class="modal-meta">
+                    <div class="modal-meta-item">
+                        <strong>Chunk ID:</strong>
+                        <span id="modalChunkId"></span>
+                    </div>
+                    <div class="modal-meta-item">
+                        <strong>Modality:</strong>
+                        <span id="modalModality"></span>
+                    </div>
+                    <div class="modal-meta-item">
+                        <strong>Source File:</strong>
+                        <span id="modalFile"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <pre id="modalContent"></pre>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

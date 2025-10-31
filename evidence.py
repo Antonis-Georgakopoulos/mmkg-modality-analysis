@@ -211,6 +211,25 @@ async def infer_modality_from_chunk(lightrag: Any, chunk_id: str) -> str:
         return "text"
 
 
+async def batch_infer_modalities(lightrag: Any, chunk_ids: List[str]) -> Dict[str, str]:
+    """Batch infer modalities for multiple chunks concurrently."""
+    async def _infer(cid: str) -> tuple[str, str]:
+        modality = await infer_modality_from_chunk(lightrag, cid)
+        return (cid, modality)
+    
+    # Process in batches of 50 to avoid overwhelming the system
+    batch_size = 50
+    results = {}
+    
+    for i in range(0, len(chunk_ids), batch_size):
+        batch = chunk_ids[i:i + batch_size]
+        batch_results = await asyncio.gather(*[_infer(cid) for cid in batch])
+        for cid, modality in batch_results:
+            results[cid] = modality
+    
+    return results
+
+
 # ============================================================================
 # MAIN EVIDENCE TRACKING FUNCTION
 # ============================================================================
@@ -223,10 +242,11 @@ async def track_evidence_for_document(
     """
     Track and store evidence for all relationships in a document.
     
-    This is the CORE function that:
-    1. Reads relationships from the vector DB
-    2. Records evidence for each triple
-    3. Enriches graph edges with evidence attributes
+    OPTIMIZED VERSION with:
+    - Batch modality lookups
+    - Batch evidence recording
+    - Batch graph/VDB updates
+    - Progress logging for large documents
     
     Args:
         lightrag: LightRAG instance
@@ -294,20 +314,25 @@ async def track_evidence_for_document(
                 logger.error(f"Failed to read relationships after {max_retries} attempts: {e}")
                 items = []
     
-    # Create evidence tracker
-    tracker = await EvidenceTracker.create_for_lightrag(lightrag)
-    processed = 0
-    
-    # Diagnostic logging
     logger.info(f"[EVIDENCE] Doc {doc_id}: {len(chunk_ids)} chunks, {len(items)} relation items")
     if not items:
         logger.warning(f"[EVIDENCE] No relation items found for doc {doc_id}!")
         return 0
-    if chunk_ids:
-        logger.debug(f"[EVIDENCE] Sample chunk IDs: {list(chunk_ids)[:3]}...")
     
-    # Process each relationship
-    for item in items:
+    # OPTIMIZATION 1: Batch load all modalities upfront
+    logger.info(f"[EVIDENCE] Batch loading modalities for {len(chunk_ids)} chunks...")
+    modality_cache = await batch_infer_modalities(lightrag, list(chunk_ids))
+    logger.info(f"[EVIDENCE] Modalities loaded: {dict(list({m: list(modality_cache.values()).count(m) for m in set(modality_cache.values())}.items())[:5])}")
+    
+    # Create evidence tracker
+    tracker = await EvidenceTracker.create_for_lightrag(lightrag)
+    
+    # OPTIMIZATION 2: Collect all operations for batch processing
+    evidence_records = []  # [(src_id, tgt_id, chunk_id, file_path, modality, keywords)]
+    processed = 0
+    
+    # First pass: collect all evidence records
+    for idx, item in enumerate(items):
         try:
             src_id = item.get("src_id")
             tgt_id = item.get("tgt_id")
@@ -329,70 +354,113 @@ async def track_evidence_for_document(
                 if chunk_id not in chunk_ids:
                     continue
                 
-                # Infer modality and get metadata
-                modality = await infer_modality_from_chunk(lightrag, chunk_id)
+                modality = modality_cache.get(chunk_id, "text")
                 file_path = item.get("file_path")
+                keywords = item.get("keywords")
                 
-                # Record evidence
-                await tracker.record(
-                    src_id=src_id,
-                    tgt_id=tgt_id,
-                    chunk_id=chunk_id,
-                    file_path=file_path,
-                    modality=modality,
-                    doc_id=doc_id,
-                    relation_keywords=item.get("keywords"),
-                )
-                
+                evidence_records.append((
+                    src_id, tgt_id, chunk_id, file_path, modality, keywords, item
+                ))
                 processed += 1
-                
-                # Log first few successful recordings
-                if processed <= 5:
-                    logger.info(f"[EVIDENCE] ✓ Recorded: {src_id[:20]}...→{tgt_id[:20]}... (modality={modality})")
-                
-                # Get aggregated evidence and update storages
-                agg = await tracker.get(
-                    src_id=src_id,
-                    tgt_id=tgt_id,
-                    relation_keywords=item.get("keywords"),
-                )
-                
-                fact = _fact_key(src_id, tgt_id, item.get("keywords"))
-                summary = build_evidence_summary(agg or {})
-                
-                # Update relationships vector DB
-                relation_id = item.get("__id__") or item.get("_id")
-                if relation_id:
-                    await lightrag.relationships_vdb.upsert({
-                        relation_id: {
-                            "src_id": src_id,
-                            "tgt_id": tgt_id,
-                            "keywords": item.get("keywords"),
-                            "content": item.get("content", ""),
-                            "source_id": chunk_id,
-                            "file_path": file_path,
-                            "fact_key": fact,
-                            "evidence_summary": summary,
-                        }
-                    })
-                
-                # Update graph edge with evidence attributes
-                edge = await lightrag.chunk_entity_relation_graph.get_edge(src_id, tgt_id)
-                if edge:
-                    new_edge = dict(edge)
-                    new_edge["fact_key"] = fact
-                    new_edge["evidence_total_count"] = int(summary.get("total_count", 0))
-                    new_edge["evidence_doc_count"] = int(summary.get("doc_count", 0))
-                    new_edge["modality"] = summary.get("modality", "")
-                    new_edge["evidence_summary_json"] = json.dumps(summary, ensure_ascii=False)
-                    
-                    await lightrag.chunk_entity_relation_graph.upsert_edge(
-                        src_id, tgt_id, new_edge
-                    )
         
         except Exception as e:
-            logger.debug(f"Failed to process relationship: {e}")
+            logger.debug(f"Failed to collect evidence record: {e}")
             continue
+    
+    if processed == 0:
+        logger.warning(f"[EVIDENCE] ✗ No relationships to process for doc {doc_id}")
+        return 0
+    
+    logger.info(f"[EVIDENCE] Recording evidence for {processed} relationships (batched)...")
+    
+    # OPTIMIZATION 3: Batch record all evidence
+    record_tasks = []
+    for src_id, tgt_id, chunk_id, file_path, modality, keywords, _ in evidence_records:
+        record_tasks.append(
+            tracker.record(
+                src_id=src_id,
+                tgt_id=tgt_id,
+                chunk_id=chunk_id,
+                file_path=file_path,
+                modality=modality,
+                doc_id=doc_id,
+                relation_keywords=keywords,
+            )
+        )
+    
+    # Execute in batches to avoid overwhelming the system
+    batch_size = 100
+    for i in range(0, len(record_tasks), batch_size):
+        batch = record_tasks[i:i + batch_size]
+        await asyncio.gather(*batch)
+        if len(record_tasks) > 200:  # Only log for large docs
+            logger.info(f"[EVIDENCE] Progress: {min(i + batch_size, len(record_tasks))}/{len(record_tasks)} records saved")
+    
+    logger.info(f"[EVIDENCE] Building summaries and updating graph...")
+    
+    # OPTIMIZATION 4: Batch fetch aggregated evidence and prepare updates
+    unique_triples = {}
+    for src_id, tgt_id, chunk_id, file_path, modality, keywords, item in evidence_records:
+        triple_key = (src_id, tgt_id, keywords)
+        if triple_key not in unique_triples:
+            unique_triples[triple_key] = (src_id, tgt_id, keywords, item, chunk_id, file_path)
+    
+    # Fetch all aggregated evidence concurrently
+    agg_tasks = [
+        tracker.get(src_id, tgt_id, keywords)
+        for src_id, tgt_id, keywords, _, _, _ in unique_triples.values()
+    ]
+    aggregated_results = await asyncio.gather(*agg_tasks)
+    
+    # Build summaries
+    summaries = {}
+    for (src_id, tgt_id, keywords, _, _, _), agg in zip(unique_triples.values(), aggregated_results):
+        fact = _fact_key(src_id, tgt_id, keywords)
+        summary = build_evidence_summary(agg or {})
+        summaries[(src_id, tgt_id, keywords)] = (fact, summary)
+    
+    # OPTIMIZATION 5: Batch update relationships VDB
+    rel_updates = {}
+    for src_id, tgt_id, keywords, item, chunk_id, file_path in unique_triples.values():
+        fact, summary = summaries.get((src_id, tgt_id, keywords), ("", {}))
+        relation_id = item.get("__id__") or item.get("_id")
+        if relation_id:
+            rel_updates[relation_id] = {
+                "src_id": src_id,
+                "tgt_id": tgt_id,
+                "keywords": keywords,
+                "content": item.get("content", ""),
+                "source_id": chunk_id,
+                "file_path": file_path,
+                "fact_key": fact,
+                "evidence_summary": summary,
+            }
+    
+    if rel_updates:
+        await lightrag.relationships_vdb.upsert(rel_updates)
+    
+    # OPTIMIZATION 6: Batch update graph edges
+    edge_fetch_tasks = [
+        lightrag.chunk_entity_relation_graph.get_edge(src_id, tgt_id)
+        for src_id, tgt_id, keywords, _, _, _ in unique_triples.values()
+    ]
+    edges = await asyncio.gather(*edge_fetch_tasks)
+    
+    edge_updates = []
+    for (src_id, tgt_id, keywords, _, _, _), edge in zip(unique_triples.values(), edges):
+        if edge:
+            fact, summary = summaries.get((src_id, tgt_id, keywords), ("", {}))
+            new_edge = dict(edge)
+            new_edge["fact_key"] = fact
+            new_edge["evidence_total_count"] = int(summary.get("total_count", 0))
+            new_edge["evidence_doc_count"] = int(summary.get("doc_count", 0))
+            new_edge["modality"] = summary.get("modality", "")
+            new_edge["evidence_summary_json"] = json.dumps(summary, ensure_ascii=False)
+            edge_updates.append((src_id, tgt_id, new_edge))
+    
+    # Update edges in batches
+    for src_id, tgt_id, new_edge in edge_updates:
+        await lightrag.chunk_entity_relation_graph.upsert_edge(src_id, tgt_id, new_edge)
     
     # Persist changes
     try:
@@ -401,11 +469,7 @@ async def track_evidence_for_document(
     except Exception as e:
         logger.warning(f"Failed to persist changes: {e}")
     
-    if processed > 0:
-        logger.info(f"[EVIDENCE] ✓ Successfully tracked evidence for {processed} relationships in document {doc_id}")
-    else:
-        logger.warning(f"[EVIDENCE] ✗ No relationships processed for doc {doc_id} (checked {len(items)} items, {len(chunk_ids)} chunks)")
-    
+    logger.info(f"[EVIDENCE] ✓ Successfully tracked evidence for {processed} relationships in document {doc_id}")
     return processed
 
 
