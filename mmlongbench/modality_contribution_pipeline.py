@@ -17,6 +17,7 @@ import sys
 import json
 import asyncio
 import argparse
+import gc
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Set
@@ -34,10 +35,11 @@ from lightrag.operate import kg_query
 from lightrag.prompt import PROMPTS
 from dataclasses import asdict
 
-from ollama import chat
-from ollama import ChatResponse
+import httpx  # For raw Ollama API calls with logprobs support
 
 from dotenv import load_dotenv
+
+
 load_dotenv(dotenv_path=".env", override=False)
 
 
@@ -45,9 +47,20 @@ load_dotenv(dotenv_path=".env", override=False)
 MODELS_TO_EVALUATE = [
     "gpt-4o-mini",
     "gemma3",
-    "qwen3",
-    "deepseek-r1"
 ]
+
+
+# # Models to evaluate
+# MODELS_TO_EVALUATE = [
+#     "gpt-4o-mini",
+#     "gemma3:27b",
+#     "qwen3:30b",
+#     "mistral:7b",
+#     "deepseek-r1:14b",
+#     "mixtral:8x7b",
+#     "llama3.2:3b"
+# ]
+
 
 # Map evidence_sources to modality types
 MODALITY_MAPPING = {
@@ -67,6 +80,10 @@ def load_samples(samples_path: str) -> Dict[str, List[Dict]]:
     doc_questions = defaultdict(list)
     
     for sample in all_samples:
+        # Normalize doc_id by removing newlines and extra whitespace
+        doc_id = sample.get('doc_id', '').replace('\n', '').replace('\r', '').strip()
+        sample['doc_id'] = doc_id
+        
         # Parse evidence_sources
         evidence_sources = eval(sample.get('evidence_sources', '[]'))
         
@@ -87,7 +104,7 @@ def load_samples(samples_path: str) -> Dict[str, List[Dict]]:
         sample['evidence_sources_list'] = evidence_sources
         sample['gold_modality_types'] = list(set(modality_types))  # unique types
         sample['gold_modality_names'] = evidence_sources
-        doc_questions[sample['doc_id']].append(sample)
+        doc_questions[doc_id].append(sample)
     
     total_questions = sum(len(q) for q in doc_questions.values())
     not_answerable_count = sum(1 for samples in doc_questions.values() for s in samples if s.get('answer') == 'Not answerable')
@@ -113,70 +130,95 @@ async def call_model(model_name: str, question: str, system_prompt: str, api_key
     """
     try:
         if model_name.startswith("gpt-"):
-            # OpenAI model - openai_complete_if_cache is async, await it directly
-            result = await openai_complete_if_cache(
-                model_name,
-                question,
-                system_prompt=system_prompt,
-                history_messages=[],
-                api_key=api_key,
-                base_url=base_url,
-                logprobs=True,
-                top_logprobs=1  # Minimum value to get logprobs (valid range: 1-20)
-            )
-            # Handle both tuple (response, logprobs) and string returns
-            if isinstance(result, tuple):
-                response, logprobs = result
-                return (response if isinstance(response, str) else str(response)), logprobs
-            else:
-                # Streaming or other case - no logprobs
-                return (result if isinstance(result, str) else str(result)), None
-        else:
-            # Ollama model
-            response: ChatResponse = await asyncio.to_thread(
-                chat,
+            # OpenAI model - use OpenAI SDK directly to ensure logprobs work
+            from openai import AsyncOpenAI
+            
+            client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+            
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": question})
+            
+            response = await client.chat.completions.create(
                 model=model_name,
-                messages=[
-                    {
-                        'role': 'system',
-                        'content': system_prompt,
-                    },
-                    {
-                        'role': 'user',
-                        'content': question,
-                    },
-                ],
-                logprobs=True
+                messages=messages,
+                logprobs=True,
+                top_logprobs=1
             )
             
-            # Extract logprobs from Ollama response
-            # NOTE: logprobs are on response object, NOT response.message
+            await client.close()
+            
+            # Extract content and logprobs
+            content = response.choices[0].message.content
+            lp = response.choices[0].logprobs
+            
             logprobs_data = None
+            if lp and hasattr(lp, "content") and lp.content:
+                logprobs_data = [
+                    {
+                        "token": item.token,
+                        "logprob": item.logprob,
+                        "bytes": getattr(item, "bytes", None),
+                        "top_logprobs": [
+                            {
+                                "token": tlp.token,
+                                "logprob": tlp.logprob,
+                                "bytes": getattr(tlp, "bytes", None)
+                            }
+                            for tlp in (item.top_logprobs or [])
+                        ] if hasattr(item, "top_logprobs") else []
+                    }
+                    for item in lp.content
+                ]
+                logger.info(f"  📊 Extracted {len(logprobs_data)} logprobs tokens for {model_name}")
             
-            if hasattr(response, 'logprobs') and response.logprobs:
-                # Convert logprobs to serializable format
-                try:
-                    logprobs_data = [
-                        {
-                            'token': lp.get('token', ''),
-                            'logprob': lp.get('logprob', 0.0),
-                            'bytes': lp.get('bytes', []),
-                            'top_logprobs': [
-                                {
-                                    'token': tlp.get('token', ''),
-                                    'logprob': tlp.get('logprob', 0.0),
-                                    'bytes': tlp.get('bytes', [])
-                                }
-                                for tlp in lp.get('top_logprobs', [])
-                            ] if 'top_logprobs' in lp else []
-                        }
-                        for lp in response.logprobs
-                    ]
-                except Exception as e:
-                    logger.error(f"Error converting logprobs: {e}")
-                    logprobs_data = None
+            return content, logprobs_data
+        else:
+            # Ollama model - use raw HTTP API (Python client doesn't support logprobs)
+            ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
             
-            return response.message.content, logprobs_data
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                resp = await client.post(
+                    f"{ollama_url}/api/generate",
+                    json={
+                        "model": model_name,
+                        "prompt": question,
+                        "system": system_prompt,
+                        "stream": False,
+                        "options": {"num_predict": 2048},
+                        "logprobs": True,
+                        "top_logprobs": 1
+                    }
+                )
+                resp.raise_for_status()
+                result = resp.json()
+            
+            # Extract logprobs from response
+            logprobs_raw = result.get('logprobs')
+            
+            logprobs_data = None
+            if logprobs_raw is not None:  # Distinguish None from empty list
+                logprobs_data = [
+                    {
+                        'token': lp.get('token', ''),
+                        'logprob': lp.get('logprob', 0.0),
+                        'bytes': lp.get('bytes', []),
+                        'top_logprobs': [
+                            {
+                                'token': tlp.get('token', ''),
+                                'logprob': tlp.get('logprob', 0.0),
+                                'bytes': tlp.get('bytes', []),
+                            }
+                            for tlp in (lp.get('top_logprobs') or [])
+                        ],
+                    }
+                    for lp in logprobs_raw
+                ]
+                logger.debug(f"Extracted {len(logprobs_data)} logprobs tokens")
+            
+            response_text = result.get('response', '')
+            return response_text, logprobs_data
     except Exception as e:
         logger.error(f"Error calling model {model_name}: {e}")
         return f"ERROR calling {model_name}: {str(e)}", None
@@ -184,51 +226,126 @@ async def call_model(model_name: str, question: str, system_prompt: str, api_key
 
 def generate_modality_subsets(gold_modalities: List[str]) -> List[tuple]:
     """
-    Generate all non-empty subsets of gold modalities.
+    Generate ALL subsets of gold modalities (including empty set).
     Returns list of tuples: (subset_size, frozenset_of_modalities, experiment_type)
     
     Example: ['image', 'table'] -> [
+        (0, {}, 'normal'),           # empty set
         (1, {'image'}, 'normal'),
         (1, {'table'}, 'normal'),
         (2, {'image', 'table'}, 'normal')
+    ]
+    
+    Example: ['text', 'image', 'table'] -> [
+        (0, {}, 'normal'),
+        (1, {'text'}, 'normal'),
+        (1, {'image'}, 'normal'),
+        (1, {'table'}, 'normal'),
+        (2, {'text', 'image'}, 'normal'),
+        (2, {'text', 'table'}, 'normal'),
+        (2, {'image', 'table'}, 'normal'),
+        (3, {'text', 'image', 'table'}, 'normal')
     ]
     """
     unique_modalities = set(gold_modalities)
     subsets = []
     
-    for size in range(1, len(unique_modalities) + 1):
+    # Start from 0 (empty set) to include all subsets
+    for size in range(0, len(unique_modalities) + 1):
         for subset in combinations(unique_modalities, size):
             subsets.append((size, frozenset(subset), 'normal'))
     
     return sorted(subsets, key=lambda x: x[0])  # Sort by size
 
 
-def generate_noise_experiments(gold_modalities: List[str]) -> List[tuple]:
+# NOTE: generate_noise_experiments() has been removed.
+# We no longer test supersets (adding extra modalities beyond gold).
+# Only subsets of gold modalities are tested.
+
+
+def check_question_answered(question_id: str, model_name: str, subset_modalities: tuple, results_by_model: Dict[str, List]) -> bool:
     """
-    Generate noise experiments by adding ONE extra modality at a time.
-    Returns list of tuples: (subset_size, frozenset_of_modalities, experiment_type)
+    Check if a specific question with specific modality subset has been answered for a given model.
     
-    Example: ['text'] -> [
-        (2, {'text', 'image'}, 'noise'),
-        (2, {'text', 'table'}, 'noise')
-    ]
+    Args:
+        question_id: Question identifier (e.g., "doc123_1")
+        model_name: Model name (e.g., "gpt-4o-mini")
+        subset_modalities: Tuple of modalities (e.g., ('image', 'table'))
+        results_by_model: Dictionary of results grouped by model
     
-    Example: ['text', 'image'] -> [
-        (3, {'text', 'image', 'table'}, 'noise')
-    ]
+    Returns:
+        True if question is already answered, False otherwise
     """
-    ALL_MODALITIES = ['text', 'image', 'table']
-    gold_set = set(gold_modalities)
-    noise_modalities = [m for m in ALL_MODALITIES if m not in gold_set]
+    if model_name not in results_by_model:
+        return False
     
-    noise_experiments = []
+    # Normalize subset_modalities to tuple for comparison
+    subset_modalities_normalized = tuple(sorted(subset_modalities))
     
-    # Add +1 modality at a time
-    for noise_mod in noise_modalities:
-        combined = gold_set | {noise_mod}
-        noise_experiments.append((len(combined), frozenset(combined), 'noise'))
+    for result in results_by_model[model_name]:
+        # Get existing subset_modalities (could be list or tuple from JSON)
+        existing_subset = result.get('subset_modalities')
+        if existing_subset is None:
+            continue
+        
+        # Normalize existing subset to tuple for comparison (handle both list and tuple)
+        existing_subset_normalized = tuple(sorted(existing_subset))
+        
+        if (result.get('question_id') == question_id and 
+            existing_subset_normalized == subset_modalities_normalized and
+            result.get('model') == model_name):
+            return True
     
-    return noise_experiments
+    return False
+
+
+def check_all_questions_answered_for_document(
+    doc_id: str, 
+    questions: List[Dict], 
+    results_by_model: Dict[str, List]
+) -> bool:
+    """
+    Check if all question IDs for a document exist in the results for at least one model.
+    This is a simpler check that just verifies if the questions have been processed,
+    without checking specific modality combinations.
+    
+    Args:
+        doc_id: Document identifier
+        questions: List of questions for this document
+        results_by_model: Dictionary of results grouped by model
+    
+    Returns:
+        True if all question IDs exist in results for any model, False otherwise
+    """
+    # Create set of all question IDs for this document
+    question_ids = {f"{doc_id}_{i}" for i in range(1, len(questions) + 1)}
+    
+    logger.info(f"🔍 Checking skip for doc: {doc_id[:60]}...")
+    logger.info(f"   Expected {len(question_ids)} question IDs: {sorted(list(question_ids))[:2]}...")
+    
+    # Check if all question IDs exist in ANY of the model results
+    for model_name in MODELS_TO_EVALUATE:
+        if model_name not in results_by_model:
+            continue
+        
+        # Get all question IDs present in this model's results for THIS document
+        existing_question_ids = {
+            result.get('question_id') 
+            for result in results_by_model[model_name]
+            if result.get('doc_id') == doc_id
+        }
+        
+        logger.info(f"   Model {model_name}: found {len(existing_question_ids)} existing IDs")
+        if existing_question_ids and len(existing_question_ids) < 3:
+            logger.info(f"      Existing IDs: {sorted(list(existing_question_ids))}")
+        
+        # If all question IDs exist for this model, we can skip the document
+        if question_ids.issubset(existing_question_ids):
+            logger.info(f"   ✅ All {len(question_ids)} questions found for {model_name} - SKIPPING!")
+            return True
+    
+    logger.info("   ⚠️  Document needs processing - not all questions found")
+    return False
 
 
 async def answer_with_modality_subset(
@@ -320,6 +437,7 @@ async def answer_with_modality_subset(
         
         if not filtered_relationships:
             raw_response = f"No information found in modalities {modality_subset} for this question."
+            logprobs = None
         else:
             # Step 3: Build context and generate answer
             entity_ids_filtered = set()
@@ -423,6 +541,11 @@ async def answer_with_modality_subset(
                 context_data=kg_context,
             )
             
+            # DEBUG: Log context details
+            logger.info(f"  🔍 Context: {len(kg_entities)} entities, {len(filtered_relationships)} relations, {len(kg_chunks)} chunks")
+            if kg_chunks:
+                logger.info(f"  📄 First chunk preview: {kg_chunks[0].get('content', '')[:150]}...")
+            
             # Store retrieval metadata
             retrieval_metadata = {
                 "chunk_ids": retrieved_chunk_ids,
@@ -447,8 +570,10 @@ async def answer_with_modality_subset(
             question,
             raw_response,
             extraction_prompt,
-            model_name="gpt-4o"
+            model_name="gpt-4o",
+            api_key=api_key
         )
+        logger.info(f"  📝 Extracted result: {extracted_result[:100] if extracted_result else 'None'}...")
         
         # Parse extracted answer
         try:
@@ -475,10 +600,47 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         args: Command line arguments
         results_by_model: Dictionary of existing results grouped by model (for checkpointing)
     """
-    doc_path = os.path.join(args.documents, doc_id)
-    if not os.path.exists(doc_path):
-        logger.error(f"Document not found: {doc_path}")
+    # Check if ALL questions are already answered before processing document
+    if check_all_questions_answered_for_document(doc_id, questions, results_by_model):
+        logger.info(f"✅ ALL questions for {doc_id} are already answered. Skipping document processing entirely!")
         return []
+    
+    # Setup directories with new structure: processed_documents/{doc_name}/[output,rag_storage]
+    doc_name = doc_id.replace('.pdf', '')
+    doc_base_dir = os.path.join(args.processed_docs_dir, doc_name)
+    working_dir = os.path.join(doc_base_dir, 'rag_storage')
+    output_dir = os.path.join(doc_base_dir, 'output')
+    
+    # Check if document has already been processed (MinerU output exists)
+    already_processed = False
+    if os.path.exists(working_dir) and os.path.exists(output_dir):
+        # Check if rag_storage has content (key indicator files)
+        rag_storage_files = os.listdir(working_dir) if os.path.exists(working_dir) else []
+        
+        # Check for MinerU content_list.json output file
+        content_list_exists = False
+        for root, dirs, files in os.walk(output_dir):
+            for f in files:
+                if f.endswith('_content_list.json'):
+                    content_list_exists = True
+                    break
+            if content_list_exists:
+                break
+        
+        # If rag_storage has files AND content_list.json exists, skip MinerU
+        if len(rag_storage_files) > 0 and content_list_exists:
+            already_processed = True
+            logger.info(f"📂 Document already processed! Using existing data from {doc_base_dir}")
+    
+    # Only check for PDF if document is NOT already processed
+    doc_path = os.path.join(args.documents, doc_id)
+    if not already_processed and not os.path.exists(doc_path):
+        logger.error(f"Document not found and no processed data exists: {doc_path}")
+        return []
+    
+    if not already_processed:
+        os.makedirs(working_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
     
     # Load extraction prompt
     extraction_prompt_path = os.path.join(
@@ -493,28 +655,6 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
     logger.info(f"Processing: {doc_id}")
     logger.info(f"Questions: {len(questions)}")
     logger.info(f"{'='*80}")
-    
-    # Setup directories with new structure: processed_documents/{doc_name}/[output,rag_storage]
-    doc_name = doc_id.replace('.pdf', '')
-    doc_base_dir = os.path.join(args.processed_docs_dir, doc_name)
-    working_dir = os.path.join(doc_base_dir, 'rag_storage')
-    output_dir = os.path.join(doc_base_dir, 'output')
-    
-    # Check if document has already been processed
-    already_processed = False
-    if os.path.exists(working_dir) and os.path.exists(output_dir):
-        # Check if rag_storage has content (key indicator files)
-        rag_storage_files = os.listdir(working_dir) if os.path.exists(working_dir) else []
-        output_files = os.listdir(output_dir) if os.path.exists(output_dir) else []
-        
-        # If both directories have files, assume already processed
-        if len(rag_storage_files) > 0 and len(output_files) > 0:
-            already_processed = True
-            logger.info(f"📂 Document already processed! Using existing data from {doc_base_dir}")
-    
-    if not already_processed:
-        os.makedirs(working_dir, exist_ok=True)
-        os.makedirs(output_dir, exist_ok=True)
     
     try:
         # Create RAG configuration
@@ -598,32 +738,74 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
             ),
         )
         
-        # Initialize RAGAnything
+        # Initialize RAGAnything with speedup settings
         logger.info("Initializing RAGAnything...")
         rag = RAGAnything(
             config=config,
             llm_model_func=llm_model_func,
             vision_model_func=vision_model_func,
             embedding_func=embedding_func,
+            lightrag_kwargs={
+                "llm_model_max_async": args.max_async,
+                "embedding_func_max_async": args.embedding_max_async,
+                "embedding_batch_num": args.embedding_batch_num,
+            }
         )
         
-        # Always call process_document_complete to initialize lightrag
-        # It will load existing data if already processed
+        # Only run MinerU parsing if document hasn't been processed yet
         if not already_processed:
-            logger.info("Processing document with RAGAnything...")
+            logger.info("Processing document with RAGAnything (running MinerU)...")
+            
+            # Retry logic for memory errors during document processing
+            max_retries = 3
+            retry_count = 0
+            processing_successful = False
+            
+            while retry_count < max_retries and not processing_successful:
+                try:
+                    await rag.process_document_complete(
+                        file_path=doc_path,
+                        output_dir=output_dir,
+                        parse_method="auto",
+                        device=args.device,
+                    )
+                    processing_successful = True
+                    logger.info("Document processing complete!")
+                    
+                except MemoryError as e:
+                    retry_count += 1
+                    logger.error(f"MemoryError during document processing (attempt {retry_count}/{max_retries}): {e}")
+                    
+                    if retry_count < max_retries:
+                        logger.info("Cleaning up and retrying in 5 seconds...")
+                        # Clean up memory
+                        gc.collect()
+                        await asyncio.sleep(5)
+                    else:
+                        logger.error(f"Failed to process document after {max_retries} attempts due to memory errors")
+                        raise
+                        
+                except Exception as e:
+                    # For non-memory errors, check if it might be memory-related
+                    error_str = str(e).lower()
+                    if 'memory' in error_str or 'out of memory' in error_str or 'oom' in error_str:
+                        retry_count += 1
+                        logger.error(f"Possible memory error during document processing (attempt {retry_count}/{max_retries}): {e}")
+                        
+                        if retry_count < max_retries:
+                            logger.info("Cleaning up and retrying in 5 seconds...")
+                            gc.collect()
+                            await asyncio.sleep(5)
+                        else:
+                            logger.error(f"Failed to process document after {max_retries} attempts")
+                            raise
+                    else:
+                        # Non-memory related error, re-raise immediately
+                        raise
         else:
-            logger.info("Loading existing processed data...")
-        
-        await rag.process_document_complete(
-            file_path=doc_path,
-            output_dir=output_dir,
-            parse_method="auto"
-        )
-        
-        if not already_processed:
-            logger.info("Document processing complete!")
-        else:
-            logger.info("Existing data loaded!")
+            # Document already processed, just initialize LightRAG to load existing data
+            logger.info("📂 Skipping MinerU parsing - loading existing processed data...")
+            await rag._ensure_lightrag_initialized()
         
         # RQ3: Test all modality subsets for each question
         results = []
@@ -637,14 +819,8 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
             logger.info(f"\n[{i}/{len(questions)}] Question: {question[:80]}...")
             logger.info(f"  Gold modalities: {gold_modalities}")
             
-            # Generate normal (subset) experiments
-            modality_subsets = generate_modality_subsets(gold_modalities)
-            
-            # Generate noise experiments (add extra modalities)
-            noise_experiments = generate_noise_experiments(gold_modalities)
-            
-            # Combine both types of experiments
-            all_experiments = modality_subsets + noise_experiments
+            # Generate ALL subset experiments (including empty set)
+            all_experiments = generate_modality_subsets(gold_modalities)
             
             # For questions with no gold modalities (e.g., "Not answerable"), 
             # test with all available modalities as a single subset
@@ -652,7 +828,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                 logger.info("  No gold modalities - testing with all available modalities")
                 all_experiments = [(3, frozenset(['text', 'image', 'table']), 'normal')]
             else:
-                logger.info(f"  Testing {len(modality_subsets)} normal experiments + {len(noise_experiments)} noise experiments")
+                logger.info(f"  Testing {len(all_experiments)} subset experiments (including empty set)")
             
             # Test each experiment with each model
             for subset_size, modality_subset, experiment_type in all_experiments:
@@ -661,6 +837,15 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                 
                 # Test with each model
                 for model_name in MODELS_TO_EVALUATE:
+                    # Generate unique question ID
+                    question_id = f"{doc_id}_{i}"
+                    subset_tuple = tuple(sorted(subset_list))
+                    
+                    # Check if this question with this modality subset has already been answered
+                    if check_question_answered(question_id, model_name, subset_tuple, results_by_model):
+                        logger.info(f"      Model: {model_name} - SKIPPED (already answered)")
+                        continue
+                    
                     logger.info(f"      Model: {model_name}")
                     
                     raw_response, extracted_result, prediction, logprobs, retrieval_metadata = await answer_with_modality_subset(
@@ -677,7 +862,6 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     score = eval_score(ground_truth, prediction, answer_format)
                     
                     # Store result with detailed metadata for analysis
-                    question_id = f"{doc_id}_{i}"  # Unique identifier per question
                     result = {
                         # Identifiers
                         'question_id': question_id,
@@ -692,7 +876,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         
                         # Modality configuration
                         'gold_modalities': tuple(sorted(gold_modalities)),  # e.g. ('image', 'table')
-                        'subset_modalities': tuple(sorted(subset_list)),     # e.g. ('image',)
+                        'subset_modalities': subset_tuple,                   # e.g. ('image',)
                         'subset_size': subset_size,                          # 1, 2, 3...
                         'experiment_type': experiment_type,                  # 'normal' or 'noise'
                         
@@ -711,13 +895,19 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         'evidence_pages': question_data.get('evidence_pages', '[]'),
                     }
                     
-                    # Store logprobs separately
+                    # Store logprobs separately with question_id + subset as composite key
+                    logger.debug(f"  📊 Logprobs received: {logprobs is not None}, type: {type(logprobs)}")
                     if logprobs:
+                        # Create composite key: question_id + sorted subset modalities
+                        subset_key = f"{question_id}_{'_'.join(sorted(subset_tuple)) if subset_tuple else 'empty'}"
                         logprobs_entry = {
+                            'question_id': question_id,
+                            'subset_modalities': list(subset_tuple),
                             'model': model_name,
                             'logprobs': logprobs
                         }
-                        results_logprobs[model_name][question_id] = logprobs_entry
+                        results_logprobs[model_name][subset_key] = logprobs_entry
+                        logger.info(f"  📊 Saved logprobs for {model_name}: {len(logprobs)} tokens")
                     
                     results.append(result)
                     
@@ -765,31 +955,51 @@ async def main_async(args):
     results_dir = args.results_dir
     os.makedirs(results_dir, exist_ok=True)
     
-    # Load existing results per model if resuming
+    # Always load existing results per model (automatic checkpointing)
     results_by_model = {model: [] for model in MODELS_TO_EVALUATE}
-    results_logprobs = {model: {} for model in MODELS_TO_EVALUATE}  # Dict of {question_id: logprobs}
+    results_logprobs = {model: {} for model in MODELS_TO_EVALUATE}  # Dict of {question_id_subset: logprobs_entry}
     
-    if args.resume:
-        for model in MODELS_TO_EVALUATE:
-            # Load main results
-            model_file = os.path.join(results_dir, f"{model.replace(':', '_')}_results.json")
-            if os.path.exists(model_file):
-                try:
-                    with open(model_file, 'r') as f:
-                        results_by_model[model] = json.load(f)
-                    logger.info(f"Resuming {model}: found {len(results_by_model[model])} existing results")
-                except Exception as e:
-                    logger.warning(f"Could not load existing results for {model}: {e}")
-            
-            # Load logprobs
-            logprobs_file = os.path.join(results_dir, f"{model.replace(':', '_')}_logprobs.json")
-            if os.path.exists(logprobs_file):
-                try:
-                    with open(logprobs_file, 'r') as f:
-                        results_logprobs[model] = json.load(f)
-                    logger.info(f"Resuming {model}: found {len(results_logprobs[model])} existing logprobs")
-                except Exception as e:
-                    logger.warning(f"Could not load existing logprobs for {model}: {e}")
+    # Always check for existing results to avoid re-computation
+    for model in MODELS_TO_EVALUATE:
+        # Load main results
+        model_file = os.path.join(results_dir, f"{model.replace(':', '_')}_results.json")
+        if os.path.exists(model_file):
+            try:
+                with open(model_file, 'r') as f:
+                    loaded_results = json.load(f)
+                
+                # Normalize question_id and doc_id in loaded results to remove newlines
+                for result in loaded_results:
+                    if 'question_id' in result:
+                        result['question_id'] = result['question_id'].replace('\n', '').replace('\r', '').strip()
+                    if 'doc_id' in result:
+                        result['doc_id'] = result['doc_id'].replace('\n', '').replace('\r', '').strip()
+                
+                results_by_model[model] = loaded_results
+                logger.info(f"📂 Loaded {len(results_by_model[model])} existing results for {model}")
+            except Exception as e:
+                logger.warning(f"Could not load existing results for {model}: {e}")
+        
+        # Load logprobs
+        logprobs_file = os.path.join(results_dir, f"{model.replace(':', '_')}_logprobs.json")
+        if os.path.exists(logprobs_file):
+            try:
+                with open(logprobs_file, 'r') as f:
+                    loaded_logprobs = json.load(f)
+                
+                # Normalize composite keys (question_id_subset) in logprobs to remove newlines
+                normalized_logprobs = {}
+                for subset_key, logprob_data in loaded_logprobs.items():
+                    normalized_key = subset_key.replace('\n', '').replace('\r', '').strip()
+                    # Also normalize question_id inside the entry if present
+                    if 'question_id' in logprob_data:
+                        logprob_data['question_id'] = logprob_data['question_id'].replace('\n', '').replace('\r', '').strip()
+                    normalized_logprobs[normalized_key] = logprob_data
+                
+                results_logprobs[model] = normalized_logprobs
+                logger.info(f"📂 Loaded {len(results_logprobs[model])} existing logprobs for {model}")
+            except Exception as e:
+                logger.warning(f"Could not load existing logprobs for {model}: {e}")
     
     # Load samples
     doc_questions = load_samples(args.samples)
@@ -877,6 +1087,40 @@ def main():
         "--resume",
         action="store_true",
         help="Resume from existing results file"
+    )
+    # Auto-detect device: use MPS on Mac with Apple Silicon, CUDA if available, else CPU
+    import platform
+    import torch
+    if platform.system() == "Darwin" and torch.backends.mps.is_available():
+        default_device = "mps"
+    elif torch.cuda.is_available():
+        default_device = "cuda"
+    else:
+        default_device = "cpu"
+    
+    parser.add_argument(
+        "--device",
+        default=default_device,
+        choices=["cpu", "cuda", "cuda:0", "cuda:1", "mps"],
+        help=f"Device for MinerU parsing (auto-detected: {default_device})"
+    )
+    parser.add_argument(
+        "--max-async",
+        type=int,
+        default=8,
+        help="Max concurrent LLM calls (default: 8, increase based on API rate limits)"
+    )
+    parser.add_argument(
+        "--embedding-max-async",
+        type=int,
+        default=16,
+        help="Max concurrent embedding calls (default: 16)"
+    )
+    parser.add_argument(
+        "--embedding-batch-num",
+        type=int,
+        default=32,
+        help="Batch size for embeddings (default: 32)"
     )
     
     args = parser.parse_args()
