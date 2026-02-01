@@ -146,22 +146,25 @@ async def answer_with_modality_subset(
             logger.info(f"  📝 Retrieved content for {len(chunk_contents)} chunks")
             
             if chunk_contents:
-                # Compute query embedding
+                # Compute query embedding (only embedding we need to compute!)
                 query_embedding = await lightrag.embedding_func.func([question])
                 query_embedding = query_embedding[0]
-                
-                # Compute embeddings for all chunk contents
-                chunk_ids_with_content = list(chunk_contents.keys())
-                chunk_texts = [chunk_contents[cid] for cid in chunk_ids_with_content]
-                chunk_embeddings = await lightrag.embedding_func.func(chunk_texts)
-                
-                # Compute cosine similarities
                 query_vec = np.array(query_embedding)
+                
+                # Get pre-computed chunk vectors from VDB (no re-computation needed)
+                chunk_ids_with_content = list(chunk_contents.keys())
+                chunk_vectors = await lightrag.chunks_vdb.get_vectors_by_ids(chunk_ids_with_content)
+                
+                logger.info(f"  🔢 Retrieved {len(chunk_vectors)} pre-computed vectors from VDB")
+                
+                # Compute cosine similarities using pre-computed vectors
                 similarities = []
-                for i, chunk_emb in enumerate(chunk_embeddings):
-                    chunk_vec = np.array(chunk_emb)
+                for chunk_id in chunk_ids_with_content:
+                    if chunk_id not in chunk_vectors:
+                        continue
+                    chunk_vec = np.array(chunk_vectors[chunk_id])
                     similarity = np.dot(query_vec, chunk_vec) / (np.linalg.norm(query_vec) * np.linalg.norm(chunk_vec) + 1e-10)
-                    similarities.append((similarity, chunk_ids_with_content[i]))
+                    similarities.append((similarity, chunk_id))
                 
                 # Sort by similarity (descending) and take top_k chunks
                 similarities.sort(key=lambda x: x[0], reverse=True)
