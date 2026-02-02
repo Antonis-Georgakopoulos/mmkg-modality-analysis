@@ -12,18 +12,16 @@ from .config import MODELS_TO_EVALUATE
 
 def generate_modality_subsets(gold_modalities: List[str]) -> List[tuple]:
     """
-    Generate ALL subsets of gold modalities (including empty set).
+    Generate all non-empty subsets of gold modalities.
     Returns list of tuples: (subset_size, frozenset_of_modalities, experiment_type)
     
     Example: ['image', 'table'] -> [
-        (0, {}, 'normal'),           # empty set
         (1, {'image'}, 'normal'),
         (1, {'table'}, 'normal'),
         (2, {'image', 'table'}, 'normal')
     ]
     
     Example: ['text', 'image', 'table'] -> [
-        (0, {}, 'normal'),
         (1, {'text'}, 'normal'),
         (1, {'image'}, 'normal'),
         (1, {'table'}, 'normal'),
@@ -36,8 +34,8 @@ def generate_modality_subsets(gold_modalities: List[str]) -> List[tuple]:
     unique_modalities = set(gold_modalities)
     subsets = []
     
-    # Start from 0 (empty set) to include all subsets
-    for size in range(0, len(unique_modalities) + 1):
+    # Start from 1 to skip the empty set
+    for size in range(1, len(unique_modalities) + 1):
         for subset in combinations(unique_modalities, size):
             subsets.append((size, frozenset(subset), 'normal'))
     
