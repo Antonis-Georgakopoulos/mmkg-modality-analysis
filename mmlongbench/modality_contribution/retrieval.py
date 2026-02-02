@@ -79,7 +79,7 @@ async def answer_with_modality_subset(
         
         # Step 3: Extract ALL chunks from modality-filtered edges
         # Then perform similarity search on chunk content (not edge metadata)
-        FINAL_TOP_K = 40
+        FINAL_TOP_K = 20
         chunk_to_edges = {}  # chunk_id -> list of edges that reference it
         chunk_to_modality = {}  # chunk_id -> modality
         
