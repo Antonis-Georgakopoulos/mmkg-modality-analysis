@@ -3,6 +3,7 @@ Retrieval logic for answering questions with specific modality subsets.
 """
 
 import json
+import time
 from typing import Set
 
 import numpy as np
@@ -46,21 +47,22 @@ async def answer_with_modality_subset(
 ) -> tuple:
     """
     Answer a question using ONLY the specified modality subset.
-    Returns: (raw_response, extracted_result, prediction, logprobs, retrieval_metadata)
+    Returns: (raw_response, extracted_result, prediction, logprobs, retrieval_metadata, timing_metadata)
     where retrieval_metadata = {"chunk_ids": [...], "chunks_modalities": {"text": 1, "image": 2, ...}}
+    and timing_metadata = {"retrieval_time_ms": ..., "inference_time_ms": ..., "input_tokens": ..., "output_tokens": ...}
     """
     try:
+        retrieval_start = time.perf_counter()
+        
         # Step 1: Get ALL edges from graph and filter by modality FIRST
         # This is the correct order: filter by modality -> compute similarity -> top_k
         all_edges = await lightrag.chunk_entity_relation_graph.get_all_edges()
-        logger.info(f"  📊 Total edges in graph: {len(all_edges)}")
         
         # Step 2: Filter by modality FIRST
         # Include edges that have AT LEAST ONE of the target modalities
         # (i.e., edges with ONLY the modality, OR that modality PLUS others)
         # Expand group names (layout, plain_text) to internal modalities
         modality_subset_lower = expand_modality_subset(modality_subset)
-        logger.info(f"  🔄 Expanded modalities: {modality_subset} -> {modality_subset_lower}")
         modality_filtered_edges = []
         for edge in all_edges:
             edge_modalities_str = edge.get("modality", "")
@@ -74,16 +76,6 @@ async def answer_with_modality_subset(
             if edge_modalities.intersection(modality_subset_lower):
                 modality_filtered_edges.append(edge)
         
-        logger.info(f"  🔍 After modality filter ({modality_subset}): {len(modality_filtered_edges)} edges (intersection logic)")
-        
-        # DEBUG: Log sample of filtered edges with their modalities
-        if modality_filtered_edges:
-            logger.info(f"  📋 Sample filtered edges (first 5):")
-            for i, edge in enumerate(modality_filtered_edges[:5]):
-                edge_mod = edge.get("modality", "")
-                src = edge.get("source", "")
-                tgt = edge.get("target", "")
-                logger.info(f"     [{i+1}] {src} -> {tgt} | edge_modality: {edge_mod}")
         
         # Step 3: Extract ALL chunks from modality-filtered edges
         # Then perform similarity search on chunk content (not edge metadata)
@@ -114,20 +106,6 @@ async def answer_with_modality_subset(
             except (json.JSONDecodeError, KeyError, TypeError):
                 continue
         
-        logger.info(f"  📄 Extracted {len(chunk_to_edges)} unique chunks from filtered edges")
-        
-        # DEBUG: Log chunk modality distribution
-        modality_counts = {}
-        for cid, mod in chunk_to_modality.items():
-            modality_counts[mod] = modality_counts.get(mod, 0) + 1
-        logger.info(f"  📊 Chunk modality distribution: {modality_counts}")
-        logger.info(f"  🎯 Target modalities: {modality_subset_lower}")
-        
-        # DEBUG: Log sample of chunks with their modalities
-        if chunk_to_modality:
-            logger.info(f"  📋 Sample chunks kept (first 10):")
-            for i, (cid, mod) in enumerate(list(chunk_to_modality.items())[:10]):
-                logger.info(f"     [{i+1}] chunk_id: {cid[:30]}... | modality: {mod}")
         
         # Step 4: Get chunk contents and compute similarity
         filtered_relationships = []
@@ -143,7 +121,6 @@ async def answer_with_modality_subset(
                 if chunk_data and "content" in chunk_data:
                     chunk_contents[chunk_id] = chunk_data["content"]
             
-            logger.info(f"  📝 Retrieved content for {len(chunk_contents)} chunks")
             
             if chunk_contents:
                 # Compute query embedding (only embedding we need to compute!)
@@ -155,7 +132,6 @@ async def answer_with_modality_subset(
                 chunk_ids_with_content = list(chunk_contents.keys())
                 chunk_vectors = await lightrag.chunks_vdb.get_vectors_by_ids(chunk_ids_with_content)
                 
-                logger.info(f"  🔢 Retrieved {len(chunk_vectors)} pre-computed vectors from VDB")
                 
                 # Compute cosine similarities using pre-computed vectors
                 similarities = []
@@ -171,34 +147,6 @@ async def answer_with_modality_subset(
                 top_chunks = similarities[:FINAL_TOP_K]
                 top_chunk_ids = [cid for _, cid in top_chunks]
                 
-                logger.info(f"  ✅ After similarity ranking: top {len(top_chunks)} chunks (top_k={FINAL_TOP_K})")
-                
-                # DEBUG: Log final top chunks and their modalities
-                final_modality_counts = {}
-                logger.info(f"  📋 Final top chunks modalities:")
-                for i, (sim, cid) in enumerate(top_chunks[:10]):
-                    mod = chunk_to_modality.get(cid, "unknown")
-                    final_modality_counts[mod] = final_modality_counts.get(mod, 0) + 1
-                    logger.info(f"     [{i+1}] sim={sim:.4f} | chunk_id: {cid[:30]}... | modality: {mod}")
-                
-                # Count all top chunks modalities
-                for _, cid in top_chunks:
-                    mod = chunk_to_modality.get(cid, "unknown")
-                    if mod not in final_modality_counts:
-                        final_modality_counts[mod] = 0
-                # Recount properly
-                final_modality_counts = {}
-                for _, cid in top_chunks:
-                    mod = chunk_to_modality.get(cid, "unknown")
-                    final_modality_counts[mod] = final_modality_counts.get(mod, 0) + 1
-                logger.info(f"  ✅ FINAL chunks modality distribution: {final_modality_counts}")
-                
-                # Verify all chunks match target modalities
-                mismatched = [cid for _, cid in top_chunks if chunk_to_modality.get(cid, "").lower() not in modality_subset_lower]
-                if mismatched:
-                    logger.warning(f"  ⚠️ MISMATCH: {len(mismatched)} chunks have modality not in target {modality_subset_lower}!")
-                else:
-                    logger.info(f"  ✅ VERIFIED: All {len(top_chunks)} chunks match target modalities {modality_subset_lower}")
                 
                 # Build filtered_relationships from edges that reference top chunks
                 seen_edges = set()
@@ -233,9 +181,8 @@ async def answer_with_modality_subset(
                 context_data=kg_context,
             )
             
-            logger.info(f"  🔍 No context for modalities {modality_subset} - testing parametric memory")
             
-            raw_response, logprobs = await call_model(
+            raw_response, logprobs, input_tokens, output_tokens, inference_time_ms = await call_model(
                 model_name=model_name,
                 question=question,
                 system_prompt=sys_prompt,
@@ -317,10 +264,6 @@ async def answer_with_modality_subset(
                 context_data=kg_context,
             )
             
-            # DEBUG: Log context details
-            logger.info(f"  🔍 Context: {len(kg_entities)} entities, {len(filtered_relationships)} relations, {len(kg_chunks)} chunks")
-            if kg_chunks:
-                logger.info(f"  📄 First chunk preview: {kg_chunks[0].get('content', '')[:150]}...")
             
             # Store retrieval metadata
             retrieval_metadata = {
@@ -328,8 +271,24 @@ async def answer_with_modality_subset(
                 "chunks_modalities": retrieved_chunks_modalities
             }
             
+            # Log full prompt for debugging (save to file since it can be very long)
+            prompt_log_path = "./results/debug_full_prompt.txt"
+            with open(prompt_log_path, "w", encoding="utf-8") as f:
+                f.write("=" * 80 + "\n")
+                f.write("🔍 FULL PROMPT SENT TO LLM\n")
+                f.write("=" * 80 + "\n\n")
+                f.write(f"Question: {question}\n\n")
+                f.write(f"Number of entities: {len(kg_entities)}\n")
+                f.write(f"Number of relations: {len(filtered_relationships)}\n")
+                f.write(f"Number of chunks: {len(kg_chunks)}\n\n")
+                f.write("-" * 40 + " SYSTEM PROMPT START " + "-" * 40 + "\n")
+                f.write(sys_prompt)
+                f.write("\n" + "-" * 40 + " SYSTEM PROMPT END " + "-" * 40 + "\n")
+                f.write("=" * 80 + "\n")
+            logger.info(f"📝 Full prompt saved to: {prompt_log_path}")
+            
             # Call the specified model (OpenAI or Ollama)
-            raw_response, logprobs = await call_model(
+            raw_response, logprobs, input_tokens, output_tokens, inference_time_ms = await call_model(
                 model_name=model_name,
                 question=question,
                 system_prompt=sys_prompt,
@@ -337,9 +296,19 @@ async def answer_with_modality_subset(
                 base_url=base_url
             )
         
+        retrieval_time_ms = (time.perf_counter() - retrieval_start) * 1000 - inference_time_ms
+        
         if not raw_response:
             raw_response = "No answer found"
             logprobs = None
+        
+        # Build timing metadata
+        timing_metadata = {
+            "retrieval_time_ms": retrieval_time_ms,
+            "inference_time_ms": inference_time_ms,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+        }
         
         # Extract answer using judge model
         extracted_result = extract_answer(
@@ -349,7 +318,6 @@ async def answer_with_modality_subset(
             model_name="gpt-4o",
             api_key=api_key
         )
-        logger.info(f"  📝 Extracted result: {extracted_result[:100] if extracted_result else 'None'}...")
         
         # Parse extracted answer
         try:
@@ -357,10 +325,11 @@ async def answer_with_modality_subset(
         except:
             prediction = raw_response
         
-        return raw_response, extracted_result, prediction, logprobs, retrieval_metadata
+        return raw_response, extracted_result, prediction, logprobs, retrieval_metadata, timing_metadata
         
     except Exception as e:
         logger.error(f"Error in answer_with_modality_subset: {e}")
         import traceback
         logger.error(traceback.format_exc())
-        return f"ERROR: {str(e)}", "Failed", f"ERROR: {str(e)}", None, {"chunk_ids": [], "chunks_modalities": {}}
+        empty_timing = {"retrieval_time_ms": 0, "inference_time_ms": 0, "input_tokens": 0, "output_tokens": 0}
+        return f"ERROR: {str(e)}", "Failed", f"ERROR: {str(e)}", None, {"chunk_ids": [], "chunks_modalities": {}}, empty_timing

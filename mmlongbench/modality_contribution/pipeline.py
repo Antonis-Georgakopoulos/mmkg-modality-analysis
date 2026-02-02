@@ -291,7 +291,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     logger.info(f"  {model_name}")
                     logger.info(f"    Subset: {subset_list}")
                     
-                    raw_response, extracted_result, prediction, logprobs, retrieval_metadata = await answer_with_modality_subset(
+                    raw_response, extracted_result, prediction, logprobs, retrieval_metadata, timing_metadata = await answer_with_modality_subset(
                         rag.lightrag,
                         question,
                         modality_subset,
@@ -333,6 +333,13 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         'retrieved_chunk_ids': retrieval_metadata.get('chunk_ids', []),
                         'retrieved_chunks_modalities': retrieval_metadata.get('chunks_modalities', {}),
                         
+                        # Timing and token metrics
+                        'input_tokens': timing_metadata.get('input_tokens', 0),
+                        'output_tokens': timing_metadata.get('output_tokens', 0),
+                        'inference_time_ms': timing_metadata.get('inference_time_ms', 0),
+                        'retrieval_time_ms': timing_metadata.get('retrieval_time_ms', 0),
+                        'total_time_ms': timing_metadata.get('retrieval_time_ms', 0) + timing_metadata.get('inference_time_ms', 0),
+                        
                         # Additional metadata
                         'evidence_sources': question_data.get('evidence_sources', '[]'),
                         'evidence_pages': question_data.get('evidence_pages', '[]'),
@@ -352,9 +359,11 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     
                     results.append(result)
                     
-                    # Log chunk count and score
+                    # Log metrics
                     chunk_count = len(retrieval_metadata.get('chunk_ids', []))
-                    logger.info(f"    Using {chunk_count} chunks")
+                    total_time = timing_metadata.get('retrieval_time_ms', 0) + timing_metadata.get('inference_time_ms', 0)
+                    logger.info(f"    Chunks: {chunk_count} | Tokens: {timing_metadata.get('input_tokens', 0)} in / {timing_metadata.get('output_tokens', 0)} out")
+                    logger.info(f"    Time: {total_time:.0f}ms (retrieval: {timing_metadata.get('retrieval_time_ms', 0):.0f}ms, inference: {timing_metadata.get('inference_time_ms', 0):.0f}ms)")
                     logger.info(f"    Score: {score:.3f}")
             
             # Save checkpoint after each question (not after all questions)
