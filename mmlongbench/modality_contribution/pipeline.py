@@ -261,8 +261,12 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
             answer_format = question_data['answer_format']
             gold_modalities = question_data['gold_modality_types']
             
-            logger.info(f"\n[{i}/{len(questions)}] Question: {question[:80]}...")
-            logger.info(f"  Gold modalities: {gold_modalities}")
+            question_id = f"{doc_id}_{i}"
+            
+            logger.info(f"\n{'─'*60}")
+            logger.info(f"Question {i}/{len(questions)} [{question_id}]")
+            logger.info(f"  {question[:80]}...")
+            logger.info(f"  Gold: {gold_modalities}")
             
             # Generate ALL subset experiments (including empty set)
             all_experiments = generate_modality_subsets(gold_modalities)
@@ -270,28 +274,22 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
             # For questions with no gold modalities (e.g., "Not answerable"), 
             # test with all available modalities as a single subset
             if not all_experiments:
-                logger.info("  No gold modalities - testing with all available modalities")
                 all_experiments = [(3, frozenset(['text', 'image', 'table']), 'normal')]
-            else:
-                logger.info(f"  Testing {len(all_experiments)} subset experiments (including empty set)")
             
             # Test each experiment with each model
             for subset_size, modality_subset, experiment_type in all_experiments:
                 subset_list = sorted(list(modality_subset))
-                logger.info(f"    Testing subset {subset_list} ({experiment_type})...")
                 
                 # Test with each model
                 for model_name in MODELS_TO_EVALUATE:
-                    # Generate unique question ID
-                    question_id = f"{doc_id}_{i}"
                     subset_tuple = tuple(sorted(subset_list))
                     
                     # Check if this question with this modality subset has already been answered
                     if check_question_answered(question_id, model_name, subset_tuple, results_by_model):
-                        logger.info(f"      Model: {model_name} - SKIPPED (already answered)")
                         continue
                     
-                    logger.info(f"      Model: {model_name}")
+                    logger.info(f"  {model_name}")
+                    logger.info(f"    Subset: {subset_list}")
                     
                     raw_response, extracted_result, prediction, logprobs, retrieval_metadata = await answer_with_modality_subset(
                         rag.lightrag,
@@ -341,7 +339,6 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     }
                     
                     # Store logprobs separately with question_id + subset as composite key
-                    logger.debug(f"  📊 Logprobs received: {logprobs is not None}, type: {type(logprobs)}")
                     if logprobs:
                         # Create composite key: question_id + sorted subset modalities
                         subset_key = f"{question_id}_{'_'.join(sorted(subset_tuple)) if subset_tuple else 'empty'}"
@@ -352,11 +349,13 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                             'logprobs': logprobs
                         }
                         results_logprobs[model_name][subset_key] = logprobs_entry
-                        logger.info(f"  📊 Saved logprobs for {model_name}: {len(logprobs)} tokens")
                     
                     results.append(result)
                     
-                    logger.info(f"        Score: {score:.3f}")
+                    # Log chunk count and score
+                    chunk_count = len(retrieval_metadata.get('chunk_ids', []))
+                    logger.info(f"    Using {chunk_count} chunks")
+                    logger.info(f"    Score: {score:.3f}")
             
             # Save checkpoint after each question (not after all questions)
             # This prevents data loss if script is interrupted
@@ -380,7 +379,6 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     with open(logprobs_file, 'w') as f:
                         json.dump(results_logprobs[model], f, indent=2)
                 
-                logger.info(f"  💾 Checkpoint saved after question {i}/{len(questions)}")
         
         return results
         
