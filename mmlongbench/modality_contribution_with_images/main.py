@@ -111,6 +111,12 @@ def main():
         default=32,
         help="Batch size for embeddings (default: 32)"
     )
+    parser.add_argument(
+        "--max-parallel-insert",
+        type=int,
+        default=8,
+        help="Max concurrent multimodal processing (image descriptions). Default: 8"
+    )
     
     args = parser.parse_args()
     

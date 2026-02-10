@@ -12,6 +12,7 @@ from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from lightrag.utils import EmbeddingFunc, logger
 
 from raganything import RAGAnything, RAGAnythingConfig
+from raganything.utils import separate_content, insert_text_content
 
 from mmlongbench.eval.eval_score import eval_score
 
@@ -22,6 +23,20 @@ from .modality_utils import (
     check_all_questions_answered_for_document,
 )
 from .retrieval import answer_with_modality_subset
+
+
+def find_content_list_json(output_dir: str) -> str | None:
+    """
+    Find the content_list.json file in the MinerU output directory.
+    Returns the path to the file, or None if not found.
+    """
+    if not os.path.exists(output_dir):
+        return None
+    for root, dirs, files in os.walk(output_dir):
+        for f in files:
+            if f.endswith('_content_list.json'):
+                return os.path.join(root, f)
+    return None
 
 
 async def process_document_rq3(doc_id: str, questions: List[Dict], args, results_by_model: Dict[str, List], results_logprobs: Dict[str, Dict]) -> List[Dict]:
@@ -46,14 +61,16 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
     working_dir = os.path.join(doc_base_dir, 'rag_storage')
     output_dir = os.path.join(doc_base_dir, 'output')
     
-    # Check if document has already been processed (MinerU output exists)
-    already_processed = False
-    if os.path.exists(working_dir) and os.path.exists(output_dir):
-        # Check if rag_storage has content (key indicator files)
-        rag_storage_files = os.listdir(working_dir) if os.path.exists(working_dir) else []
-        
-        # Check for MinerU content_list.json output file
-        content_list_exists = False
+    # Check document processing state
+    # - fully_processed: Both MinerU output AND rag_storage exist (skip everything, just query)
+    # - mineru_only: MinerU output exists but no rag_storage (skip MinerU, do KG construction)
+    # - not_processed: Nothing exists (run full pipeline)
+    fully_processed = False
+    mineru_only = False
+    
+    # Check for MinerU content_list.json output file
+    content_list_exists = False
+    if os.path.exists(output_dir):
         for root, dirs, files in os.walk(output_dir):
             for f in files:
                 if f.endswith('_content_list.json'):
@@ -61,20 +78,29 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     break
             if content_list_exists:
                 break
-        
-        # If rag_storage has files AND content_list.json exists, skip MinerU
-        if len(rag_storage_files) > 0 and content_list_exists:
-            already_processed = True
-            logger.info(f"📂 Document already processed! Using existing data from {doc_base_dir}")
     
-    # Only check for PDF if document is NOT already processed
+    # Check if rag_storage has content
+    rag_storage_files = os.listdir(working_dir) if os.path.exists(working_dir) else []
+    
+    if content_list_exists and len(rag_storage_files) > 0:
+        # Both MinerU and KG exist - fully processed
+        fully_processed = True
+        logger.info(f"📂 Document fully processed! Using existing data from {doc_base_dir}")
+    elif content_list_exists:
+        # MinerU output exists but no KG - need to do KG construction only
+        mineru_only = True
+        logger.info(f"📄 MinerU output exists, will do KG construction only for {doc_name}")
+    
+    # Only check for PDF if document has no MinerU output yet
     doc_path = os.path.join(args.documents, doc_id)
-    if not already_processed and not os.path.exists(doc_path):
+    if not fully_processed and not mineru_only and not os.path.exists(doc_path):
         logger.error(f"Document not found and no processed data exists: {doc_path}")
         return []
     
-    if not already_processed:
+    # Create directories if needed
+    if not fully_processed:
         os.makedirs(working_dir, exist_ok=True)
+    if not fully_processed and not mineru_only:
         os.makedirs(output_dir, exist_ok=True)
     
     # Load extraction prompt
@@ -184,70 +210,122 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                 "llm_model_max_async": args.max_async,
                 "embedding_func_max_async": args.embedding_max_async,
                 "embedding_batch_num": args.embedding_batch_num,
+                "max_parallel_insert": args.max_parallel_insert,
             }
         )
         
-        # Only run MinerU parsing if document hasn't been processed yet
-        if not already_processed:
-            logger.info("Processing document with RAGAnything (running MinerU)...")
-            
-            # Retry logic for memory errors during document processing
-            max_retries = 3
-            retry_count = 0
-            processing_successful = False
-            current_backend = args.backend  # Start with the configured backend
-            
-            while retry_count < max_retries and not processing_successful:
-                try:
-                    await rag.process_document_complete(
-                        file_path=doc_path,
-                        output_dir=output_dir,
-                        parse_method="auto",
-                        device=args.device,
-                        backend=current_backend,
-                    )
-                    processing_successful = True
-                    logger.info("Document processing complete!")
+        # Only run full processing if document hasn't been processed yet
+        # - fully_processed: skip everything (just query)
+        # - mineru_only: skip MinerU, do KG construction from existing content_list.json
+        # - neither: run full pipeline
+        if not fully_processed:
+            if mineru_only:
+                # Load existing content_list.json and do KG construction only
+                logger.info("MinerU output exists - loading content_list.json for KG construction only...")
+                content_list_path = find_content_list_json(output_dir)
+                if content_list_path:
+                    with open(content_list_path, 'r') as f:
+                        content_list = json.load(f)
+                    logger.info(f"Loaded {len(content_list)} content blocks from {content_list_path}")
                     
-                except MemoryError as e:
-                    retry_count += 1
-                    logger.error(f"MemoryError during document processing (attempt {retry_count}/{max_retries}): {e}")
+                    # Initialize LightRAG
+                    await rag._ensure_lightrag_initialized()
                     
-                    if retry_count < max_retries:
-                        logger.info("Cleaning up and retrying in 5 seconds...")
-                        # Clean up memory
-                        gc.collect()
-                        await asyncio.sleep(5)
-                    else:
-                        logger.error(f"Failed to process document after {max_retries} attempts due to memory errors")
-                        raise
-                        
-                except Exception as e:
-                    error_str = str(e).lower()
+                    # Generate doc_id from content (same as RAGAnything does)
+                    content_doc_id = rag._generate_content_based_doc_id(content_list)
+                    logger.info(f"Generated doc_id: {content_doc_id}")
                     
-                    # Check if it's a memory-related error
-                    if 'memory' in error_str or 'out of memory' in error_str or 'oom' in error_str:
+                    # Separate text and multimodal content
+                    text_content, multimodal_items = separate_content(content_list)
+                    
+                    # Fix image paths: make them absolute relative to content_list.json location
+                    content_list_dir = os.path.dirname(content_list_path)
+                    for item in multimodal_items:
+                        if 'img_path' in item and not os.path.isabs(item['img_path']):
+                            item['img_path'] = os.path.join(content_list_dir, item['img_path'])
+                    
+                    # Set content source for context extraction
+                    if hasattr(rag, "set_content_source_for_context") and multimodal_items:
+                        rag.set_content_source_for_context(content_list, rag.config.content_format)
+                    
+                    # Insert text content into KG
+                    if text_content.strip():
+                        file_name = os.path.basename(doc_path)
+                        await insert_text_content(rag.lightrag, input=text_content, file_paths=file_name, ids=content_doc_id)
+                    
+                    # Process multimodal content
+                    if multimodal_items:
+                        await rag._process_multimodal_content(multimodal_items, doc_path, content_doc_id)
+                    
+                    # Track evidence for knowledge graph triples (required for retrieval by modality)
+                    if rag.config.enable_evidence_tracking:
+                        logger.info("Tracking evidence for KG triples...")
+                        await rag._track_evidence_for_document(content_doc_id)
+                    
+                    logger.info("KG construction from existing MinerU output complete!")
+                else:
+                    logger.error(f"MinerU output directory exists but no content_list.json found in {output_dir}")
+                    return []
+            else:
+                logger.info("Processing document with RAGAnything (running MinerU + KG)...")
+                
+                # Retry logic for memory errors during document processing
+                max_retries = 3
+                retry_count = 0
+                processing_successful = False
+                current_backend = args.backend  # Start with the configured backend
+                
+                while retry_count < max_retries and not processing_successful:
+                    try:
+                        await rag.process_document_complete(
+                            file_path=doc_path,
+                            output_dir=output_dir,
+                            parse_method="auto",
+                            device=args.device,
+                            backend=current_backend,
+                        )
+                        processing_successful = True
+                        logger.info("Document processing complete!")
+                    
+                    except MemoryError as e:
                         retry_count += 1
-                        logger.error(f"Possible memory error during document processing (attempt {retry_count}/{max_retries}): {e}")
+                        logger.error(f"MemoryError during document processing (attempt {retry_count}/{max_retries}): {e}")
                         
                         if retry_count < max_retries:
                             logger.info("Cleaning up and retrying in 5 seconds...")
+                            # Clean up memory
                             gc.collect()
                             await asyncio.sleep(5)
                         else:
-                            logger.error(f"Failed to process document after {max_retries} attempts")
+                            logger.error(f"Failed to process document after {max_retries} attempts due to memory errors")
                             raise
-                    # Check if it's a backend-related error - fallback to pipeline
-                    elif current_backend != "pipeline":
-                        logger.warning(f"Backend '{current_backend}' failed for document: {e}")
-                        logger.info("Falling back to 'pipeline' backend...")
-                        current_backend = "pipeline"
-                        retry_count += 1
-                        gc.collect()
-                        await asyncio.sleep(2)
-                    else:
-                        # Already using pipeline and still failing, re-raise
-                        raise
+                            
+                    except Exception as e:
+                        error_str = str(e).lower()
+                        
+                        # Check if it's a memory-related error
+                        if 'memory' in error_str or 'out of memory' in error_str or 'oom' in error_str:
+                            retry_count += 1
+                            logger.error(f"Possible memory error during document processing (attempt {retry_count}/{max_retries}): {e}")
+                            
+                            if retry_count < max_retries:
+                                logger.info("Cleaning up and retrying in 5 seconds...")
+                                gc.collect()
+                                await asyncio.sleep(5)
+                            else:
+                                logger.error(f"Failed to process document after {max_retries} attempts")
+                                raise
+                        # Check if it's a backend-related error - fallback to pipeline
+                        elif current_backend != "pipeline":
+                            logger.warning(f"Backend '{current_backend}' failed for document: {e}")
+                            logger.info("Falling back to 'pipeline' backend...")
+                            current_backend = "pipeline"
+                            retry_count += 1
+                            gc.collect()
+                            await asyncio.sleep(2)
+                        else:
+                            # Already using pipeline and still failing, re-raise
+                            raise
         else:
             # Document already processed, just initialize LightRAG to load existing data
             logger.info("📂 Skipping MinerU parsing - loading existing processed data...")
