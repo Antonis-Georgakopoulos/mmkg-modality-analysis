@@ -185,7 +185,8 @@ async def call_model_with_vlm_messages(
     model_name: str,
     messages: List[Dict],
     api_key: str = None,
-    base_url: str = None
+    base_url: str = None,
+    keep_alive: int = None
 ) -> tuple:
     """
     Call a model with pre-built VLM messages (matching raganything approach).
@@ -231,7 +232,7 @@ async def call_model_with_vlm_messages(
         if model_name.startswith("gpt-"):
             return await _call_openai_with_vlm_messages(model_name, messages, api_key, base_url)
         else:
-            return await _call_ollama_with_vlm_messages(model_name, messages)
+            return await _call_ollama_with_vlm_messages(model_name, messages, keep_alive)
     except Exception as e:
         logger.error(f"Error calling model {model_name} with VLM messages: {e}")
         return f"ERROR calling {model_name}: {str(e)}", None, 0, 0, 0
@@ -290,7 +291,8 @@ async def _call_openai_with_vlm_messages(
 
 async def _call_ollama_with_vlm_messages(
     model_name: str,
-    messages: List[Dict]
+    messages: List[Dict],
+    keep_alive: int = None
 ) -> tuple:
     """Call Ollama with pre-built VLM messages."""
     ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -327,18 +329,20 @@ async def _call_ollama_with_vlm_messages(
                 ollama_messages.append({"role": "user", "content": content})
     
     start_time = time.perf_counter()
+    request_json = {
+        "model": model_name,
+        "messages": ollama_messages,
+        "stream": False,
+        "options": {"num_predict": 4096, "num_ctx": 32768},
+        "logprobs": True,
+        "top_logprobs": 1
+    }
+    if keep_alive is not None:
+        request_json["keep_alive"] = keep_alive
     async with httpx.AsyncClient(timeout=300.0) as client:
         resp = await client.post(
             f"{ollama_url}/api/chat",
-            json={
-                "model": model_name,
-                "messages": ollama_messages,
-                "stream": False,
-                # "options": {"num_predict": 8192, "num_ctx": 65536},
-                "options": {"num_predict": 4096, "num_ctx": 32768},
-                "logprobs": True,
-                "top_logprobs": 1
-            }
+            json=request_json
         )
         resp.raise_for_status()
         result = resp.json()

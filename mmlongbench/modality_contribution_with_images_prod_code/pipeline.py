@@ -11,6 +11,7 @@ from typing import Dict, List
 from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from openai import RateLimitError
 from lightrag.utils import EmbeddingFunc, logger
+from lightrag.kg.shared_storage import finalize_share_data
 
 from raganything import RAGAnything, RAGAnythingConfig
 from raganything.utils import separate_content, insert_text_content
@@ -378,6 +379,12 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     if check_question_answered(question_id, model_name, subset_tuple, results_by_model):
                         continue
                     
+                    # Determine keep_alive for Ollama models:
+                    # - Last question: unload model after prompting (keep_alive=0)
+                    # - Not last question: keep model loaded (keep_alive=-1)
+                    is_last_question = (i == len(questions))
+                    keep_alive = 0 if is_last_question else -1
+                    
                     logger.info(f"  🖼️ {model_name} (WITH IMAGES)")
                     logger.info(f"    Subset: {subset_list}")
                     
@@ -388,7 +395,8 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         extraction_prompt,
                         model_name=model_name,
                         api_key=args.api_key,
-                        base_url=args.base_url
+                        base_url=args.base_url,
+                        keep_alive=keep_alive
                     )
                     
                     # Evaluate
@@ -491,9 +499,10 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         return []
     
     finally:
-        # NOTE: We don't cleanup processed documents anymore since we want to reuse them
-        # If you need to reprocess a document, manually delete its folder from processed_documents/
-        pass
+        # CRITICAL: Reset LightRAG's global shared storage state between documents.
+        # Without this, _shared_dicts and _init_flags persist across LightRAG instances
+        # in the same process, causing cross-document data contamination in rag_storage.
+        finalize_share_data()
 
 
 async def main_async(args):

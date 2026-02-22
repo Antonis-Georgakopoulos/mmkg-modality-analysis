@@ -219,7 +219,8 @@ async def answer_with_modality_subset(
     extraction_prompt: str,
     model_name: str,
     api_key: str = None,
-    base_url: str = None
+    base_url: str = None,
+    keep_alive: int = None
 ) -> tuple:
     """
     Answer a question using ONLY the specified modality subset.
@@ -553,7 +554,8 @@ async def answer_with_modality_subset(
                 model_name=model_name,
                 messages=vlm_messages,
                 api_key=api_key,
-                base_url=base_url
+                base_url=base_url,
+                keep_alive=keep_alive
             )
         
         retrieval_time_ms = (time.perf_counter() - retrieval_start) * 1000 - inference_time_ms
