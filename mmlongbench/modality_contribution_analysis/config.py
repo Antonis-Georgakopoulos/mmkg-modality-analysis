@@ -1,12 +1,14 @@
 """
-Configuration and constants for modality contribution analysis (WITH IMAGES).
+Configuration and constants for modality contribution analysis.
 """
 
 # Models to evaluate - using vision-capable models for image support
 MODELS_TO_EVALUATE = [
-     #"gpt-4o-mini",  # Vision-capable model (upgraded from gpt-4o-mini)
-     #"qwen3-vl",
-     "gemma3"
+    "gpt-4o-mini",
+    "qwen3-vl:8b",
+    "qwen3-vl:30b",
+    "gemma3:4b",
+    "gemma3:27b"
 ]
 
 # Modalities that have images (these will be sent as actual images to the model)

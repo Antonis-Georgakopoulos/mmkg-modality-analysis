@@ -1,5 +1,5 @@
 """
-API calling utilities for OpenAI and Ollama models (WITH IMAGE SUPPORT).
+API calling utilities for OpenAI and Ollama models.
 """
 
 import os
@@ -123,7 +123,6 @@ async def _call_openai_with_images(
     """Call OpenAI API with images (vision model)."""
     from openai import AsyncOpenAI
     
-    logger.info(f"🔗 [QA CALL - OpenAI with Images] Using base_url: {base_url}")
     client = AsyncOpenAI(api_key=api_key, base_url=base_url)
     
     messages = []
@@ -157,7 +156,7 @@ async def _call_openai_with_images(
         messages=messages,
         logprobs=True,
         top_logprobs=1,
-        max_tokens=4096
+        max_completion_tokens=4096
     )
     inference_time_ms = (time.perf_counter() - start_time) * 1000
     
@@ -202,7 +201,7 @@ async def call_model_with_vlm_messages(
     """
     # ===== TEMPORARY LOG: Verify images in VLM messages =====
     logger.info("=" * 60)
-    logger.info("🔍 API CALL: call_model_with_vlm_messages")
+    logger.info(" API CALL: call_model_with_vlm_messages")
     logger.info(f"   Model: {model_name}")
     logger.info(f"   Number of messages: {len(messages)}")
     
@@ -216,16 +215,16 @@ async def call_model_with_vlm_messages(
                     if part.get("type") == "image_url":
                         image_count += 1
                         # Log image size (base64 length as proxy)
-                        url = part.get("image_url", {}).get("url", "")
-                        if url.startswith("data:"):
-                            base64_len = len(url.split(",", 1)[1]) if "," in url else 0
-                            logger.info(f"   📷 Image found: base64 length = {base64_len} chars (~{base64_len * 3 // 4 // 1024} KB)")
+                        # url = part.get("image_url", {}).get("url", "")
+                        # if url.startswith("data:"):
+                            # base64_len = len(url.split(",", 1)[1]) if "," in url else 0
+                            # logger.info(f"   Image found: base64 length = {base64_len} chars (~{base64_len * 3 // 4 // 1024} KB)")
     
-    logger.info(f"   Total images in messages: {image_count}")
+    # logger.info(f"   Total images in messages: {image_count}")
     if image_count == 0:
-        logger.warning("   ⚠️ NO IMAGES IN API CALL - text-only mode")
+        logger.warning("   NO IMAGES IN API CALL - text-only mode")
     else:
-        logger.info(f"   ✅ IMAGES WILL BE SENT TO MODEL: {image_count} image(s)")
+        logger.info(f"   IMAGES WILL BE SENT TO MODEL: {image_count} image(s)")
     logger.info("=" * 60)
     
     try:
@@ -247,9 +246,6 @@ async def _call_openai_with_vlm_messages(
     """Call OpenAI with pre-built VLM messages."""
     from openai import AsyncOpenAI
     
-    logger.info(f"� [QA CALL - OpenAI VLM Messages] Using base_url: {base_url}")
-    logger.info(f"�🚀 Sending request to OpenAI {model_name}...")
-    
     client = AsyncOpenAI(api_key=api_key, base_url=base_url)
     
     start_time = time.perf_counter()
@@ -258,7 +254,7 @@ async def _call_openai_with_vlm_messages(
         messages=messages,
         logprobs=True,
         top_logprobs=1,
-        max_tokens=4096
+        max_completion_tokens=4096
     )
     inference_time_ms = (time.perf_counter() - start_time) * 1000
     
@@ -273,7 +269,7 @@ async def _call_openai_with_vlm_messages(
     output_tokens = response.usage.completion_tokens if response.usage else 0
     
     # ===== TEMPORARY LOG: Verify API response =====
-    logger.info("✅ OpenAI response received:")
+    logger.info("OpenAI response received:")
     logger.info(f"   Input tokens: {input_tokens}")
     logger.info(f"   Output tokens: {output_tokens}")
     logger.info(f"   Inference time: {inference_time_ms:.0f}ms")
@@ -371,7 +367,7 @@ async def _call_ollama_with_images(
     system_prompt: str,
     images: List[Dict[str, str]]
 ) -> tuple:
-    """Call Ollama API with images (vision model like llava)."""
+    """Call Ollama API with images."""
     ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
     # Ensure URL has protocol prefix
     if ollama_url and not ollama_url.startswith(("http://", "https://")):
@@ -394,7 +390,7 @@ async def _call_ollama_with_images(
             "images": image_base64_list
         })
         
-        logger.info(f"📸 Sending {len(images)} images to Ollama {model_name}")
+        logger.info(f"Sending {len(images)} images to Ollama {model_name}")
         
         async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.post(

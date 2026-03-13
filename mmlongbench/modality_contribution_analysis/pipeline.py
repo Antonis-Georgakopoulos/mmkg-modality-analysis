@@ -1,5 +1,5 @@
 """
-Main pipeline for document processing and modality contribution analysis (WITH IMAGES).
+Main pipeline for document processing and modality contribution analysis.
 """
 
 import os
@@ -9,7 +9,9 @@ import asyncio
 from typing import Dict, List
 
 from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from openai import RateLimitError
 from lightrag.utils import EmbeddingFunc, logger
+from lightrag.kg.shared_storage import finalize_share_data
 
 from raganything import RAGAnything, RAGAnythingConfig
 from raganything.utils import separate_content, insert_text_content
@@ -39,9 +41,9 @@ def find_content_list_json(output_dir: str) -> str | None:
     return None
 
 
-async def process_document_rq3(doc_id: str, questions: List[Dict], args, results_by_model: Dict[str, List], results_logprobs: Dict[str, Dict]) -> List[Dict]:
+async def process_document(doc_id: str, questions: List[Dict], args, results_by_model: Dict[str, List], results_logprobs: Dict[str, Dict]) -> List[Dict]:
     """
-    Process document for RQ3: test all modality subsets for each question.
+    Process document: test all modality subsets for each question.
     This version includes actual images in the prompt for vision models.
     
     Args:
@@ -50,9 +52,9 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         args: Command line arguments
         results_by_model: Dictionary of existing results grouped by model (for checkpointing)
     """
-    # Check if ALL questions are already answered before processing document
+    # Check if all questions are already answered before processing document
     if check_all_questions_answered_for_document(doc_id, questions, results_by_model):
-        logger.info(f"✅ ALL questions for {doc_id} are already answered. Skipping document processing entirely!")
+        logger.info(f"All questions for {doc_id} are already answered. Skipping document processing entirely!")
         return []
     
     # Setup directories with new structure: processed_documents/{doc_name}/[output,rag_storage]
@@ -85,11 +87,11 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
     if content_list_exists and len(rag_storage_files) > 0:
         # Both MinerU and KG exist - fully processed
         fully_processed = True
-        logger.info(f"📂 Document fully processed! Using existing data from {doc_base_dir}")
+        logger.info(f"Document fully processed! Using existing data from {doc_base_dir}")
     elif content_list_exists:
         # MinerU output exists but no KG - need to do KG construction only
         mineru_only = True
-        logger.info(f"📄 MinerU output exists, will do KG construction only for {doc_name}")
+        logger.info(f"MinerU output exists, will do KG construction only for {doc_name}")
     
     # Only check for PDF if document has no MinerU output yet
     doc_path = os.path.join(args.documents, doc_id)
@@ -113,8 +115,8 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         extraction_prompt = f.read()
     
     logger.info(f"\n{'='*80}")
-    logger.info(f"Processing (WITH IMAGES): {doc_id}")
-    logger.info(f"Questions: {len(questions)}")
+    logger.info(f"Processing document: {doc_id}")
+    logger.info(f"Number of questions for this document: {len(questions)}")
     logger.info(f"{'='*80}")
     
     try:
@@ -150,7 +152,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         ):
             if messages:
                 return openai_complete_if_cache(
-                    "gpt-4o",
+                    "gpt-5.1",
                     "",
                     system_prompt=None,
                     history_messages=[],
@@ -161,7 +163,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                 )
             elif image_data:
                 return openai_complete_if_cache(
-                    "gpt-4o",
+                    "gpt-5.1",
                     "",
                     system_prompt=None,
                     history_messages=[],
@@ -188,15 +190,18 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
         embedding_dim = int(os.getenv("EMBEDDING_DIM", "3072"))
         embedding_model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
         
-        embedding_func = EmbeddingFunc(
-            embedding_dim=embedding_dim,
-            max_token_size=8192,
-            func=lambda texts: openai_embed(
+        def _embedding_func_with_logging(texts):
+            return openai_embed(
                 texts,
                 model=embedding_model,
                 api_key=args.api_key,
                 base_url=args.base_url,
-            ),
+            )
+        
+        embedding_func = EmbeddingFunc(
+            embedding_dim=embedding_dim,
+            max_token_size=8192,
+            func=_embedding_func_with_logging,
         )
         
         # Initialize RAGAnything with speedup settings
@@ -211,6 +216,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                 "embedding_func_max_async": args.embedding_max_async,
                 "embedding_batch_num": args.embedding_batch_num,
                 "max_parallel_insert": args.max_parallel_insert,
+                "default_llm_timeout": int(os.getenv("LLM_TIMEOUT", "180")),
             }
         )
         
@@ -328,7 +334,7 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                             raise
         else:
             # Document already processed, just initialize LightRAG to load existing data
-            logger.info("📂 Skipping MinerU parsing - loading existing processed data...")
+            logger.info("Skipping MinerU parsing - loading existing processed data...")
             await rag._ensure_lightrag_initialized()
         
         # RQ3: Test all modality subsets for each question
@@ -367,7 +373,13 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                     if check_question_answered(question_id, model_name, subset_tuple, results_by_model):
                         continue
                     
-                    logger.info(f"  🖼️ {model_name} (WITH IMAGES)")
+                    # Determine keep_alive for Ollama models:
+                    # - Last question: unload model after prompting (keep_alive=0)
+                    # - Not last question: keep model loaded (keep_alive=-1)
+                    is_last_question = (i == len(questions))
+                    keep_alive = 0 if is_last_question else -1
+                    
+                    logger.info(f"  {model_name}")
                     logger.info(f"    Subset: {subset_list}")
                     
                     raw_response, extracted_result, prediction, logprobs, retrieval_metadata, timing_metadata = await answer_with_modality_subset(
@@ -377,7 +389,8 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         extraction_prompt,
                         model_name=model_name,
                         api_key=args.api_key,
-                        base_url=args.base_url
+                        base_url=args.base_url,
+                        keep_alive=keep_alive
                     )
                     
                     # Evaluate
@@ -458,44 +471,60 @@ async def process_document_rq3(doc_id: str, questions: List[Dict], args, results
                         results_by_model[model].append(result)
                 
                 # Save checkpoint for each model with ALL accumulated results
+                # Uses range suffix so parallel jobs write to separate files
+                range_suffix = getattr(args, '_range_suffix', '')
                 for model in MODELS_TO_EVALUATE:
                     # Save main results (without logprobs)
-                    model_file = os.path.join(args.results_dir, f"{model.replace(':', '_')}_results_vlm.json")
+                    model_file = os.path.join(args.results_dir, f"{model.replace(':', '_')}_results_vlm{range_suffix}.json")
                     with open(model_file, 'w') as f:
                         json.dump(results_by_model[model], f, indent=2)
                     
                     # Save logprobs separately
-                    logprobs_file = os.path.join(args.results_dir, f"{model.replace(':', '_')}_logprobs.json")
+                    logprobs_file = os.path.join(args.results_dir, f"{model.replace(':', '_')}_logprobs{range_suffix}.json")
                     with open(logprobs_file, 'w') as f:
                         json.dump(results_logprobs[model], f, indent=2)
                 
         
         return results
         
+    except RateLimitError as e:
+        logger.error(f"RATE LIMIT ERROR - Stopping pipeline completely: {e}")
+        raise  # Re-raise to stop the entire pipeline
     except Exception as e:
         logger.error(f"Error processing document {doc_id}: {e}", exc_info=True)
         return []
     
     finally:
-        # NOTE: We don't cleanup processed documents anymore since we want to reuse them
-        # If you need to reprocess a document, manually delete its folder from processed_documents/
-        pass
+        # CRITICAL: Reset LightRAG's global shared storage state between documents.
+        # Without this, _shared_dicts and _init_flags persist across LightRAG instances
+        # in the same process, causing cross-document data contamination in rag_storage.
+        finalize_share_data()
 
 
 async def main_async(args):
-    """Main async function for RQ3 evaluation (WITH IMAGES)"""
+
     # Create results directory
     results_dir = args.results_dir
     os.makedirs(results_dir, exist_ok=True)
     
+    # Compute range suffix early so checkpoint loading uses the correct files
+    doc_start = getattr(args, 'doc_start', None)
+    doc_end = getattr(args, 'doc_end', None)
+    if doc_start is not None or doc_end is not None:
+        range_suffix = f"_doc{doc_start}_to_{doc_end}"
+    else:
+        range_suffix = ""
+    args._range_suffix = range_suffix
+    
     # Always load existing results per model (automatic checkpointing)
+    # Uses range_suffix so each parallel job reads/writes its own files
     results_by_model = {model: [] for model in MODELS_TO_EVALUATE}
     results_logprobs = {model: {} for model in MODELS_TO_EVALUATE}  # Dict of {question_id_subset: logprobs_entry}
     
     # Always check for existing results to avoid re-computation
     for model in MODELS_TO_EVALUATE:
         # Load main results
-        model_file = os.path.join(results_dir, f"{model.replace(':', '_')}_results_vlm.json")
+        model_file = os.path.join(results_dir, f"{model.replace(':', '_')}_results_vlm{range_suffix}.json")
         if os.path.exists(model_file):
             try:
                 with open(model_file, 'r') as f:
@@ -509,12 +538,12 @@ async def main_async(args):
                         result['doc_id'] = result['doc_id'].replace('\n', '').replace('\r', '').strip()
                 
                 results_by_model[model] = loaded_results
-                logger.info(f"📂 Loaded {len(results_by_model[model])} existing results for {model}")
+                logger.info(f"Loaded {len(results_by_model[model])} existing results for {model}")
             except Exception as e:
                 logger.warning(f"Could not load existing results for {model}: {e}")
         
         # Load logprobs
-        logprobs_file = os.path.join(results_dir, f"{model.replace(':', '_')}_logprobs.json")
+        logprobs_file = os.path.join(results_dir, f"{model.replace(':', '_')}_logprobs{range_suffix}.json")
         if os.path.exists(logprobs_file):
             try:
                 with open(logprobs_file, 'r') as f:
@@ -530,7 +559,7 @@ async def main_async(args):
                     normalized_logprobs[normalized_key] = logprob_data
                 
                 results_logprobs[model] = normalized_logprobs
-                logger.info(f"📂 Loaded {len(results_logprobs[model])} existing logprobs for {model}")
+                logger.info(f"Loaded {len(results_logprobs[model])} existing logprobs for {model}")
             except Exception as e:
                 logger.warning(f"Could not load existing logprobs for {model}: {e}")
     
@@ -539,27 +568,44 @@ async def main_async(args):
     
     # Load samples
     doc_questions = load_samples(args.samples)
+    total_all_docs = len(doc_questions)
+    
+    # Document order for forwards processing (doc 1 to last)
+    doc_items = list(doc_questions.items())
+    
+    # Slice by --doc-start / --doc-end (1-based, inclusive)
+    # E.g. --doc-start 1 --doc-end 50 processes docs 1, 2, ..., 50
+    if doc_start is not None or doc_end is not None:
+        # Convert 1-based indices to 0-based slice indices
+        # --doc-start 1 --doc-end 50 → slice [0:50]
+        slice_start = (doc_start - 1) if doc_start else 0
+        slice_end = doc_end if doc_end else total_all_docs
+        
+        doc_items = doc_items[slice_start:slice_end]
+        logger.info(f"Processing documents {doc_start} -> {doc_end}, {len(doc_items)} documents")
+    else:
+        logger.info(f"Processing ALL {len(doc_items)} documents")
     
     if args.limit:
-        doc_questions = dict(list(doc_questions.items())[:args.limit])
+        doc_items = doc_items[:args.limit]
         logger.info(f"Limited to {args.limit} documents for testing")
     
-    # Process each document
-    total_docs = len(doc_questions)
+    # Process each document (forwards)
+    total_docs = len(doc_items)
     
-    for doc_idx, (doc_id, questions) in enumerate(doc_questions.items(), 1):
+    for doc_idx, (doc_id, questions) in enumerate(doc_items, 1):
         logger.info(f"\n\n{'#'*80}")
-        logger.info(f"Document {doc_idx}/{total_docs}: {doc_id} (WITH IMAGES)")
+        logger.info(f"Document {doc_idx}/{total_docs}: {doc_id})")
         logger.info(f"{'#'*80}")
         
-        _ = await process_document_rq3(doc_id, questions, args, results_by_model, results_logprobs)
+        _ = await process_document(doc_id, questions, args, results_by_model, results_logprobs)
         
-        # Results are already added to results_by_model inside process_document_rq3
-        logger.info(f"\n✅ Document {doc_idx}/{total_docs} completed. Results saved to {results_dir}/")
+        # Results are already added to results_by_model inside process_document
+        logger.info(f"\nDocument {doc_idx}/{total_docs} completed. Results saved to {results_dir}/")
     
     # Summary stats
     logger.info(f"\n\n{'='*80}")
-    logger.info("MODALITY CONTRIBUTIONS ANALYSIS (WITH IMAGES)")
+    logger.info("MODALITY CONTRIBUTIONS ANALYSIS")
     logger.info(f"{'='*80}")
     
     for model in MODELS_TO_EVALUATE:

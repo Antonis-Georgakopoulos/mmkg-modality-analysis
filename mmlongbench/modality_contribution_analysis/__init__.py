@@ -4,6 +4,8 @@ Modality Contribution Analysis Pipeline
 This module provides functionality for evaluating how different modality subsets
 contribute to question answering performance in multimodal documents.
 
+This version includes actual images in the prompt for vision-capable models.
+
 1. For each question with gold evidence_sources (e.g., ['Chart', 'Table']):
    - Test all subsets: ['Chart'], ['Table'], ['Chart', 'Table']
    - Measure accuracy for each subset
@@ -14,24 +16,25 @@ contribute to question answering performance in multimodal documents.
 
 from .config import MODELS_TO_EVALUATE, MODALITY_MAPPING
 from .data_loader import load_samples
-from .api import call_model
+from .api import call_model, call_model_with_images
 from .modality_utils import (
     generate_modality_subsets,
     check_question_answered,
     check_all_questions_answered_for_document,
 )
 from .retrieval import answer_with_modality_subset
-from .pipeline import process_document_rq3, main_async
+from .pipeline import process_document, main_async
 
 __all__ = [
     "MODELS_TO_EVALUATE",
     "MODALITY_MAPPING",
     "load_samples",
     "call_model",
+    "call_model_with_images",
     "generate_modality_subsets",
     "check_question_answered",
     "check_all_questions_answered_for_document",
     "answer_with_modality_subset",
-    "process_document_rq3",
+    "process_document",
     "main_async",
 ]

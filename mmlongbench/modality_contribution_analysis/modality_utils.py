@@ -42,11 +42,6 @@ def generate_modality_subsets(gold_modalities: List[str]) -> List[tuple]:
     return sorted(subsets, key=lambda x: x[0])  # Sort by size
 
 
-# NOTE: generate_noise_experiments() has been removed.
-# We no longer test supersets (adding extra modalities beyond gold).
-# Only subsets of gold modalities are tested.
-
-
 def check_question_answered(question_id: str, model_name: str, subset_modalities: tuple, results_by_model: Dict[str, List]) -> bool:
     """
     Check if a specific question with specific modality subset has been answered for a given model.
@@ -104,8 +99,8 @@ def check_all_questions_answered_for_document(
     # Create set of all question IDs for this document
     question_ids = {f"{doc_id}_{i}" for i in range(1, len(questions) + 1)}
     
-    logger.info(f"🔍 Checking skip for doc: {doc_id[:60]}...")
-    logger.info(f"   Expected {len(question_ids)} question IDs: {sorted(list(question_ids))[:2]}...")
+    logger.info(f"Checking skip for doc: {doc_id[:60]}...")
+    logger.info(f"Expected {len(question_ids)} question IDs: {sorted(list(question_ids))[:2]}...")
     
     # Check if all question IDs exist in ANY of the model results
     for model_name in MODELS_TO_EVALUATE:
@@ -119,14 +114,14 @@ def check_all_questions_answered_for_document(
             if result.get('doc_id') == doc_id
         }
         
-        logger.info(f"   Model {model_name}: found {len(existing_question_ids)} existing IDs")
+        logger.info(f"Model {model_name}: found {len(existing_question_ids)} existing IDs")
         if existing_question_ids and len(existing_question_ids) < 3:
             logger.info(f"      Existing IDs: {sorted(list(existing_question_ids))}")
         
         # If all question IDs exist for this model, we can skip the document
         if question_ids.issubset(existing_question_ids):
-            logger.info(f"   ✅ All {len(question_ids)} questions found for {model_name} - SKIPPING!")
+            logger.info(f"   All {len(question_ids)} questions found for {model_name} - SKIPPING!")
             return True
     
-    logger.info("   ⚠️  Document needs processing - not all questions found")
+    logger.info("   Document needs processing - not all questions found")
     return False

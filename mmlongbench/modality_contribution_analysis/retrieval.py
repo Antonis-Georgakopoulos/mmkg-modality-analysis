@@ -1,5 +1,5 @@
 """
-Retrieval logic for answering questions with specific modality subsets (WITH IMAGES).
+Retrieval logic for answering questions with specific modality subsets.
 
 This version extracts image paths from chunks and sends actual images to vision models.
 """
@@ -124,12 +124,12 @@ def process_chunks_with_vlm_markers(
                     "marker_num": image_counter
                 })
                 
-                logger.info(f"📸 Found image #{image_counter} for chunk {chunk_id}: {image_path}")
+                # logger.info(f"📸 Found image #{image_counter} for chunk {chunk_id}: {image_path}")
                 
                 # Return original path + VLM marker (matching raganything approach)
                 return f"Image Path: {image_path}\n[VLM_IMAGE_{image_counter}]"
             else:
-                logger.warning(f"⚠️ Could not encode image: {image_path}")
+                logger.warning(f"Could not encode image: {image_path}")
                 return match.group(0)  # Keep original
         
         # Process content with regex replacement
@@ -328,7 +328,7 @@ async def answer_with_modality_subset(
                 
                 # ===== DETAILED LOGGING: Retrieved chunks =====
                 logger.info("=" * 60)
-                logger.info("📋 RETRIEVED CHUNKS FOR QUESTION:")
+                logger.info("RETRIEVED CHUNKS FOR QUESTION:")
                 logger.info(f"   Q: {question[:100]}...")
                 logger.info(f"   Total chunks retrieved: {len(top_chunk_ids)}")
                 
@@ -348,13 +348,13 @@ async def answer_with_modality_subset(
                 image_table_chunks = [cid for cid in top_chunk_ids 
                                      if chunk_to_modality.get(cid, "") in IMAGE_MODALITIES]
                 if image_table_chunks:
-                    logger.info(f"   🖼️ Image/Table chunks ({len(image_table_chunks)}):")
+                    logger.info(f"   Image/Table chunks ({len(image_table_chunks)}):")
                     for cid in image_table_chunks:
                         mod = chunk_to_modality.get(cid, "unknown")
                         content_preview = chunk_contents.get(cid, "")[:150].replace("\n", " ")
                         logger.info(f"      - [{mod}] {cid}: {content_preview}...")
                 else:
-                    logger.info("   ⚠️ No image/table chunks in retrieved set")
+                    logger.info("   No image/table chunks in retrieved set")
                 logger.info("=" * 60)
                 
                 # Build filtered_relationships from edges that reference top chunks
@@ -425,19 +425,19 @@ async def answer_with_modality_subset(
             )
             
             # ===== DETAILED LOGGING: Images extracted =====
-            logger.info("=" * 60)
-            logger.info("🖼️ IMAGES EXTRACTED FROM CHUNKS:")
-            if images_to_send:
-                logger.info(f"   Total images: {len(images_to_send)}")
-                for i, img in enumerate(images_to_send, 1):
-                    logger.info(f"   Image #{i}:")
-                    logger.info(f"      - Chunk ID: {img['chunk_id']}")
-                    logger.info(f"      - Path: {img['path']}")
-                    logger.info(f"      - MIME type: {img['mime_type']}")
-                    logger.info(f"      - VLM marker: [VLM_IMAGE_{img['marker_num']}]")
-            else:
-                logger.info("   ⚠️ No images extracted (no image/table chunks or no valid image paths)")
-            logger.info("=" * 60)
+            # logger.info("=" * 60)
+            # logger.info("IMAGES EXTRACTED FROM CHUNKS:")
+            # if images_to_send:
+                # logger.info(f"   Total images: {len(images_to_send)}")
+                # for i, img in enumerate(images_to_send, 1):
+                #     logger.info(f"   Image #{i}:")
+                #     logger.info(f"      - Chunk ID: {img['chunk_id']}")
+                #     logger.info(f"      - Path: {img['path']}")
+                #     logger.info(f"      - MIME type: {img['mime_type']}")
+                #     logger.info(f"      - VLM marker: [VLM_IMAGE_{img['marker_num']}]")
+            # else:
+                # logger.info("   No images extracted (no image/table chunks or no valid image paths)")
+            # logger.info("=" * 60)
             
             # Build kg_chunks using processed contents (with VLM markers)
             kg_chunks = []
@@ -498,22 +498,22 @@ async def answer_with_modality_subset(
             )
             
             # ===== DETAILED LOGGING: Final prompt summary =====
-            logger.info("=" * 60)
-            logger.info("📝 PROMPT SUMMARY:")
-            logger.info(f"   Question: {question[:80]}...")
-            logger.info(f"   Entities in context: {len(kg_entities)}")
-            logger.info(f"   Relations in context: {len(filtered_relationships)}")
-            logger.info(f"   Chunks in context: {len(kg_chunks)}")
-            logger.info(f"   Images attached: {len(images_to_send)}")
-            logger.info(f"   System prompt length: {len(sys_prompt)} chars")
+            # logger.info("=" * 60)
+            # logger.info(" PROMPT SUMMARY:")
+            # logger.info(f"   Question: {question[:80]}...")
+            # logger.info(f"   Entities in context: {len(kg_entities)}")
+            # logger.info(f"   Relations in context: {len(filtered_relationships)}")
+            # logger.info(f"   Chunks in context: {len(kg_chunks)}")
+            # logger.info(f"   Images attached: {len(images_to_send)}")
+            # logger.info(f"   System prompt length: {len(sys_prompt)} chars")
             
             # Log a snippet of the context showing VLM markers if present
-            if images_to_send:
-                # Find and log where VLM markers appear in the prompt
-                vlm_markers_in_prompt = [f"[VLM_IMAGE_{i}]" for i in range(1, len(images_to_send) + 1)]
-                markers_found = [m for m in vlm_markers_in_prompt if m in sys_prompt]
-                logger.info(f"   VLM markers in prompt: {markers_found}")
-            logger.info("=" * 60)
+            # if images_to_send:
+            #     # Find and log where VLM markers appear in the prompt
+            #     vlm_markers_in_prompt = [f"[VLM_IMAGE_{i}]" for i in range(1, len(images_to_send) + 1)]
+            #     markers_found = [m for m in vlm_markers_in_prompt if m in sys_prompt]
+            #     # logger.info(f"   VLM markers in prompt: {markers_found}")
+            # logger.info("=" * 60)
             
             # Store retrieval metadata
             retrieval_metadata = {
@@ -523,28 +523,28 @@ async def answer_with_modality_subset(
             }
             
             # Log full prompt for debugging (save to file since it can be very long)
-            prompt_log_path = "./results_vlm/debug_full_prompt.txt"
-            try:
-                import os
-                os.makedirs(os.path.dirname(prompt_log_path), exist_ok=True)
-                with open(prompt_log_path, "w", encoding="utf-8") as f:
-                    f.write("=" * 80 + "\n")
-                    f.write("🔍 FULL PROMPT SENT TO VLM (WITH IMAGES - INTERLEAVED)\n")
-                    f.write("=" * 80 + "\n\n")
-                    f.write(f"Question: {question}\n\n")
-                    f.write(f"Number of entities: {len(kg_entities)}\n")
-                    f.write(f"Number of relations: {len(filtered_relationships)}\n")
-                    f.write(f"Number of chunks: {len(kg_chunks)}\n")
-                    f.write(f"Number of images: {len(images_to_send)}\n")
-                    if images_to_send:
-                        f.write(f"Image paths: {[img['path'] for img in images_to_send]}\n")
-                    f.write("\n" + "-" * 40 + " SYSTEM PROMPT START " + "-" * 40 + "\n")
-                    f.write(sys_prompt)
-                    f.write("\n" + "-" * 40 + " SYSTEM PROMPT END " + "-" * 40 + "\n")
-                    f.write("=" * 80 + "\n")
-                logger.info(f"📝 Full prompt saved to: {prompt_log_path}")
-            except Exception as e:
-                logger.warning(f"Could not save debug prompt: {e}")
+            # prompt_log_path = "./results_vlm/debug_full_prompt.txt"
+            # try:
+            #     import os
+            #     os.makedirs(os.path.dirname(prompt_log_path), exist_ok=True)
+            #     with open(prompt_log_path, "w", encoding="utf-8") as f:
+            #         f.write("=" * 80 + "\n")
+            #         f.write("FULL PROMPT SENT TO VLM (WITH IMAGES - INTERLEAVED)\n")
+            #         f.write("=" * 80 + "\n\n")
+            #         f.write(f"Question: {question}\n\n")
+            #         f.write(f"Number of entities: {len(kg_entities)}\n")
+            #         f.write(f"Number of relations: {len(filtered_relationships)}\n")
+            #         f.write(f"Number of chunks: {len(kg_chunks)}\n")
+            #         f.write(f"Number of images: {len(images_to_send)}\n")
+            #         if images_to_send:
+            #             f.write(f"Image paths: {[img['path'] for img in images_to_send]}\n")
+            #         f.write("\n" + "-" * 40 + " SYSTEM PROMPT START " + "-" * 40 + "\n")
+            #         f.write(sys_prompt)
+            #         f.write("\n" + "-" * 40 + " SYSTEM PROMPT END " + "-" * 40 + "\n")
+            #         f.write("=" * 80 + "\n")
+            #     logger.info(f"Full prompt saved to: {prompt_log_path}")
+            # except Exception as e:
+            #     logger.warning(f"Could not save debug prompt: {e}")
             
             # Build VLM messages with interleaved images (matching raganything approach)
             vlm_messages = build_vlm_messages_with_images(sys_prompt, question, images_to_send)
@@ -573,7 +573,7 @@ async def answer_with_modality_subset(
         }
         
         # Extract answer using judge model
-        logger.info(f"🔗 [EXTRACT ANSWER CALL] Using base_url: {base_url}")
+        # logger.info(f"[EXTRACT ANSWER CALL] Using base_url: {base_url}")
         extracted_result = extract_answer(
             question,
             raw_response,

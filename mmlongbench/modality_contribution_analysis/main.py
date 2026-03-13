@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 """
-CLI entry point for modality contribution analysis (WITH IMAGES).
+Requires .env file with:
+    API_KEY=your_api_key
+    BASE_API_URL=https://your-api-endpoint.com
 
-Usage:
-    python mmlongbench/modality_contribution_with_images/main.py --api-key YOUR_KEY
-    
-Or as module:
-    python -m mmlongbench.modality_contribution_with_images --api-key YOUR_KEY
 """
 
 import os
@@ -16,8 +13,6 @@ import argparse
 import logging
 from pathlib import Path
 
-# Add project root to path for direct script execution
-# This allows both `python main.py` and `python -m mmlongbench.modality_contribution_with_images`
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -27,12 +22,12 @@ os.environ["ORT_LOG_LEVEL"] = "3"  # Suppress ONNX Runtime warnings/errors
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env", override=False)
 
-from mmlongbench.modality_contribution_with_images_prod_code.pipeline import main_async
+from mmlongbench.modality_contribution_analysis.pipeline import main_async
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="RQ3: Modality Minimalism Evaluation (WITH IMAGES)"
+        description="Modality Contribution Analysis for the MMLongBench-Doc benchmark"
     )
     parser.add_argument(
         "--samples",
@@ -56,18 +51,13 @@ def main():
     )
     parser.add_argument(
         "--api-key",
-        default=os.getenv("UVA_API_KEY"),
-        help="OpenAI API key"
+        default=os.getenv("API_KEY"),
+        help="API key (default: from API_KEY env var)"
     )
     parser.add_argument(
         "--base-url",
-        # default=os.getenv("LLM_BINDING_HOST"),
-        # api url for uva models
-        # this is the old url for uva models
-        # default="https://ai-research-proxy.azurewebsites.net",
-        # new as of 19/02
-        default="https://llmproxy.uva.nl",
-        help="Optional base URL for API"
+        default=os.getenv("BASE_API_URL"),
+        help="Base URL for API (default: from BASE_API_URL env var)"
     )
     parser.add_argument(
         "--parser",
@@ -89,8 +79,8 @@ def main():
     parser.add_argument(
         "--device",
         default="mps",
-        choices=["cpu", "cuda", "cuda:0", "cuda:1", "mps"],
-        help="Device for MinerU parsing (default: cuda)"
+        choices=["cpu", "cuda", "mps"],
+        help="Device for MinerU parsing"
     )
     parser.add_argument(
         "--backend",
@@ -122,6 +112,18 @@ def main():
         default=8,
         help="Max concurrent multimodal processing (image descriptions). Default: 8"
     )
+    parser.add_argument(
+        "--doc-start",
+        type=int,
+        default=None,
+        help="Start document index (1-based, inclusive). Processing goes from doc-start to doc-end. E.g. --doc-start 1 --doc-end 50"
+    )
+    parser.add_argument(
+        "--doc-end",
+        type=int,
+        default=None,
+        help="End document index (1-based, inclusive). Processing goes from doc-start to doc-end. E.g. --doc-start 1 --doc-end 50"
+    )
     
     args = parser.parse_args()
     
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     )
     
     print("\n" + "="*80)
-    print("Modality Contribution Analysis (WITH IMAGES)")
+    print("Modality Contribution Analysis for the MMLongBench-Doc benchmark")
     print("="*80 + "\n")
     
     main()
