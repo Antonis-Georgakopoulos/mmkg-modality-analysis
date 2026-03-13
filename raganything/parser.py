@@ -720,9 +720,14 @@ class MineruParser(Parser):
                         if "warning" in line.lower():
                             logging.warning(f"[MinerU] {line}")
                         elif "error" in line.lower():
-                            logging.error(f"[MinerU] {line}")
-                            error_message = line.split("\n")[0]
-                            error_lines.append(error_message)
+                            # Filter out harmless ONNX Runtime thread affinity warnings
+                            # These occur on cluster environments and don't affect functionality
+                            if "pthread_setaffinity_np" in line or "onnxruntime" in line.lower():
+                                logging.debug(f"[MinerU] (ignored ONNX warning) {line}")
+                            else:
+                                logging.error(f"[MinerU] {line}")
+                                error_message = line.split("\n")[0]
+                                error_lines.append(error_message)
                         else:
                             logging.info(f"[MinerU] {line}")
                 except Empty:
@@ -748,9 +753,14 @@ class MineruParser(Parser):
                     if "warning" in line.lower():
                         logging.warning(f"[MinerU] {line}")
                     elif "error" in line.lower():
-                        logging.error(f"[MinerU] {line}")
-                        error_message = line.split("\n")[0]
-                        error_lines.append(error_message)
+                        # Filter out harmless ONNX Runtime thread affinity warnings
+                        # These occur on cluster environments and don't affect functionality
+                        if "pthread_setaffinity_np" in line or "onnxruntime" in line.lower():
+                            logging.debug(f"[MinerU] (ignored ONNX warning) {line}")
+                        else:
+                            logging.error(f"[MinerU] {line}")
+                            error_message = line.split("\n")[0]
+                            error_lines.append(error_message)
                     else:
                         logging.info(f"[MinerU] {line}")
             except Empty:
@@ -807,9 +817,29 @@ class MineruParser(Parser):
 
         file_stem_subdir = output_dir / file_stem
         if file_stem_subdir.exists():
-            md_file = file_stem_subdir / method / f"{file_stem}.md"
-            json_file = file_stem_subdir / method / f"{file_stem}_content_list.json"
-            images_base_dir = file_stem_subdir / method
+            # MinerU folder naming depends on backend:
+            # - "pipeline" backend uses "auto", "txt", "ocr" folders
+            # - "hybrid-*" backends use "hybrid_auto" folder
+            # - "vlm-*" backends use "vlm" folder
+            # Try multiple possible folder names in order of preference
+            possible_methods = []
+            if method == "auto":
+                possible_methods = ["auto", "hybrid_auto"]
+            elif method == "vlm":
+                possible_methods = ["vlm"]
+            else:
+                possible_methods = [method, "hybrid_auto", "auto"]
+            
+            actual_method = method  # default fallback
+            for possible_method in possible_methods:
+                test_dir = file_stem_subdir / possible_method
+                if test_dir.exists():
+                    actual_method = possible_method
+                    break
+            
+            md_file = file_stem_subdir / actual_method / f"{file_stem}.md"
+            json_file = file_stem_subdir / actual_method / f"{file_stem}_content_list.json"
+            images_base_dir = file_stem_subdir / actual_method
 
         # Read markdown content
         md_content = ""

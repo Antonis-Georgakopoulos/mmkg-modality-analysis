@@ -165,7 +165,7 @@ async def openai_complete_if_cache(
     # Set openai logger level to INFO when VERBOSE_DEBUG is off
     if not VERBOSE_DEBUG and logger.level == logging.DEBUG:
         logging.getLogger("openai").setLevel(logging.INFO)
-
+    want_logprobs = bool(kwargs.get("logprobs"))
     # Remove special kwargs that shouldn't be passed to OpenAI
     kwargs.pop("hashing_kv", None)
     kwargs.pop("keyword_extraction", None)
@@ -190,10 +190,6 @@ async def openai_complete_if_cache(
     logger.debug("===== Entering func of LLM =====")
     logger.debug(f"Model: {model}   Base URL: {base_url}")
     logger.debug(f"Client Configs: {client_configs}")
-    logger.debug(f"Additional kwargs: {kwargs}")
-    logger.debug(f"Num of history messages: {len(history_messages)}")
-    verbose_debug(f"System prompt: {system_prompt}")
-    verbose_debug(f"Query: {prompt}")
     logger.debug("===== Sending Query to LLM =====")
 
     messages = kwargs.pop("messages", messages)
@@ -226,7 +222,7 @@ async def openai_complete_if_cache(
         )
         await openai_async_client.close()  # Ensure client is closed
         raise
-
+    
     if hasattr(response, "__aiter__"):
 
         async def inner():
@@ -466,6 +462,33 @@ async def openai_complete_if_cache(
             logger.debug(f"Response content len: {len(final_content)}")
             verbose_debug(f"Response: {response}")
 
+            if want_logprobs:
+                lp = getattr(response.choices[0], "logprobs", None)
+                
+                # Convert logprobs to serializable format
+                logprobs_data = None
+                if lp:
+                    
+                    if hasattr(lp, "content") and lp.content:
+                        logprobs_data = [
+                            {
+                                "token": item.token,
+                                "logprob": item.logprob,
+                                "bytes": item.bytes if hasattr(item, "bytes") else None,
+                                "top_logprobs": [
+                                    {
+                                        "token": tlp.token,
+                                        "logprob": tlp.logprob,
+                                        "bytes": tlp.bytes if hasattr(tlp, "bytes") else None
+                                    }
+                                    for tlp in (item.top_logprobs or [])
+                                ] if hasattr(item, "top_logprobs") else []
+                            }
+                            for item in lp.content
+                        ]
+                print(f"[PRINT_DEBUG] Returning TUPLE with logprobs_data: {logprobs_data is not None}, len={len(logprobs_data) if logprobs_data else 0}")
+                logger.info(f"[DEBUG_OPENAI] Returning tuple with logprobs_data: {logprobs_data is not None}")
+                return final_content, logprobs_data
             return final_content
         finally:
             # Ensure client is closed in all cases for non-streaming responses
@@ -508,7 +531,7 @@ async def gpt_4o_complete(
     if keyword_extraction:
         kwargs["response_format"] = GPTKeywordExtractionFormat
     return await openai_complete_if_cache(
-        "gpt-4o",
+        "gpt4o",
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
