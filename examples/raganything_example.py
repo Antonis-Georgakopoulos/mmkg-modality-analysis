@@ -207,7 +207,7 @@ async def process_with_rag(
 
         # Process document
         await rag.process_document_complete(
-            file_path=file_path, output_dir=output_dir, parse_method="auto"
+            file_path=file_path, output_dir=output_dir, parse_method="auto", backend="hybrid-auto-engine"
         )
 
         # Example queries - demonstrating different query approaches
