@@ -186,35 +186,72 @@ def build_evidence_summary(record: Dict[str, Any]) -> Dict[str, Any]:
 # MODALITY INFERENCE
 # ============================================================================
 
-async def infer_modality_from_chunk(lightrag: Any, chunk_id: str) -> str:
+async def infer_modality_from_chunk(lightrag: Any, chunk_id: str, debug_log: bool = False) -> str:
     """Infer modality type from chunk content."""
     try:
         chunk = await lightrag.text_chunks.get_by_id(chunk_id)
         if not chunk:
+            if debug_log:
+                logger.info(f"[DEBUG CHUNK] chunk_id={chunk_id} -> NOT FOUND, defaulting to 'text'")
             return "text"
+        
+        # DEBUG: Log ALL chunk properties
+        if debug_log:
+            logger.info(f"\n{'='*80}")
+            logger.info(f"[DEBUG CHUNK] chunk_id: {chunk_id}")
+            logger.info(f"[DEBUG CHUNK] All keys in chunk: {list(chunk.keys())}")
+            for key, value in chunk.items():
+                if key == "content":
+                    # Truncate content for readability
+                    content_preview = str(value)[:300] if value else "<empty>"
+                    logger.info(f"[DEBUG CHUNK]   {key}: {content_preview}...")
+                else:
+                    logger.info(f"[DEBUG CHUNK]   {key}: {value}")
+            logger.info(f"{'='*80}")
         
         # Check multimodal flag
         if chunk.get("is_multimodal"):
-            return chunk.get("original_type", "multimodal")
+            modality = chunk.get("original_type", "multimodal")
+            if debug_log:
+                logger.info(f"[DEBUG CHUNK] -> Detected via is_multimodal=True, original_type={modality}")
+            return modality
         
         # Heuristic based on content
         content_text = (chunk.get("content") or "").lower()
         if any(tag in content_text for tag in ["image content analysis:", "image path:"]):
+            if debug_log:
+                logger.info("[DEBUG CHUNK] -> Detected 'image' via content heuristic")
             return "image"
         elif any(tag in content_text for tag in ["table analysis:", "structure:"]):
+            if debug_log:
+                logger.info("[DEBUG CHUNK] -> Detected 'table' via content heuristic")
             return "table"
         elif any(tag in content_text for tag in ["mathematical equation analysis:", "equation:"]):
+            if debug_log:
+                logger.info("[DEBUG CHUNK] -> Detected 'equation' via content heuristic")
             return "equation"
         else:
+            if debug_log:
+                logger.info("[DEBUG CHUNK] -> Defaulting to 'text' (no multimodal markers found)")
             return "text"
-    except Exception:
+    except Exception as e:
+        if debug_log:
+            logger.error(f"[DEBUG CHUNK] chunk_id={chunk_id} -> EXCEPTION: {e}")
         return "text"
 
 
-async def batch_infer_modalities(lightrag: Any, chunk_ids: List[str]) -> Dict[str, str]:
-    """Batch infer modalities for multiple chunks concurrently."""
-    async def _infer(cid: str) -> tuple[str, str]:
-        modality = await infer_modality_from_chunk(lightrag, cid)
+async def batch_infer_modalities(lightrag: Any, chunk_ids: List[str], debug_first_n: int = 20) -> Dict[str, str]:
+    """Batch infer modalities for multiple chunks concurrently.
+    
+    Args:
+        lightrag: LightRAG instance
+        chunk_ids: List of chunk IDs to process
+        debug_first_n: Number of chunks to log in detail (default 5, set to 0 to disable)
+    """
+    chunks_logged = 0
+    
+    async def _infer(cid: str, should_debug: bool) -> tuple[str, str]:
+        modality = await infer_modality_from_chunk(lightrag, cid, debug_log=should_debug)
         return (cid, modality)
     
     # Process in batches of 50 to avoid overwhelming the system
@@ -223,9 +260,14 @@ async def batch_infer_modalities(lightrag: Any, chunk_ids: List[str]) -> Dict[st
     
     for i in range(0, len(chunk_ids), batch_size):
         batch = chunk_ids[i:i + batch_size]
-        batch_results = await asyncio.gather(*[_infer(cid) for cid in batch])
+        # Debug first N chunks
+        batch_results = await asyncio.gather(*[
+            _infer(cid, chunks_logged + idx < debug_first_n) 
+            for idx, cid in enumerate(batch)
+        ])
         for cid, modality in batch_results:
             results[cid] = modality
+        chunks_logged += len(batch)
     
     return results
 
