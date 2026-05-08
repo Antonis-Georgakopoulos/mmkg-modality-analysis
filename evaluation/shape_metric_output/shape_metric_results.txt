@@ -6,7 +6,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gemma3_27b
-Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gemma3_27b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_longdocurl/gemma3_27b_results_vlm.json
 Total questions: 3135
 Questions with 2 gold modalities: 2505
 Number of modality groups: 6
@@ -209,7 +209,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gemma3_4b
-Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gemma3_4b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_longdocurl/gemma3_4b_results_vlm.json
 Total questions: 3133
 Questions with 2 gold modalities: 2505
 Number of modality groups: 6
@@ -412,7 +412,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gpt-4o-mini
-Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gpt-4o-mini_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_longdocurl/gpt-4o-mini_results_vlm.json
 Total questions: 3207
 Questions with 2 gold modalities: 2505
 Number of modality groups: 6
@@ -615,7 +615,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: qwen3-vl_30b
-Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/qwen3-vl_30b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_longdocurl/qwen3-vl_30b_results_vlm.json
 Total questions: 3095
 Questions with 2 gold modalities: 2505
 Number of modality groups: 6
@@ -818,7 +818,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: qwen3-vl_8b
-Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/qwen3-vl_8b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_longdocurl/qwen3-vl_8b_results_vlm.json
 Total questions: 3032
 Questions with 2 gold modalities: 2505
 Number of modality groups: 6
@@ -1025,7 +1025,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gemma3_27b
-Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gemma3_27b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_mmlongbench/gemma3_27b_results_vlm.json
 Total questions: 819
 Questions with 2 gold modalities: 648
 Number of modality groups: 6
@@ -1228,7 +1228,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gemma3_4b
-Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gemma3_4b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_mmlongbench/gemma3_4b_results_vlm.json
 Total questions: 819
 Questions with 2 gold modalities: 648
 Number of modality groups: 6
@@ -1431,7 +1431,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: gpt-4o-mini
-Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gpt-4o-mini_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_mmlongbench/gpt-4o-mini_results_vlm.json
 Total questions: 819
 Questions with 2 gold modalities: 648
 Number of modality groups: 6
@@ -1634,7 +1634,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: qwen3-vl_30b
-Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/qwen3-vl_30b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_mmlongbench/qwen3-vl_30b_results_vlm.json
 Total questions: 819
 Questions with 2 gold modalities: 648
 Number of modality groups: 6
@@ -1837,7 +1837,7 @@ SHAPE METRIC ANALYSIS REPORT
 ================================================================================
 
 Model: qwen3-vl_8b
-Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/qwen3-vl_8b_results_vlm.json
+Results file:   /mmkg-modality-analysis/results_mmlongbench/qwen3-vl_8b_results_vlm.json
 Total questions: 819
 Questions with 2 gold modalities: 648
 Number of modality groups: 6
