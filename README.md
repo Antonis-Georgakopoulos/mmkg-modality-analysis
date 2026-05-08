@@ -198,7 +198,7 @@ results_longdocurl/                     # --results-dir
 ```
 
 - **`processed_documents_*/`** – Cached per-document data. If a document has already been parsed and its KG built, the pipeline reuses this on subsequent runs (no re-processing needed).
-- **`results_*/`** – Final evaluation results (see below).
+- **`results_*/`** – Final evaluation results (see below). We provide pre-computed results for all models (Gemma3-4B, Gemma3-27B, GPT-4o-mini, Qwen3-VL-8B, Qwen3-VL-30B) in the corresponding benchmark folders (`results_longdocurl/`, `results_mmlongbench/`), so all downstream analyses can be reproduced without re-running inference.
 
 
 ### Results file structure
