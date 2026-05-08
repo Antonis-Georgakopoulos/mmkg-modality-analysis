@@ -1,6 +1,6 @@
 <div align="center">
 
-# Signal or Noise? Evaluating Modality Contributions in Multimodal Knowledge Graph Question Answering
+# Signal or Noise? Modality Contribution and Cooperation in Multimodal GraphRAG
 
 <img src="./assets/overview_framework.png" alt="Framework Overview" width="800">
 
