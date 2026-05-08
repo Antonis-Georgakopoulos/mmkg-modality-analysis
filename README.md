@@ -8,7 +8,7 @@
 
 ---
 
-## Datasets
+## 📂 Datasets
 
 To reproduce the experiments, you need to download the following two datasets:
 
@@ -54,7 +54,7 @@ mmlongbench/
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ```bash
 # 1. Create venv
@@ -67,7 +67,7 @@ pip install -e ".[all]"
 
 ---
 
-## Local Models (Ollama)
+## 🦙 Local Models (Ollama)
 
 The experiments use locally-served models via [Ollama](https://ollama.com/). Make sure Ollama is installed on your system, then pull the required models:
 
@@ -84,7 +84,7 @@ If you don't want to run experiments with all models, edit the `config.py` file 
 
 ---
 
-## Data Preprocessing
+## 🧹 Data Preprocessing
 
 We filter each dataset to keep only questions whose evidence spans **exactly 2 modalities** — the subset used in our experiments.
 
@@ -104,7 +104,7 @@ This will produce two new files:
 
 ---
 
-## Running the Pipeline
+## 🚀 Running the Pipeline
 
 Before running the experiments, add your OpenAI API key to the `.env` file:
 
@@ -126,11 +126,11 @@ python longdocurl/modality_contribution_analysis/main.py --help
 ```
 
 
-## Checkpointing
+## 💾 Checkpointing
 
 Results are saved after **every question**, so the pipeline can be interrupted and resumed safely. On restart it automatically skips questions that already have results.
 
-## Pipeline Details
+## 🔧 Pipeline Details
 
 The pipeline processes each PDF document end-to-end and evaluates how different modality combinations contribute to answering questions.
 
@@ -207,7 +207,7 @@ Each `{model}_results_vlm.json` is a JSON array where every entry represents **o
 
 ---
 
-## Evaluation
+## 📊 Evaluation
 
 
 ### Accuracy
@@ -240,7 +240,7 @@ python evaluation/plot_modality_contribution_per_model.py
 Figures are saved to `evaluation/shape_metric_output/figures/`.
 
 
-## Statistical Analysis
+## 📈 Statistical Analysis
 
 For our main bootstrap sampling analysis stratified by both benchmark and modality pair (100,000 samples by default), run:
 
@@ -258,7 +258,7 @@ python statistical_analysis/stratified_by_benchmark/bootstrap_spearman_correlati
 ```
 Results are saved to `statistical_analysis/stratified_by_benchmark/spearman_output/`.
 
-## Forest Plots
+## 🌲 Forest Plots
 
 To generate the forest plots from the bootstrap results, run:
 
@@ -276,7 +276,7 @@ This produces six figures:
 - **`per_benchmark_compact.png`** — Same compact layout, split by benchmark.
 
 
-## Alternative Stratification Scenarios
+## 🔀 Alternative Stratification Scenarios
 
 The following are robustness checks that test the sensitivity of the results under different sampling assumptions. Both use 100,000 bootstrap replicates by default.
 
@@ -304,7 +304,7 @@ python statistical_analysis/comparison/plot_scenario_forest.py
 For each scenario, always run the bootstrap script before the corresponding plot script.
 
 
-## Question Intent Analysis
+## 🎯 Question Intent Analysis
 
 ### Intent Classification
 
@@ -393,3 +393,30 @@ To generate the plots:
 python question_intent_analysis/plot_intent_lines.py
 ```
 
+## 🧩 Question Task Analysis
+
+Analyses SHAPE scores stratified by the **task tag** (Understanding, Locating, Reasoning) assigned to each question in LongDocURL. This complements the intent analysis by examining how the cognitive process required to answer a question affects modality contributions.
+
+### Task SHAPE Analysis
+
+For the LongDocURL benchmark, maps each question to its `task_tag` label and computes observed SHAPE contribution (S_m1, S_m2, D) and cooperation (C) scores for every (task_tag × modality-pair) group, with bootstrap confidence intervals (100k replicates).
+
+To run the analysis:
+
+```bash
+python question_process_analysis/task_tag_shape_analysis.py
+```
+
+This requires the LongDocURL dataset in `longdocurl/` and model results in `results_longdocurl/`. Outputs saved to `question_process_analysis/`
+
+### Task SHAPE Plots
+
+Generates line plots of D (modality contribution), C (cooperation), and individual S scores across task tags for each modality pair. Figures are produced at three filtering thresholds.
+
+To generate the plots:
+
+```bash
+python question_process_analysis/plot_task_tag_shape.py
+```
+
+This requires `task_tag_shape_results.json` from the previous step. Figures are saved to `question_process_analysis/task_tag_line_figures/` under three subfolders: `no_min_filter/`, `samples_gte_10/`, and `samples_gt_20/`. Each subfolder contains `task_tag_D_by_pair`, `task_tag_C12_by_pair`, and `task_tag_S_by_pair` in both PNG and PDF formats.
