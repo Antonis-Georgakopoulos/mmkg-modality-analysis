@@ -1,0 +1,2070 @@
+{
+  "LongDocURL": {
+    "image + layout": {
+      "n_questions": 34,
+      "n_documents": 26,
+      "modalities": [
+        "image",
+        "layout"
+      ],
+      "comparison": {
+        "target": "layout",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": -0.19675854653050365,
+          "bootstrap_mean": -0.17847001010843547,
+          "bootstrap_std": 0.32808761355180666,
+          "ci_lo": -0.7742914979757084,
+          "ci_hi": 0.5223759345946661,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": -0.5548915725238559,
+          "bootstrap_mean": -0.5806245965009029,
+          "bootstrap_std": 0.3591150037121025,
+          "ci_lo": -1.3333333333333335,
+          "ci_hi": 0.0,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99995
+        },
+        "gpt-4o-mini": {
+          "observed_D": -0.8152209189390223,
+          "bootstrap_mean": -0.8158783771147431,
+          "bootstrap_std": 0.1328579225612138,
+          "ci_lo": -1.0761178299429381,
+          "ci_hi": -0.5527289455487405,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": -0.7141548562242558,
+          "bootstrap_mean": -0.7137224783614496,
+          "bootstrap_std": 0.18078313547098207,
+          "ci_lo": -1.0612259091035263,
+          "ci_hi": -0.34503594330586157,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": -0.7387019230769231,
+          "bootstrap_mean": -0.7315081376482594,
+          "bootstrap_std": 0.13021086522084857,
+          "ci_lo": -0.9588205009276439,
+          "ci_hi": -0.44956043956043956,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 99995,
+        "mean_across_models": {
+          "mean": -0.604040307773812,
+          "ci_lo": -0.8652034205266416,
+          "ci_hi": -0.3172399327843701,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": -0.6972236536837653,
+          "ci_lo": -0.9213051366212721,
+          "ci_hi": -0.42714184137963285,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.0,
+        "prop_all_negative": 0.7195559777988899,
+        "n_positive_distribution": {
+          "0": 0.7241162058102906,
+          "1": 0.2686434321716086,
+          "2": 0.007220361018050903,
+          "3": 2.00010000500025e-05,
+          "4": 0.0,
+          "5": 0.0
+        }
+      },
+      "D_strength": "moderate",
+      "D_detail": "obs direction: negative; 3/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 72.0%",
+      "D_conclusion": "Moderate evidence: image tends to contribute more than layout across models, but not all individual CIs exclude zero.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.023162678325449895,
+          "bootstrap_mean": 0.030000959913034878,
+          "bootstrap_std": 0.0729181477290632,
+          "ci_lo": -0.10893470907135258,
+          "ci_hi": 0.17996926376136768,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.003950936422423348,
+          "bootstrap_mean": 0.047170427782552135,
+          "bootstrap_std": 0.08800354004736313,
+          "ci_lo": -0.11428571428571425,
+          "ci_hi": 0.23330705688520015,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99995
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.049254509493235635,
+          "bootstrap_mean": 0.0036077694378721823,
+          "bootstrap_std": 0.06088434963222993,
+          "ci_lo": -0.10967337243710823,
+          "ci_hi": 0.12788343500526062,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.12161375177764853,
+          "bootstrap_mean": -0.07152012080626476,
+          "bootstrap_std": 0.08804737782323004,
+          "ci_lo": -0.23361095531108422,
+          "ci_hi": 0.11682820691873877,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.09443815987933625,
+          "bootstrap_mean": -0.04179715736937496,
+          "bootstrap_std": 0.06694411129368512,
+          "ci_lo": -0.16809346567411082,
+          "ci_hi": 0.09375,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 99995,
+        "mean_across_models": {
+          "mean": -0.006510722131015012,
+          "ci_lo": -0.11751568809396473,
+          "ci_hi": 0.1292422732737225,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": -0.00589311851921443,
+          "ci_lo": -0.118061031876465,
+          "ci_hi": 0.12167881510461422,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.12146607330366518,
+        "prop_all_negative": 0.1735386769338467,
+        "n_positive_distribution": {
+          "0": 0.18356917845892295,
+          "1": 0.175938796939847,
+          "2": 0.20620031001550077,
+          "3": 0.18758937946897344,
+          "4": 0.12523626181309067,
+          "5": 0.12146607330366518
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: negative; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 17.4%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "image + plain_text": {
+      "n_questions": 152,
+      "n_documents": 70,
+      "modalities": [
+        "image",
+        "plain_text"
+      ],
+      "comparison": {
+        "target": "plain_text",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 0.15641339674935775,
+          "bootstrap_mean": 0.1566875756452416,
+          "bootstrap_std": 0.1666605086161601,
+          "ci_lo": -0.1659235056058458,
+          "ci_hi": 0.4907220596328172,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": 0.07978038240384394,
+          "bootstrap_mean": 0.07980959034874975,
+          "bootstrap_std": 0.09099740024088775,
+          "ci_lo": -0.10205680046437672,
+          "ci_hi": 0.25589473308988536,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.2595767189973815,
+          "bootstrap_mean": 0.26142426181144346,
+          "bootstrap_std": 0.08796075204145555,
+          "ci_lo": 0.09080495505446533,
+          "ci_hi": 0.43567433978261916,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.10073153514008804,
+          "bootstrap_mean": 0.10028693274920226,
+          "bootstrap_std": 0.10294626436055254,
+          "ci_lo": -0.09942204778889552,
+          "ci_hi": 0.3039938136596635,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.071242014933944,
+          "bootstrap_mean": 0.0701177691797883,
+          "bootstrap_std": 0.08771716806224883,
+          "ci_lo": -0.10483204086196786,
+          "ci_hi": 0.23814987266570828,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": 0.13366522594688507,
+          "ci_lo": -0.012306214127955486,
+          "ci_hi": 0.2756544691158196,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.11549384114752667,
+          "ci_lo": -0.04709429316977727,
+          "ci_hi": 0.2711244392966767,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.57005,
+        "prop_all_negative": 0.00018,
+        "n_positive_distribution": {
+          "0": 0.00018,
+          "1": 0.02173,
+          "2": 0.05938,
+          "3": 0.12226,
+          "4": 0.2264,
+          "5": 0.57005
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: positive; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 57.0%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether plain_text or image contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.127806043932439,
+          "bootstrap_mean": -0.12130304482622656,
+          "bootstrap_std": 0.04954859331851643,
+          "ci_lo": -0.2148541978915234,
+          "ci_hi": -0.019901829250676337,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.12915300820696085,
+          "bootstrap_mean": -0.12131789107118779,
+          "bootstrap_std": 0.0584526027739074,
+          "ci_lo": -0.22955783819936929,
+          "ci_hi": -0.0008804205461929267,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.2850692689109271,
+          "bootstrap_mean": -0.27866555410181454,
+          "bootstrap_std": 0.06603995937126746,
+          "ci_lo": -0.39297781089627837,
+          "ci_hi": -0.13400505282069866,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.22926748438817895,
+          "bootstrap_mean": -0.2229966601349312,
+          "bootstrap_std": 0.05199178026048948,
+          "ci_lo": -0.3209517783503847,
+          "ci_hi": -0.11651769830106154,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.23064573421163997,
+          "bootstrap_mean": -0.2243803030162888,
+          "bootstrap_std": 0.057964975721578126,
+          "ci_lo": -0.3317273290907748,
+          "ci_hi": -0.10427551402934877,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": -0.19373269063008983,
+          "ci_lo": -0.27329055540694314,
+          "ci_hi": -0.0941254130284407,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": -0.20471604024662593,
+          "ci_lo": -0.298577064719076,
+          "ci_hi": -0.09665836919192264,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 1e-05,
+        "prop_all_negative": 0.9706,
+        "n_positive_distribution": {
+          "0": 0.9706,
+          "1": 0.02407,
+          "2": 0.0051,
+          "3": 0.0002,
+          "4": 2e-05,
+          "5": 1e-05
+        }
+      },
+      "C12_strength": "strong",
+      "C12_detail": "obs direction: negative; 5/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 97.1%",
+      "C12_conclusion": "Strong evidence: modalities are redundant (C12 < 0) consistently across all 5 models."
+    },
+    "image + table": {
+      "n_questions": 164,
+      "n_documents": 50,
+      "modalities": [
+        "image",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 0.23975693447005703,
+          "bootstrap_mean": 0.1477645364789153,
+          "bootstrap_std": 0.5948992377643341,
+          "ci_lo": -1.1867612971610955,
+          "ci_hi": 0.9307666059624867,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99946
+        },
+        "gemma3_27b": {
+          "observed_D": 0.10434808669219131,
+          "bootstrap_mean": 0.13735234937174867,
+          "bootstrap_std": 0.27926365242011253,
+          "ci_lo": -0.2951737812957576,
+          "ci_hi": 0.7641098960281305,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99999
+        },
+        "gpt-4o-mini": {
+          "observed_D": -0.08265646820918948,
+          "bootstrap_mean": -0.0746262038595023,
+          "bootstrap_std": 0.0736151545230404,
+          "ci_lo": -0.20363047183518818,
+          "ci_hi": 0.08705613507868223,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.0587183092746576,
+          "bootstrap_mean": 0.061384724978702204,
+          "bootstrap_std": 0.07817777807301668,
+          "ci_lo": -0.08813416677659447,
+          "ci_hi": 0.2202354775382942,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.16885656021998596,
+          "bootstrap_mean": 0.1785147407351023,
+          "bootstrap_std": 0.11521721534871106,
+          "ci_lo": -0.027531337223028276,
+          "ci_hi": 0.4256251194845912,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 99945,
+        "mean_across_models": {
+          "mean": 0.08999643599417355,
+          "ci_lo": -0.17296527579599127,
+          "ci_hi": 0.33963368339598404,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.08500451266058251,
+          "ci_lo": -0.08123220226996976,
+          "ci_hi": 0.28905590836309586,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.0443443894141778,
+        "prop_all_negative": 0.00037020361198659263,
+        "n_positive_distribution": {
+          "0": 0.00037020361198659263,
+          "1": 0.01962079143528941,
+          "2": 0.13581469808394617,
+          "3": 0.3655610585822202,
+          "4": 0.43428885887237983,
+          "5": 0.0443443894141778
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 4.4%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether table or image contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.005786666928303038,
+          "bootstrap_mean": 0.016791384344175975,
+          "bootstrap_std": 0.030730540497921698,
+          "ci_lo": -0.04060199219374697,
+          "ci_hi": 0.08142991754180243,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99946
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.01068305074034626,
+          "bootstrap_mean": 0.007097899536711763,
+          "bootstrap_std": 0.05346049634914874,
+          "ci_lo": -0.09796236291884383,
+          "ci_hi": 0.11240371561279652,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99999
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.23289763582552012,
+          "bootstrap_mean": 0.25607249771847657,
+          "bootstrap_std": 0.04595946705332767,
+          "ci_lo": 0.17052666894627516,
+          "ci_hi": 0.3511478547022848,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.011338754743934382,
+          "bootstrap_mean": 0.012589344512028524,
+          "bootstrap_std": 0.035747737510519115,
+          "ci_lo": -0.05477575511735245,
+          "ci_hi": 0.08693251884132122,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.01389105373764692,
+          "bootstrap_mean": 0.009067758198800081,
+          "bootstrap_std": 0.052702028245435635,
+          "ci_lo": -0.0907056507977709,
+          "ci_hi": 0.11613278777922147,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 99945,
+        "mean_across_models": {
+          "mean": 0.060327682707339604,
+          "ci_lo": 0.0013526245164615864,
+          "ci_hi": 0.13003233881570564,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.021875607856688045,
+          "ci_lo": -0.03647659765767157,
+          "ci_hi": 0.0917667607092631,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.2576717194456951,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.07715243383861124,
+          "2": 0.17016358997448597,
+          "3": 0.23765070788933915,
+          "4": 0.2573615488518685,
+          "5": 0.2576717194456951
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 1/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 25.8%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "layout + plain_text": {
+      "n_questions": 280,
+      "n_documents": 131,
+      "modalities": [
+        "layout",
+        "plain_text"
+      ],
+      "comparison": {
+        "target": "plain_text",
+        "reference": "layout"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 0.35989454621141304,
+          "bootstrap_mean": 0.364895372471641,
+          "bootstrap_std": 0.08809345632815523,
+          "ci_lo": 0.20468327041171328,
+          "ci_hi": 0.5519818405179012,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": 0.34235069362383086,
+          "bootstrap_mean": 0.34640117555288735,
+          "bootstrap_std": 0.08239229133753986,
+          "ci_lo": 0.19000062418744357,
+          "ci_hi": 0.513226248725569,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.6123866549029447,
+          "bootstrap_mean": 0.6143868933262777,
+          "bootstrap_std": 0.07026857147578378,
+          "ci_lo": 0.4780719724632495,
+          "ci_hi": 0.7543957822517707,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.5503980242038283,
+          "bootstrap_mean": 0.5522370726455136,
+          "bootstrap_std": 0.06635018287458576,
+          "ci_lo": 0.4246059923561464,
+          "ci_hi": 0.6858697129720692,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.5743993613239741,
+          "bootstrap_mean": 0.5771131699336632,
+          "bootstrap_std": 0.07710731937999488,
+          "ci_lo": 0.428653374229892,
+          "ci_hi": 0.7321331095491833,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": 0.49100673678599654,
+          "ci_lo": 0.39017386815494953,
+          "ci_hi": 0.5962337942662257,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.5347437283182528,
+          "ci_lo": 0.4134630666177293,
+          "ci_hi": 0.6573929761172245,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 1.0,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 1.0
+        }
+      },
+      "D_strength": "strong",
+      "D_detail": "obs direction: positive; 5/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 100.0%",
+      "D_conclusion": "Strong evidence: plain_text contributes more than layout, consistently across all 5 models.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.03914877629595487,
+          "bootstrap_mean": -0.03853930554875804,
+          "bootstrap_std": 0.02451881497845522,
+          "ci_lo": -0.0859795519956412,
+          "ci_hi": 0.010471312771409795,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.02985773867631819,
+          "bootstrap_mean": -0.029107505381867464,
+          "bootstrap_std": 0.028837664197485673,
+          "ci_lo": -0.0850699610638551,
+          "ci_hi": 0.02777750304482731,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.10139837351528613,
+          "bootstrap_mean": -0.10075740896062217,
+          "bootstrap_std": 0.03167416420316432,
+          "ci_lo": -0.1628212159318524,
+          "ci_hi": -0.03876455767362856,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.04827300364087328,
+          "bootstrap_mean": -0.04790375012896567,
+          "bootstrap_std": 0.03084279306564919,
+          "ci_lo": -0.10774870001926694,
+          "ci_hi": 0.01346352247597518,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.11134112643818816,
+          "bootstrap_mean": -0.11076738703226445,
+          "bootstrap_std": 0.03125416110953138,
+          "ci_lo": -0.1718369314947052,
+          "ci_hi": -0.04915649002976695,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": -0.06541507141049556,
+          "ci_lo": -0.10412314689671504,
+          "ci_hi": -0.02602911234736602,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": -0.05903574816665465,
+          "ci_lo": -0.10484260553364136,
+          "ci_hi": -0.01524886773339052,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.0,
+        "prop_all_negative": 0.76269,
+        "n_positive_distribution": {
+          "0": 0.76269,
+          "1": 0.20044,
+          "2": 0.03312,
+          "3": 0.00369,
+          "4": 6e-05,
+          "5": 0.0
+        }
+      },
+      "C12_strength": "moderate",
+      "C12_detail": "obs direction: negative; 2/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 76.3%",
+      "C12_conclusion": "Moderate evidence for redundancy (C12 < 0) across models."
+    },
+    "layout + table": {
+      "n_questions": 150,
+      "n_documents": 60,
+      "modalities": [
+        "layout",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "layout"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 0.32316917983793275,
+          "bootstrap_mean": 0.2848607356860632,
+          "bootstrap_std": 0.26834188085006666,
+          "ci_lo": -0.3428168842889585,
+          "ci_hi": 0.7049909971551453,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": 1.1052813754287545,
+          "bootstrap_mean": 1.1129549989721697,
+          "bootstrap_std": 0.14933124562759997,
+          "ci_lo": 0.845660686252654,
+          "ci_hi": 1.4347686507694979,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.8730119228726998,
+          "bootstrap_mean": 0.8693909104881549,
+          "bootstrap_std": 0.0868368914059024,
+          "ci_lo": 0.6839301744359555,
+          "ci_hi": 1.0263824841082796,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.8228277083771154,
+          "bootstrap_mean": 0.8217968032091715,
+          "bootstrap_std": 0.08293871108393114,
+          "ci_lo": 0.6559484135775243,
+          "ci_hi": 0.9814786922038887,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.8918707036992686,
+          "bootstrap_mean": 0.8936740648291792,
+          "bootstrap_std": 0.09481562612742109,
+          "ci_lo": 0.7056858733594352,
+          "ci_hi": 1.0811646012340195,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": 0.7965355026369475,
+          "ci_lo": 0.6120397785584526,
+          "ci_hi": 0.9570966621422993,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.8576653610184161,
+          "ci_lo": 0.7063778649814233,
+          "ci_hi": 0.9869116572377908,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.86728,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.13272,
+          "5": 0.86728
+        }
+      },
+      "D_strength": "strong",
+      "D_detail": "obs direction: positive; 4/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 86.7%",
+      "D_conclusion": "Strong evidence: table contributes more than layout, consistently across all 5 models.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.0023717546237924866,
+          "bootstrap_mean": 0.0424418798684323,
+          "bootstrap_std": 0.04402552940799903,
+          "ci_lo": -0.024316689982134904,
+          "ci_hi": 0.14970420351564415,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.005121096785042599,
+          "bootstrap_mean": 0.04043733034477688,
+          "bootstrap_std": 0.04628487873911694,
+          "ci_lo": -0.03474735399486537,
+          "ci_hi": 0.14908507322932077,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.007120988756243347,
+          "bootstrap_mean": 0.05226929905337491,
+          "bootstrap_std": 0.042939306186107605,
+          "ci_lo": -0.019164513386250366,
+          "ci_hi": 0.15146838789668163,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": 0.022721859064779144,
+          "bootstrap_mean": 0.06828415446089009,
+          "bootstrap_std": 0.04302075256666231,
+          "ci_lo": -0.01040484443101056,
+          "ci_hi": 0.15868485903371912,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.013207328814930967,
+          "bootstrap_mean": 0.03176041732007102,
+          "bootstrap_std": 0.039318866172701895,
+          "ci_lo": -0.0359862916592897,
+          "ci_hi": 0.11830228616867403,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": 0.04703861620950905,
+          "ci_lo": -0.010748453660460587,
+          "ci_hi": 0.1367771005935494,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.04580415011732893,
+          "ci_lo": -0.014366854441028866,
+          "ci_hi": 0.14059026564966057,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.64326,
+        "prop_all_negative": 0.00636,
+        "n_positive_distribution": {
+          "0": 0.00636,
+          "1": 0.023,
+          "2": 0.06162,
+          "3": 0.0916,
+          "4": 0.17416,
+          "5": 0.64326
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 64.3%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "plain_text + table": {
+      "n_questions": 55,
+      "n_documents": 39,
+      "modalities": [
+        "plain_text",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "plain_text"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": -0.028537127083562375,
+          "bootstrap_mean": -0.03355874423676079,
+          "bootstrap_std": 0.23357968483534053,
+          "ci_lo": -0.5066082578150432,
+          "ci_hi": 0.4209867597570228,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": -0.03470365887580662,
+          "bootstrap_mean": -0.03909543095532705,
+          "bootstrap_std": 0.13951836827012357,
+          "ci_lo": -0.3258718030636783,
+          "ci_hi": 0.2243736435950844,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_D": -0.004323883044709986,
+          "bootstrap_mean": -0.005135746545812877,
+          "bootstrap_std": 0.13634381801913642,
+          "ci_lo": -0.2717348904758975,
+          "ci_hi": 0.2632672915779667,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.2462811661727588,
+          "bootstrap_mean": 0.24358557849071458,
+          "bootstrap_std": 0.12130544831784658,
+          "ci_lo": 0.000766283172179954,
+          "ci_hi": 0.477219700358847,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.1027844816281111,
+          "bootstrap_mean": 0.1006876448757919,
+          "bootstrap_std": 0.10084410816368772,
+          "ci_lo": -0.10118230769235359,
+          "ci_hi": 0.2954937053900656,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": 0.05329666032572115,
+          "ci_lo": -0.16159728866054335,
+          "ci_hi": 0.25283479468531567,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.058250603128946296,
+          "ci_lo": -0.16065646820594992,
+          "ci_hi": 0.265135910842879,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.13464,
+        "prop_all_negative": 0.01661,
+        "n_positive_distribution": {
+          "0": 0.01665,
+          "1": 0.08608,
+          "2": 0.18448,
+          "3": 0.29626,
+          "4": 0.28189,
+          "5": 0.13464
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: mixed; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 13.5%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether table or plain_text contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.2579066913716245,
+          "bootstrap_mean": -0.25242581924395113,
+          "bootstrap_std": 0.09634184323968495,
+          "ci_lo": -0.4434908331418016,
+          "ci_hi": -0.06608148491544169,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.12106450142653312,
+          "bootstrap_mean": -0.11444484973471286,
+          "bootstrap_std": 0.08354505057198523,
+          "ci_lo": -0.27614112867050333,
+          "ci_hi": 0.05220906279850138,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.34267960694720073,
+          "bootstrap_mean": -0.3337696813234532,
+          "bootstrap_std": 0.09063248189336882,
+          "ci_lo": -0.49582161214983067,
+          "ci_hi": -0.1417787088551946,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.2314397957725553,
+          "bootstrap_mean": -0.22241742320207367,
+          "bootstrap_std": 0.08013127403599662,
+          "ci_lo": -0.3737770356619073,
+          "ci_hi": -0.05926025041365313,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.24332316716769048,
+          "bootstrap_mean": -0.23295539293582918,
+          "bootstrap_std": 0.1064861843395978,
+          "ci_lo": -0.436916497280036,
+          "ci_hi": -0.019999277395526455,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": -0.23120263328800397,
+          "ci_lo": -0.371278686793943,
+          "ci_hi": -0.08007076921340067,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": -0.23201131173851453,
+          "ci_lo": -0.3859017274237622,
+          "ci_hi": -0.06898685014399322,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 1e-05,
+        "prop_all_negative": 0.90518,
+        "n_positive_distribution": {
+          "0": 0.90519,
+          "1": 0.08241,
+          "2": 0.00981,
+          "3": 0.00237,
+          "4": 0.00021,
+          "5": 1e-05
+        }
+      },
+      "C12_strength": "strong",
+      "C12_detail": "obs direction: negative; 4/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 90.5%",
+      "C12_conclusion": "Strong evidence: modalities are redundant (C12 < 0) consistently across all 5 models."
+    }
+  },
+  "MMLongBench-Doc": {
+    "image + layout": {
+      "n_questions": 47,
+      "n_documents": 28,
+      "modalities": [
+        "image",
+        "layout"
+      ],
+      "comparison": {
+        "target": "layout",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": -0.7083333333333335,
+          "bootstrap_mean": -0.8638125750232555,
+          "bootstrap_std": 0.9088336825143553,
+          "ci_lo": -3.166666666666667,
+          "ci_hi": 0.3333333333333335,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 98647
+        },
+        "gemma3_27b": {
+          "observed_D": -0.7073170731707318,
+          "bootstrap_mean": -0.7721599726802291,
+          "bootstrap_std": 0.49694188827057306,
+          "ci_lo": -1.8823529411764708,
+          "ci_hi": 0.0,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99961
+        },
+        "gpt-4o-mini": {
+          "observed_D": -1.1214285714285714,
+          "bootstrap_mean": -1.1583504788583736,
+          "bootstrap_std": 0.25578922367221774,
+          "ci_lo": -1.7662337662337662,
+          "ci_hi": -0.9238095238095239,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 99885
+        },
+        "qwen3-vl_8b": {
+          "observed_D": -1.75,
+          "bootstrap_mean": -2.005317767079358,
+          "bootstrap_std": 1.201294030693813,
+          "ci_lo": -5.0,
+          "ci_hi": -0.49999999999999994,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 98675
+        },
+        "qwen3-vl_30b": {
+          "observed_D": -0.7107843137254903,
+          "bootstrap_mean": -0.7638680404656661,
+          "bootstrap_std": 0.3787258804126361,
+          "ci_lo": -1.6249999999999998,
+          "ci_hi": -0.22727272727272724,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 99966
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 97266,
+        "mean_across_models": {
+          "mean": -1.106723426508239,
+          "ci_lo": -2.0786813423619557,
+          "ci_hi": -0.553036117790899,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": -0.9624940558908605,
+          "ci_lo": -1.6,
+          "ci_hi": -0.4444444444444445,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.0,
+        "prop_all_negative": 0.8553040116793124,
+        "n_positive_distribution": {
+          "0": 0.9105751238870725,
+          "1": 0.08834536220261963,
+          "2": 0.0010795139103078157,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.0
+        }
+      },
+      "D_strength": "moderate",
+      "D_detail": "obs direction: negative; 3/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 85.5%",
+      "D_conclusion": "Moderate evidence: image tends to contribute more than layout across models, but not all individual CIs exclude zero.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": 0.046099290780141834,
+          "bootstrap_mean": 0.07320838424448163,
+          "bootstrap_std": 0.07626391608871436,
+          "ci_lo": -0.06818181818181818,
+          "ci_hi": 0.23263888888888887,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 98647
+        },
+        "gemma3_27b": {
+          "observed_C12": 0.10638297872340426,
+          "bootstrap_mean": 0.13330521572380677,
+          "bootstrap_std": 0.06695534968679383,
+          "ci_lo": 0.017543859649122792,
+          "ci_hi": 0.2727272727272727,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99961
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.08915906788247215,
+          "bootstrap_mean": 0.11600563448629272,
+          "bootstrap_std": 0.03764489167509638,
+          "ci_lo": 0.05660377358490565,
+          "ci_hi": 0.20423280423280424,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99885
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": 0.04255319148936171,
+          "bootstrap_mean": 0.06907621470474361,
+          "bootstrap_std": 0.07613225901944876,
+          "ci_lo": -0.07142857142857145,
+          "ci_hi": 0.22916666666666666,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 98675
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": 0.1056737588652482,
+          "bootstrap_mean": 0.1331182199211131,
+          "bootstrap_std": 0.05732409756773036,
+          "ci_lo": 0.027131782945736427,
+          "ci_hi": 0.2539130434782608,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99966
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 97266,
+        "mean_across_models": {
+          "mean": 0.10518545619096467,
+          "ci_lo": 0.03195274584929757,
+          "ci_hi": 0.19551322751322753,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.10681317178094188,
+          "ci_lo": 0.023809523809523808,
+          "ci_hi": 0.2,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.6926161248534946,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 1.0281084860074436e-05,
+          "2": 0.00783418666337672,
+          "3": 0.06814303045257336,
+          "4": 0.23139637694569531,
+          "5": 0.6926161248534946
+        }
+      },
+      "C12_strength": "moderate",
+      "C12_detail": "obs direction: positive; 3/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 69.3%",
+      "C12_conclusion": "Moderate evidence for cooperation (C12 > 0) across models."
+    },
+    "image + plain_text": {
+      "n_questions": 92,
+      "n_documents": 44,
+      "modalities": [
+        "image",
+        "plain_text"
+      ],
+      "comparison": {
+        "target": "plain_text",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": -0.10765661252900233,
+          "bootstrap_mean": -0.11273952543312435,
+          "bootstrap_std": 0.27818976913626436,
+          "ci_lo": -0.6724829685898592,
+          "ci_hi": 0.42999438343475604,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_D": -0.4051125697655375,
+          "bootstrap_mean": -0.4332865799175919,
+          "bootstrap_std": 0.2767501632256493,
+          "ci_lo": -1.0404846683800955,
+          "ci_hi": 0.04285714285714286,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_D": -0.5081507896077431,
+          "bootstrap_mean": -0.5215831091539912,
+          "bootstrap_std": 0.18867037218933436,
+          "ci_lo": -0.923084869675779,
+          "ci_hi": -0.18584070796460186,
+          "ci_excludes_zero": true,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": -0.14239328080353286,
+          "bootstrap_mean": -0.1366620657568572,
+          "bootstrap_std": 0.23295422129628093,
+          "ci_lo": -0.6001909699455321,
+          "ci_hi": 0.3277425513056522,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_D": -0.11661406300054195,
+          "bootstrap_mean": -0.13423155511033205,
+          "bootstrap_std": 0.2143631767001834,
+          "ci_lo": -0.601344181110718,
+          "ci_hi": 0.24338647896083324,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": -0.2677005670743794,
+          "ci_lo": -0.6291430627466622,
+          "ci_hi": 0.03121830037692525,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": -0.24417082782387234,
+          "ci_lo": -0.6422018348623855,
+          "ci_hi": 0.12174777556917807,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 2e-05,
+        "prop_all_negative": 0.45333,
+        "n_positive_distribution": {
+          "0": 0.4643,
+          "1": 0.28718,
+          "2": 0.15328,
+          "3": 0.07935,
+          "4": 0.01587,
+          "5": 2e-05
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: negative; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 45.3%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether plain_text or image contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.03552018633540375,
+          "bootstrap_mean": -0.018217715965283706,
+          "bootstrap_std": 0.046063391855819466,
+          "ci_lo": -0.10969387755102039,
+          "ci_hi": 0.07111855158730158,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.0531186270218928,
+          "bootstrap_mean": -0.036049603131188185,
+          "bootstrap_std": 0.0712115959473329,
+          "ci_lo": -0.1768520501653934,
+          "ci_hi": 0.10162073750991261,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.004240324892498752,
+          "bootstrap_mean": 0.01391219636011828,
+          "bootstrap_std": 0.049253555089773075,
+          "ci_lo": -0.08104488416988422,
+          "ci_hi": 0.11076985672555278,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.019495863304936988,
+          "bootstrap_mean": -0.0007679469646217211,
+          "bootstrap_std": 0.05236353626753714,
+          "ci_lo": -0.10225138865179306,
+          "ci_hi": 0.10209367460602624,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.013535577397307146,
+          "bootstrap_mean": 0.004149597310384336,
+          "bootstrap_std": 0.05309303706495141,
+          "ci_lo": -0.10324691076638454,
+          "ci_hi": 0.10702247191011235,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 100000,
+        "mean_across_models": {
+          "mean": -0.007394694478118199,
+          "ci_lo": -0.09222925440829897,
+          "ci_hi": 0.07575169675945881,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": -0.005724551305683441,
+          "ci_lo": -0.09137808619951474,
+          "ci_hi": 0.08045977011494257,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.13107,
+        "prop_all_negative": 0.18871,
+        "n_positive_distribution": {
+          "0": 0.19064,
+          "1": 0.19286,
+          "2": 0.16566,
+          "3": 0.15596,
+          "4": 0.16381,
+          "5": 0.13107
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: negative; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 18.9%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "image + table": {
+      "n_questions": 16,
+      "n_documents": 14,
+      "modalities": [
+        "image",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "image"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 1.7333333333333334,
+          "bootstrap_mean": 1.318894392701718,
+          "bootstrap_std": 2.4721908034813715,
+          "ci_lo": -3.466666666666667,
+          "ci_hi": 6.933333333333334,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 64544
+        },
+        "gemma3_27b": {
+          "observed_D": 1.0,
+          "bootstrap_mean": 1.1781518352535887,
+          "bootstrap_std": 0.7919288941803693,
+          "ci_lo": 0.24999999999999994,
+          "ci_hi": 3.0,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99053
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.6666666666666666,
+          "bootstrap_mean": 0.553912220876146,
+          "bootstrap_std": 0.5917376443008506,
+          "ci_lo": -1.0,
+          "ci_hi": 1.0,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 96577
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 3.5999999999999996,
+          "bootstrap_mean": 3.1689786812097167,
+          "bootstrap_std": 1.5080943483011708,
+          "ci_lo": 1.7999999999999996,
+          "ci_hi": 7.199999999999999,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 64544
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 1.0,
+          "bootstrap_mean": 1.0931206060641994,
+          "bootstrap_std": 0.820353909857201,
+          "ci_lo": 0.0,
+          "ci_hi": 3.0,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 88341
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 64544,
+        "mean_across_models": {
+          "mean": 1.3832046843130288,
+          "ci_lo": -0.06666666666666679,
+          "ci_hi": 3.546666666666667,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.9793258055088744,
+          "ci_lo": 0.0,
+          "ci_hi": 2.5,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.5715325979176995,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.005283217649975211,
+          "2": 0.059339365394149725,
+          "3": 0.09844447198810113,
+          "4": 0.26540034705007437,
+          "5": 0.5715325979176995
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: positive; 2/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 57.2%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether table or image contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.08894230769230771,
+          "bootstrap_mean": 0.06640137670464924,
+          "bootstrap_std": 0.11920939090700378,
+          "ci_lo": -0.1346153846153846,
+          "ci_hi": 0.3269230769230769,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 64544
+        },
+        "gemma3_27b": {
+          "observed_C12": 0.0625,
+          "bootstrap_mean": 0.18999022288132664,
+          "bootstrap_std": 0.13898584589591398,
+          "ci_lo": -0.0625,
+          "ci_hi": 0.5,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99053
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.0,
+          "bootstrap_mean": 0.1252659545798699,
+          "bootstrap_std": 0.07876360323769174,
+          "ci_lo": 0.0,
+          "ci_hi": 0.2857142857142857,
+          "ci_excludes_zero": false,
+          "direction": "zero",
+          "n_valid": 96577
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": -0.027777777777777776,
+          "bootstrap_mean": 0.0812193284054211,
+          "bootstrap_std": 0.07739066382588591,
+          "ci_lo": -0.05555555555555555,
+          "ci_hi": 0.25396825396825395,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 64544
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": 0.0625,
+          "bootstrap_mean": 0.19733254977804507,
+          "bootstrap_std": 0.10517210052347814,
+          "ci_lo": 0.0,
+          "ci_hi": 0.42857142857142855,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 88341
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 64544,
+        "mean_across_models": {
+          "mean": 0.14411615164766065,
+          "ci_lo": 0.01258309591642925,
+          "ci_hi": 0.3218559218559218,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.14083180579963137,
+          "ci_lo": 0.0,
+          "ci_hi": 0.3269230769230769,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.5430094199305899,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0037958601883986117,
+          "2": 0.03623884481903818,
+          "3": 0.11110250371839366,
+          "4": 0.3058533713435796,
+          "5": 0.5430094199305899
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 54.3%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "layout + plain_text": {
+      "n_questions": 16,
+      "n_documents": 14,
+      "modalities": [
+        "layout",
+        "plain_text"
+      ],
+      "comparison": {
+        "target": "plain_text",
+        "reference": "layout"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 2.0,
+          "bootstrap_mean": 1.7516701590997286,
+          "bootstrap_std": 1.431749584587584,
+          "ci_lo": -1.0,
+          "ci_hi": 5.0,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 64425
+        },
+        "gemma3_27b": {
+          "observed_D": 0.5,
+          "bootstrap_mean": 0.5664589162950167,
+          "bootstrap_std": 0.49236293908680534,
+          "ci_lo": 0.0,
+          "ci_hi": 2.0,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 96553
+        },
+        "gpt-4o-mini": {
+          "observed_D": 1.0,
+          "bootstrap_mean": 1.03386651879915,
+          "bootstrap_std": 0.42673612845475845,
+          "ci_lo": 0.0,
+          "ci_hi": 2.0,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 96497
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 1.0,
+          "bootstrap_mean": 1.1249632289166178,
+          "bootstrap_std": 0.6631499707348525,
+          "ci_lo": 0.33333333333333326,
+          "ci_hi": 3.0,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99063
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.5714285714285715,
+          "bootstrap_mean": 0.5845947472712503,
+          "bootstrap_std": 0.387568731669151,
+          "ci_lo": -0.16666666666666669,
+          "ci_hi": 1.3333333333333333,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99967
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 60073,
+        "mean_across_models": {
+          "mean": 1.0990618061818835,
+          "ci_lo": 0.45238095238095244,
+          "ci_hi": 1.8098730158730154,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.9341215201207848,
+          "ci_lo": 0.4285714285714286,
+          "ci_hi": 1.5000000000000004,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.8211675794450086,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.008489670900404507,
+          "4": 0.17034274965458693,
+          "5": 0.8211675794450086
+        }
+      },
+      "D_strength": "moderate",
+      "D_detail": "obs direction: positive; 1/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 82.1%",
+      "D_conclusion": "Moderate evidence: plain_text tends to contribute more than layout across models, but not all individual CIs exclude zero.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.1875,
+          "bootstrap_mean": -0.0843446585398203,
+          "bootstrap_std": 0.1403002863654338,
+          "ci_lo": -0.375,
+          "ci_hi": 0.1875,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 64425
+        },
+        "gemma3_27b": {
+          "observed_C12": 0.125,
+          "bootstrap_mean": 0.21904808071354775,
+          "bootstrap_std": 0.1684418310044734,
+          "ci_lo": -0.125,
+          "ci_hi": 0.5555555555555556,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 96553
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.0,
+          "bootstrap_mean": 0.08318117849032658,
+          "bootstrap_std": 0.0937015469488261,
+          "ci_lo": -0.07142857142857142,
+          "ci_hi": 0.26666666666666666,
+          "ci_excludes_zero": false,
+          "direction": "zero",
+          "n_valid": 96497
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": 0.0,
+          "bootstrap_mean": 0.08740371872692033,
+          "bootstrap_std": 0.12334920880534689,
+          "ci_lo": -0.13333333333333336,
+          "ci_hi": 0.33333333333333337,
+          "ci_excludes_zero": false,
+          "direction": "zero",
+          "n_valid": 99063
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": 0.1875,
+          "bootstrap_mean": 0.27767415025808884,
+          "bootstrap_std": 0.1164577111699882,
+          "ci_lo": 0.0666666666666666,
+          "ci_hi": 0.5333333333333333,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99967
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 60073,
+        "mean_across_models": {
+          "mean": 0.09524264339376463,
+          "ci_lo": -0.05,
+          "ci_hi": 0.25,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.08733679929100051,
+          "ci_lo": -0.06666666666666671,
+          "ci_hi": 0.26666666666666666,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.13505235297055249,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.00011652489471143443,
+          "1": 0.011252975546418523,
+          "2": 0.20162136067784195,
+          "3": 0.2683235396933731,
+          "4": 0.38363324621710254,
+          "5": 0.13505235297055249
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 13.5%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "layout + table": {
+      "n_questions": 9,
+      "n_documents": 7,
+      "modalities": [
+        "layout",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "layout"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 1.1003916960438702,
+          "bootstrap_mean": 1.1045556657773283,
+          "bootstrap_std": 0.1172841429135639,
+          "ci_lo": 0.8936936936936939,
+          "ci_hi": 1.3000000000000003,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 90477
+        },
+        "gemma3_27b": {
+          "observed_D": 0.9230769230769234,
+          "bootstrap_mean": 1.1767667144938012,
+          "bootstrap_std": 0.812197573122342,
+          "ci_lo": -1.0769230769230766,
+          "ci_hi": 1.9230769230769234,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 65889
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.0,
+          "bootstrap_mean": 0.0,
+          "bootstrap_std": 0.0,
+          "ci_lo": 0.0,
+          "ci_hi": 0.0,
+          "ci_excludes_zero": false,
+          "direction": "zero",
+          "n_valid": 65889
+        },
+        "qwen3-vl_8b": {
+          "observed_D": -1.0,
+          "bootstrap_mean": -0.7463102085831222,
+          "bootstrap_std": 0.8121975731223421,
+          "ci_lo": -3.0,
+          "ci_hi": 0.0,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 65889
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.33333333333333337,
+          "bootstrap_mean": 0.2852117587113774,
+          "bootstrap_std": 0.19294706114037866,
+          "ci_lo": 0.0,
+          "ci_hi": 0.5000000000000001,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 90477
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 65889,
+        "mean_across_models": {
+          "mean": 0.3965187584568281,
+          "ci_lo": -0.5631397174254318,
+          "ci_hi": 0.7446153846153847,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.35404961867193807,
+          "ci_lo": 0.0,
+          "ci_hi": 0.5000000000000001,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.0,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.15867595501525292,
+          "3": 0.8413240449847471,
+          "4": 0.0,
+          "5": 0.0
+        }
+      },
+      "D_strength": "weak_or_unclear",
+      "D_detail": "obs direction: mixed; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 0.0%",
+      "D_conclusion": "Weak or unclear evidence: models do not consistently agree on whether table or layout contributes more.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.2567721567721568,
+          "bootstrap_mean": -0.09034536293915857,
+          "bootstrap_std": 0.23003312252967817,
+          "ci_lo": -0.5488911988911989,
+          "ci_hi": 0.3333333333333333,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 90477
+        },
+        "gemma3_27b": {
+          "observed_C12": -0.10256410256410259,
+          "bootstrap_mean": 0.013565485130687423,
+          "bootstrap_std": 0.12266150842537812,
+          "ci_lo": -0.20512820512820518,
+          "ci_hi": 0.2596153846153846,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 65889
+        },
+        "gpt-4o-mini": {
+          "observed_C12": 0.2222222222222222,
+          "bootstrap_mean": 0.41833432144978844,
+          "bootstrap_std": 0.0970667680806644,
+          "ci_lo": 0.30000000000000004,
+          "ci_hi": 0.625,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 65889
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": 0.1111111111111111,
+          "bootstrap_mean": 0.317745094091677,
+          "bootstrap_std": 0.13935653761784675,
+          "ci_lo": 0.1111111111111111,
+          "ci_hi": 0.6,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 65889
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": 0.3333333333333333,
+          "bootstrap_mean": 0.5214823890368504,
+          "bootstrap_std": 0.14855139417902455,
+          "ci_lo": 0.30000000000000004,
+          "ci_hi": 0.875,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 90477
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 65889,
+        "mean_across_models": {
+          "mean": 0.23643215891130037,
+          "ci_lo": 0.11914934164934163,
+          "ci_hi": 0.43813582813582813,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.3224266431678518,
+          "ci_lo": 0.1111111111111111,
+          "ci_hi": 0.6,
+          "ci_excludes_zero": true
+        },
+        "prop_all_positive": 0.1892121598445871,
+        "prop_all_negative": 0.0,
+        "n_positive_distribution": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.20827452230266053,
+          "4": 0.6025133178527523,
+          "5": 0.1892121598445871
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 3/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 18.9%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    },
+    "plain_text + table": {
+      "n_questions": 36,
+      "n_documents": 27,
+      "modalities": [
+        "plain_text",
+        "table"
+      ],
+      "comparison": {
+        "target": "table",
+        "reference": "plain_text"
+      },
+      "per_model_D": {
+        "gemma3_4b": {
+          "observed_D": 0.3203125000000001,
+          "bootstrap_mean": 0.3432107585010684,
+          "bootstrap_std": 0.367595987771476,
+          "ci_lo": -0.33333333333333326,
+          "ci_hi": 1.1125,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99994
+        },
+        "gemma3_27b": {
+          "observed_D": 0.596153846153846,
+          "bootstrap_mean": 0.6186523100679195,
+          "bootstrap_std": 0.30247743069453703,
+          "ci_lo": 0.08333333333333326,
+          "ci_hi": 1.25,
+          "ci_excludes_zero": true,
+          "direction": "positive",
+          "n_valid": 99999
+        },
+        "gpt-4o-mini": {
+          "observed_D": 0.38708430007733946,
+          "bootstrap_mean": 0.382998161030975,
+          "bootstrap_std": 0.20249080243577514,
+          "ci_lo": -0.05116279069767443,
+          "ci_hi": 0.7611781405251951,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_D": 0.28402366863905326,
+          "bootstrap_mean": 0.2839957939793837,
+          "bootstrap_std": 0.29614948561547244,
+          "ci_lo": -0.3137254901960784,
+          "ci_hi": 0.8571428571428571,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99999
+        },
+        "qwen3-vl_30b": {
+          "observed_D": 0.21969696969696972,
+          "bootstrap_mean": 0.23025471800556513,
+          "bootstrap_std": 0.32354774870993536,
+          "ci_lo": -0.3846153846153846,
+          "ci_hi": 0.8888888888888888,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99999
+        }
+      },
+      "cross_model_D": {
+        "n_valid_replicates": 99991,
+        "mean_across_models": {
+          "mean": 0.3718175020329498,
+          "ci_lo": 0.009797409737209162,
+          "ci_hi": 0.7606672047350013,
+          "ci_excludes_zero": true
+        },
+        "median_across_models": {
+          "mean": 0.37358956412246347,
+          "ci_lo": 0.0,
+          "ci_hi": 0.7515245623941276,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.5187066836015242,
+        "prop_all_negative": 0.0005100459041313719,
+        "n_positive_distribution": {
+          "0": 0.0014401296116650498,
+          "1": 0.0058905301477132944,
+          "2": 0.02720244822033983,
+          "3": 0.11337020331829864,
+          "4": 0.333390005100459,
+          "5": 0.5187066836015242
+        }
+      },
+      "D_strength": "moderate",
+      "D_detail": "obs direction: positive; 1/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 51.9%",
+      "D_conclusion": "Moderate evidence: table tends to contribute more than plain_text across models, but not all individual CIs exclude zero.",
+      "per_model_C12": {
+        "gemma3_4b": {
+          "observed_C12": -0.015625,
+          "bootstrap_mean": 0.03441974680717847,
+          "bootstrap_std": 0.07800020532527704,
+          "ci_lo": -0.1111111111111111,
+          "ci_hi": 0.19507575757575757,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99994
+        },
+        "gemma3_27b": {
+          "observed_C12": 0.03472222222222224,
+          "bootstrap_mean": 0.08204184054266606,
+          "bootstrap_std": 0.08384352940339114,
+          "ci_lo": -0.08333333333333331,
+          "ci_hi": 0.2439024390243902,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99999
+        },
+        "gpt-4o-mini": {
+          "observed_C12": -0.00019425019425009515,
+          "bootstrap_mean": 0.0489204224106903,
+          "bootstrap_std": 0.0822586959578114,
+          "ci_lo": -0.10149850149850152,
+          "ci_hi": 0.22202797202797203,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 100000
+        },
+        "qwen3-vl_8b": {
+          "observed_C12": 0.04340277777777779,
+          "bootstrap_mean": 0.09233919419471327,
+          "bootstrap_std": 0.05904952426022503,
+          "ci_lo": -0.011513157894736836,
+          "ci_hi": 0.21875,
+          "ci_excludes_zero": false,
+          "direction": "positive",
+          "n_valid": 99999
+        },
+        "qwen3-vl_30b": {
+          "observed_C12": -0.017676767676767707,
+          "bootstrap_mean": 0.03295760198983592,
+          "bootstrap_std": 0.09048723760057455,
+          "ci_lo": -0.12918660287081346,
+          "ci_hi": 0.2231404958677686,
+          "ci_excludes_zero": false,
+          "direction": "negative",
+          "n_valid": 99999
+        }
+      },
+      "cross_model_C12": {
+        "n_valid_replicates": 99991,
+        "mean_across_models": {
+          "mean": 0.05813340367087385,
+          "ci_lo": -0.019773647405226358,
+          "ci_hi": 0.15056507326244167,
+          "ci_excludes_zero": false
+        },
+        "median_across_models": {
+          "mean": 0.059204455541505135,
+          "ci_lo": -0.03225806451612906,
+          "ci_hi": 0.1636029411764706,
+          "ci_excludes_zero": false
+        },
+        "prop_all_positive": 0.26318368653178786,
+        "prop_all_negative": 0.0004200378034023062,
+        "n_positive_distribution": {
+          "0": 0.0006400576051844666,
+          "1": 0.014071266413977258,
+          "2": 0.10447940314628316,
+          "3": 0.2566931023792141,
+          "4": 0.3609324839235531,
+          "5": 0.26318368653178786
+        }
+      },
+      "C12_strength": "weak_or_unclear",
+      "C12_detail": "obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 26.3%",
+      "C12_conclusion": "Weak or unclear evidence for consistent cooperation or redundancy."
+    }
+  }
+}

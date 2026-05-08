@@ -1,0 +1,401 @@
+
+====================================================================================================
+STRATIFIED-BY-BENCHMARK QUESTION-LEVEL BOOTSTRAP  (strata = modality pair × benchmark)
+====================================================================================================
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: image + layout
+  Total questions: 81  (strata: LongDocURL: 34, MMLongBench-Doc: 47)
+  Comparison: D = S_layout − S_image
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_layout − S_image):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.3531    -0.3556     0.2816          [-0.9197, 0.1968]       no   negative
+  Gemma3-27B              -0.6254    -0.6406     0.2457         [-1.1727, -0.2020]      YES   negative
+  GPT-4o-mini             -0.9076    -0.9110     0.1037         [-1.1245, -0.7151]      YES   negative
+  Qwen3-VL-8B             -0.9108    -0.9228     0.1940         [-1.3337, -0.5702]      YES   negative
+  Qwen3-VL-30B            -0.7312    -0.7356     0.1315         [-1.0068, -0.4864]      YES   negative
+
+  Cross-model summary (D):
+    Mean  D across models: -0.7131  95% CI [-0.9509, -0.4883]  excl 0: YES
+    Median D across models: -0.7637  95% CI [-1.0000, -0.5278]  excl 0: YES
+    Prop replicates all models D > 0: 0.0000
+    Prop replicates all models D < 0: 0.9057
+
+  Strength: strong
+  Detail:   obs direction: negative; 4/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 90.6%
+  >> Strong evidence: image contributes more than layout, consistently across all 5 models.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.0200     0.0027     0.0535          [-0.1015, 0.1090]       no   negative
+  Gemma3-27B               0.0230     0.0458     0.0525          [-0.0527, 0.1481]       no   positive
+  GPT-4o-mini             -0.0060     0.0167     0.0318          [-0.0459, 0.0792]       no   negative
+  Qwen3-VL-8B             -0.0634    -0.0406     0.0472          [-0.1317, 0.0536]       no   negative
+  Qwen3-VL-30B            -0.0154     0.0073     0.0517          [-0.0946, 0.1080]       no   negative
+
+  Cross-model summary (C12):
+    Mean  C12 across models: 0.0064  95% CI [-0.0577, 0.0735]  excl 0: no
+    Median C12 across models: 0.0090  95% CI [-0.0592, 0.0773]  excl 0: no
+    Prop replicates all models C12 > 0: 0.0898
+    Prop replicates all models C12 < 0: 0.0638
+
+  C12 strength: weak_or_unclear
+  C12 detail:   obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 9.0%
+  >> Weak or unclear evidence for consistent cooperation or redundancy.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (34 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B               -0.1968    -0.1800     0.3322          [-0.7778, 0.5155]    -0.0232     0.0178     0.0702          [-0.1179, 0.1567]
+    Gemma3-27B              -0.5549    -0.5752     0.3376          [-1.2973, 0.0000]    -0.0040     0.0371     0.0781          [-0.1176, 0.2019]
+    GPT-4o-mini             -0.8152    -0.8194     0.1282         [-1.0782, -0.5735]    -0.0493    -0.0085     0.0596          [-0.1214, 0.1121]
+    Qwen3-VL-8B             -0.7142    -0.7200     0.1721         [-1.0623, -0.3814]    -0.1216    -0.0809     0.0730          [-0.2196, 0.0649]
+    Qwen3-VL-30B            -0.7387    -0.7384     0.1260         [-0.9800, -0.4925]    -0.0944    -0.0537     0.0709          [-0.1925, 0.0882]
+
+    ┌─ MMLongBench-Doc  (47 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B               -0.7083    -0.8595     0.9088          [-3.1667, 0.3889]     0.0461     0.0729     0.0776          [-0.0780, 0.2340]
+    Gemma3-27B              -0.7073    -0.7706     0.5031          [-2.0000, 0.0000]     0.1064     0.1320     0.0697          [-0.0000, 0.2766]
+    GPT-4o-mini             -1.1214    -1.1528     0.2352         [-1.7059, -0.9271]     0.0892     0.1148     0.0365           [0.0466, 0.1955]
+    Qwen3-VL-8B             -1.7500    -2.1574     1.4576         [-6.5000, -0.6667]     0.0426     0.0693     0.0675          [-0.0638, 0.2128]
+    Qwen3-VL-30B            -0.7108    -0.7951     0.4852         [-1.9444, -0.1908]     0.1057     0.1313     0.0724          [-0.0115, 0.2732]
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: image + plain_text
+  Total questions: 244  (strata: LongDocURL: 152, MMLongBench-Doc: 92)
+  Comparison: D = S_plain_text − S_image
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_plain_text − S_image):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B                0.0954     0.0974     0.1317          [-0.1590, 0.3603]       no   positive
+  Gemma3-27B              -0.0239    -0.0242     0.0856          [-0.1927, 0.1424]       no   negative
+  GPT-4o-mini              0.0969     0.0973     0.0762          [-0.0510, 0.2483]       no   positive
+  Qwen3-VL-8B              0.0566     0.0574     0.0733          [-0.0851, 0.2028]       no   positive
+  Qwen3-VL-30B             0.0315     0.0314     0.0701          [-0.1071, 0.1679]       no   positive
+
+  Cross-model summary (D):
+    Mean  D across models: 0.0519  95% CI [-0.0569, 0.1610]  excl 0: no
+    Median D across models: 0.0492  95% CI [-0.0654, 0.1632]  excl 0: no
+    Prop replicates all models D > 0: 0.2276
+    Prop replicates all models D < 0: 0.0096
+
+  Strength: weak_or_unclear
+  Detail:   obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 22.8%
+  >> Weak or unclear evidence: models do not consistently agree on whether plain_text or image contributes more.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.1012    -0.1001     0.0323         [-0.1634, -0.0366]      YES   negative
+  Gemma3-27B              -0.1087    -0.1075     0.0384         [-0.1819, -0.0318]      YES   negative
+  GPT-4o-mini             -0.1874    -0.1861     0.0372         [-0.2574, -0.1120]      YES   negative
+  Qwen3-VL-8B             -0.1584    -0.1573     0.0349         [-0.2256, -0.0892]      YES   negative
+  Qwen3-VL-30B            -0.1570    -0.1560     0.0358         [-0.2258, -0.0854]      YES   negative
+
+  Cross-model summary (C12):
+    Mean  C12 across models: -0.1414  95% CI [-0.1906, -0.0904]  excl 0: YES
+    Median C12 across models: -0.1451  95% CI [-0.2030, -0.0873]  excl 0: YES
+    Prop replicates all models C12 > 0: 0.0000
+    Prop replicates all models C12 < 0: 0.9959
+
+  C12 strength: strong
+  C12 detail:   obs direction: negative; 5/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 99.6%
+  >> Strong evidence: modalities are redundant (C12 < 0) consistently across all 5 models.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (152 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                0.1564     0.1603     0.1511          [-0.1275, 0.4682]    -0.1278    -0.1242     0.0458         [-0.2130, -0.0333]
+    Gemma3-27B               0.0798     0.0800     0.0903          [-0.0953, 0.2580]    -0.1292    -0.1256     0.0523         [-0.2254, -0.0208]
+    GPT-4o-mini              0.2596     0.2602     0.0811           [0.1043, 0.4215]    -0.2851    -0.2813     0.0534         [-0.3825, -0.1726]
+    Qwen3-VL-8B              0.1007     0.1016     0.0773          [-0.0483, 0.2552]    -0.2293    -0.2258     0.0490         [-0.3215, -0.1298]
+    Qwen3-VL-30B             0.0712     0.0714     0.0735          [-0.0731, 0.2159]    -0.2306    -0.2273     0.0492         [-0.3226, -0.1289]
+
+    ┌─ MMLongBench-Doc  (92 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B               -0.1077    -0.1181     0.3013          [-0.7419, 0.4507]    -0.0355    -0.0164     0.0433          [-0.1039, 0.0663]
+    Gemma3-27B              -0.4051    -0.4215     0.2523          [-0.9705, 0.0303]    -0.0531    -0.0337     0.0566          [-0.1434, 0.0789]
+    GPT-4o-mini             -0.5082    -0.5169     0.2007         [-0.9321, -0.1392]    -0.0042     0.0151     0.0429          [-0.0683, 0.0998]
+    Qwen3-VL-8B             -0.1424    -0.1432     0.2132          [-0.5669, 0.2788]    -0.0195    -0.0001     0.0494          [-0.0956, 0.0977]
+    Qwen3-VL-30B            -0.1166    -0.1249     0.1958          [-0.5308, 0.2401]    -0.0135     0.0058     0.0549          [-0.1019, 0.1144]
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: image + table
+  Total questions: 180  (strata: LongDocURL: 164, MMLongBench-Doc: 16)
+  Comparison: D = S_table − S_image
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_table − S_image):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B                0.3127     0.3179     0.3548          [-0.3755, 1.0397]       no   positive
+  Gemma3-27B               0.2374     0.2414     0.1707          [-0.0817, 0.5935]       no   positive
+  GPT-4o-mini             -0.0438    -0.0441     0.0708          [-0.1842, 0.0940]       no   negative
+  Qwen3-VL-8B              0.0892     0.0885     0.1139          [-0.1370, 0.3103]       no   positive
+  Qwen3-VL-30B             0.1947     0.1946     0.1041          [-0.0088, 0.3998]       no   positive
+
+  Cross-model summary (D):
+    Mean  D across models: 0.1597  95% CI [-0.0368, 0.3707]  excl 0: no
+    Median D across models: 0.1441  95% CI [-0.0477, 0.3452]  excl 0: no
+    Prop replicates all models D > 0: 0.1795
+    Prop replicates all models D < 0: 0.0010
+
+  Strength: weak_or_unclear
+  Detail:   obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 18.0%
+  >> Weak or unclear evidence: models do not consistently agree on whether table or image contributes more.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.0187    -0.0030     0.0245          [-0.0509, 0.0453]       no   negative
+  Gemma3-27B              -0.0097     0.0060     0.0351          [-0.0631, 0.0744]       no   negative
+  GPT-4o-mini              0.2066     0.2224     0.0329           [0.1585, 0.2878]      YES   positive
+  Qwen3-VL-8B             -0.0184    -0.0028     0.0332          [-0.0677, 0.0630]       no   negative
+  Qwen3-VL-30B            -0.0127     0.0030     0.0345          [-0.0650, 0.0708]       no   negative
+
+  Cross-model summary (C12):
+    Mean  C12 across models: 0.0451  95% CI [0.0085, 0.0827]  excl 0: YES
+    Median C12 across models: 0.0095  95% CI [-0.0325, 0.0545]  excl 0: no
+    Prop replicates all models C12 > 0: 0.1059
+    Prop replicates all models C12 < 0: 0.0000
+
+  C12 strength: weak_or_unclear
+  C12 detail:   obs direction: mixed; 1/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 10.6%
+  >> Weak or unclear evidence for consistent cooperation or redundancy.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (164 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                0.2398     0.2394     0.3330          [-0.4280, 0.8964]    -0.0058     0.0116     0.0248          [-0.0364, 0.0605]
+    Gemma3-27B               0.1043     0.1063     0.1843          [-0.2492, 0.4842]    -0.0107     0.0066     0.0366          [-0.0655, 0.0778]
+    GPT-4o-mini             -0.0827    -0.0825     0.0648          [-0.2101, 0.0456]     0.2329     0.2503     0.0356           [0.1812, 0.3207]
+    Qwen3-VL-8B              0.0587     0.0579     0.1133          [-0.1680, 0.2772]    -0.0113     0.0058     0.0359          [-0.0644, 0.0766]
+    Qwen3-VL-30B             0.1689     0.1686     0.1054          [-0.0387, 0.3746]    -0.0139     0.0034     0.0369          [-0.0691, 0.0755]
+
+    ┌─ MMLongBench-Doc  (16 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                1.7333     1.3052     2.4824          [-3.4667, 6.9333]    -0.0889     0.0646     0.1145          [-0.1514, 0.2957]
+    Gemma3-27B               1.0000     1.1678     0.7746           [0.2500, 3.0000]     0.0625     0.1941     0.1327          [-0.0625, 0.4375]
+    GPT-4o-mini              0.6667     0.5579     0.5844          [-1.0000, 1.0000]     0.0000     0.1297     0.0761           [0.0000, 0.2500]
+    Qwen3-VL-8B              3.6000     3.1623     1.5143           [1.8000, 7.2000]    -0.0278     0.0860     0.0760          [-0.0556, 0.2222]
+    Qwen3-VL-30B             1.0000     1.0873     0.8122           [0.0000, 3.0000]     0.0625     0.2005     0.1000           [0.0000, 0.3750]
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: layout + plain_text
+  Total questions: 296  (strata: LongDocURL: 280, MMLongBench-Doc: 16)
+  Comparison: D = S_plain_text − S_layout
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_plain_text − S_layout):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B                0.3858     0.3890     0.1005           [0.2007, 0.5960]      YES   positive
+  Gemma3-27B               0.3486     0.3496     0.0682           [0.2178, 0.4854]      YES   positive
+  GPT-4o-mini              0.6265     0.6277     0.0599           [0.5123, 0.7467]      YES   positive
+  Qwen3-VL-8B              0.5660     0.5664     0.0566           [0.4551, 0.6780]      YES   positive
+  Qwen3-VL-30B             0.5742     0.5751     0.0662           [0.4469, 0.7070]      YES   positive
+
+  Cross-model summary (D):
+    Mean  D across models: 0.5016  95% CI [0.4119, 0.5940]  excl 0: YES
+    Median D across models: 0.5438  95% CI [0.4386, 0.6448]  excl 0: YES
+    Prop replicates all models D > 0: 1.0000
+    Prop replicates all models D < 0: 0.0000
+
+  Strength: strong
+  Detail:   obs direction: positive; 5/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 100.0%
+  >> Strong evidence: plain_text contributes more than layout, consistently across all 5 models.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.0539    -0.0538     0.0271         [-0.1072, -0.0011]      YES   negative
+  Gemma3-27B              -0.0282    -0.0282     0.0274          [-0.0823, 0.0251]       no   negative
+  GPT-4o-mini             -0.1027    -0.1027     0.0282         [-0.1584, -0.0479]      YES   negative
+  Qwen3-VL-8B             -0.0524    -0.0523     0.0280          [-0.1073, 0.0026]       no   negative
+  Qwen3-VL-30B            -0.1019    -0.1018     0.0300         [-0.1609, -0.0427]      YES   negative
+
+  Cross-model summary (C12):
+    Mean  C12 across models: -0.0678  95% CI [-0.1028, -0.0333]  excl 0: YES
+    Median C12 across models: -0.0656  95% CI [-0.1076, -0.0248]  excl 0: YES
+    Prop replicates all models C12 > 0: 0.0000
+    Prop replicates all models C12 < 0: 0.8105
+
+  C12 strength: moderate
+  C12 detail:   obs direction: negative; 3/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 81.0%
+  >> Moderate evidence for redundancy (C12 < 0) across models.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (280 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                0.3599     0.3630     0.0971           [0.1818, 0.5633]    -0.0391    -0.0391     0.0274          [-0.0927, 0.0144]
+    Gemma3-27B               0.3424     0.3434     0.0696           [0.2089, 0.4819]    -0.0299    -0.0298     0.0272          [-0.0834, 0.0229]
+    GPT-4o-mini              0.6124     0.6136     0.0611           [0.4962, 0.7349]    -0.1014    -0.1014     0.0294         [-0.1593, -0.0442]
+    Qwen3-VL-8B              0.5504     0.5509     0.0571           [0.4386, 0.6633]    -0.0483    -0.0482     0.0288          [-0.1043, 0.0085]
+    Qwen3-VL-30B             0.5744     0.5753     0.0676           [0.4450, 0.7104]    -0.1113    -0.1112     0.0312         [-0.1727, -0.0499]
+
+    ┌─ MMLongBench-Doc  (16 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                2.0000     1.7618     1.4335          [-1.0000, 5.0000]    -0.1875    -0.0827     0.1417          [-0.3750, 0.1875]
+    Gemma3-27B               0.5000     0.5846     0.5188           [0.0000, 2.0000]     0.1250     0.2183     0.1737          [-0.1250, 0.5625]
+    GPT-4o-mini              1.0000     1.0580     0.4044           [0.5000, 2.0000]     0.0000     0.0904     0.0940          [-0.0625, 0.2500]
+    Qwen3-VL-8B              1.0000     1.1173     0.6140           [0.3750, 2.5000]     0.0000     0.0907     0.1217          [-0.1250, 0.3125]
+    Qwen3-VL-30B             0.5714     0.5977     0.3562           [0.0000, 1.3333]     0.1875     0.2785     0.1099           [0.0625, 0.5000]
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: layout + table
+  Total questions: 159  (strata: LongDocURL: 150, MMLongBench-Doc: 9)
+  Comparison: D = S_table − S_layout
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_table − S_layout):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B                0.3891     0.3869     0.1770           [0.0267, 0.7255]      YES   positive
+  Gemma3-27B               1.0987     1.1064     0.1277           [0.8773, 1.3808]      YES   positive
+  GPT-4o-mini              0.8554     0.8567     0.0792           [0.6995, 1.0112]      YES   positive
+  Qwen3-VL-8B              0.7906     0.7927     0.0787           [0.6388, 0.9489]      YES   positive
+  Qwen3-VL-30B             0.8621     0.8646     0.0857           [0.6995, 1.0366]      YES   positive
+
+  Cross-model summary (D):
+    Mean  D across models: 0.8015  95% CI [0.6641, 0.9327]  excl 0: YES
+    Median D across models: 0.8379  95% CI [0.7075, 0.9613]  excl 0: YES
+    Prop replicates all models D > 0: 0.9816
+    Prop replicates all models D < 0: 0.0000
+
+  Strength: strong
+  Detail:   obs direction: positive; 5/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 98.2%
+  >> Strong evidence: table contributes more than layout, consistently across all 5 models.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.0231    -0.0080     0.0304          [-0.0639, 0.0569]       no   negative
+  Gemma3-27B              -0.0169    -0.0020     0.0253          [-0.0488, 0.0511]       no   negative
+  GPT-4o-mini              0.0130     0.0279     0.0256          [-0.0203, 0.0806]       no   positive
+  Qwen3-VL-8B              0.0214     0.0363     0.0301          [-0.0215, 0.0970]       no   positive
+  Qwen3-VL-30B             0.0001     0.0150     0.0327          [-0.0478, 0.0811]       no   positive
+
+  Cross-model summary (C12):
+    Mean  C12 across models: 0.0138  95% CI [-0.0206, 0.0588]  excl 0: no
+    Median C12 across models: 0.0134  95% CI [-0.0251, 0.0605]  excl 0: no
+    Prop replicates all models C12 > 0: 0.1853
+    Prop replicates all models C12 < 0: 0.0112
+
+  C12 strength: weak_or_unclear
+  C12 detail:   obs direction: mixed; 0/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 18.5%
+  >> Weak or unclear evidence for consistent cooperation or redundancy.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (150 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                0.3232     0.3205     0.1896          [-0.0649, 0.6824]    -0.0024     0.0135     0.0292          [-0.0380, 0.0784]
+    Gemma3-27B               1.1053     1.1136     0.1207           [0.8997, 1.3750]    -0.0051     0.0106     0.0255          [-0.0361, 0.0652]
+    GPT-4o-mini              0.8730     0.8743     0.0794           [0.7164, 1.0290]     0.0071     0.0229     0.0264          [-0.0267, 0.0776]
+    Qwen3-VL-8B              0.8228     0.8250     0.0783           [0.6729, 0.9808]     0.0227     0.0384     0.0305          [-0.0199, 0.0998]
+    Qwen3-VL-30B             0.8919     0.8944     0.0889           [0.7230, 1.0727]    -0.0132     0.0026     0.0337          [-0.0621, 0.0705]
+
+    ┌─ MMLongBench-Doc  (9 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                1.1004     1.1061     0.1172           [0.8937, 1.3000]    -0.2568    -0.0647     0.2320          [-0.4968, 0.3333]
+    Gemma3-27B               0.9231     0.9256     1.1552          [-1.0769, 2.9231]    -0.1026     0.0960     0.1576          [-0.2137, 0.3761]
+    GPT-4o-mini              0.0000     0.0000     0.0000           [0.0000, 0.0000]     0.2222     0.4601     0.1227           [0.3333, 0.6667]
+    Qwen3-VL-8B             -1.0000    -0.7482     0.8234          [-3.0000, 0.0000]     0.1111     0.3568     0.1659           [0.1111, 0.6667]
+    Qwen3-VL-30B             0.3333     0.3352     0.3039           [0.0000, 1.0000]     0.3333     0.5232     0.1574           [0.3333, 0.8889]
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Modality pair: plain_text + table
+  Total questions: 91  (strata: LongDocURL: 55, MMLongBench-Doc: 36)
+  Comparison: D = S_table − S_plain_text
+  ──────────────────────────────────────────────────────────────────────────────────────────
+
+  Per-model D  (S_table − S_plain_text):
+  Model                     Obs D       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B                0.0901     0.0827     0.2133          [-0.3565, 0.4882]       no   positive
+  Gemma3-27B               0.1675     0.1671     0.1273          [-0.0846, 0.4148]       no   positive
+  GPT-4o-mini              0.1278     0.1278     0.1176          [-0.1049, 0.3555]       no   positive
+  Qwen3-VL-8B              0.2540     0.2540     0.1077           [0.0411, 0.4626]      YES   positive
+  Qwen3-VL-30B             0.1282     0.1288     0.0988          [-0.0639, 0.3230]       no   positive
+
+  Cross-model summary (D):
+    Mean  D across models: 0.1521  95% CI [-0.0349, 0.3295]  excl 0: no
+    Median D across models: 0.1559  95% CI [-0.0300, 0.3376]  excl 0: no
+    Prop replicates all models D > 0: 0.5398
+    Prop replicates all models D < 0: 0.0015
+
+  Strength: weak_or_unclear
+  Detail:   obs direction: positive; 1/5 CIs exclude 0; cross-model mean CI excludes 0: False; agreement: 54.0%
+  >> Weak or unclear evidence: models do not consistently agree on whether table or plain_text contributes more.
+
+  Per-model C12:
+  Model                   Obs C12       Mean        Std                     95% CI  Excl 0?        Dir
+  ----------------------------------------------------------------------------------------------
+  Gemma3-4B               -0.1840    -0.1788     0.0649         [-0.3057, -0.0507]      YES   negative
+  Gemma3-27B              -0.0814    -0.0768     0.0582          [-0.1902, 0.0386]       no   negative
+  GPT-4o-mini             -0.2292    -0.2241     0.0599         [-0.3371, -0.1031]      YES   negative
+  Qwen3-VL-8B             -0.1447    -0.1397     0.0516         [-0.2399, -0.0383]      YES   negative
+  Qwen3-VL-30B            -0.1760    -0.1709     0.0665         [-0.2997, -0.0404]      YES   negative
+
+  Cross-model summary (C12):
+    Mean  C12 across models: -0.1581  95% CI [-0.2415, -0.0721]  excl 0: YES
+    Median C12 across models: -0.1603  95% CI [-0.2557, -0.0658]  excl 0: YES
+    Prop replicates all models C12 > 0: 0.0000
+    Prop replicates all models C12 < 0: 0.8994
+
+  C12 strength: strong
+  C12 detail:   obs direction: negative; 4/5 CIs exclude 0; cross-model mean CI excludes 0: True; agreement: 89.9%
+  >> Strong evidence: modalities are redundant (C12 < 0) consistently across all 5 models.
+
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  Per-Benchmark Breakdown:
+
+    ┌─ LongDocURL  (55 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B               -0.0285    -0.0433     0.2762          [-0.6290, 0.4652]    -0.2579    -0.2512     0.0964         [-0.4379, -0.0598]
+    Gemma3-27B              -0.0347    -0.0394     0.1531          [-0.3521, 0.2492]    -0.1211    -0.1147     0.0807          [-0.2712, 0.0457]
+    GPT-4o-mini             -0.0043    -0.0058     0.1402          [-0.2856, 0.2649]    -0.3427    -0.3358     0.0863         [-0.4946, -0.1576]
+    Qwen3-VL-8B              0.2463     0.2464     0.1111           [0.0264, 0.4621]    -0.2314    -0.2248     0.0770         [-0.3757, -0.0729]
+    Qwen3-VL-30B             0.1028     0.1033     0.0969          [-0.0851, 0.2951]    -0.2433    -0.2368     0.0900         [-0.4111, -0.0594]
+
+    ┌─ MMLongBench-Doc  (36 questions) ─┐
+    Model                     Obs D     D Mean      D Std                   D 95% CI    Obs C12   C12 Mean    C12 Std                 C12 95% CI
+    --------------------------------------------------------------------------------------------------------------------------------------------------------
+    Gemma3-4B                0.3203     0.3175     0.4061          [-0.5000, 1.0938]    -0.0156     0.0372     0.0766          [-0.1111, 0.1910]
+    Gemma3-27B               0.5962     0.6223     0.2823           [0.1250, 1.2308]     0.0347     0.0866     0.0865          [-0.0764, 0.2569]
+    GPT-4o-mini              0.3871     0.3926     0.2227          [-0.0526, 0.8284]    -0.0002     0.0521     0.0824          [-0.0987, 0.2222]
+    Qwen3-VL-8B              0.2840     0.2801     0.3210          [-0.3902, 0.8750]     0.0434     0.0958     0.0587          [-0.0087, 0.2222]
+    Qwen3-VL-30B             0.2197     0.2254     0.3168          [-0.3977, 0.8636]    -0.0177     0.0352     0.1000          [-0.1566, 0.2323]
+
+
+====================================================================================================
+AGGREGATE ACROSS ALL MODALITY PAIRS  (mean over pairs, then mean over models)
+====================================================================================================
+  D  (mean across pairs & models): 0.1589  95% CI [0.0912, 0.2264]  excl 0: YES
+  C12 (mean across pairs & models): -0.0503  95% CI [-0.0727, -0.0275]  excl 0: YES

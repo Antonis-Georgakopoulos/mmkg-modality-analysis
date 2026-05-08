@@ -5,12 +5,18 @@ API calling utilities for OpenAI and Ollama models (WITH IMAGE SUPPORT).
 import os
 import time
 import base64
+import asyncio
 from pathlib import Path
 from typing import List, Dict, Optional
 
 import httpx
 
 from lightrag.utils import logger
+
+# Retry configuration for Ollama models
+OLLAMA_MAX_RETRIES = 2
+OLLAMA_RETRY_BASE_DELAY = 5.0  # seconds
+OLLAMA_RETRY_BACKOFF_FACTOR = 2.0
 
 
 def encode_image_to_base64(image_path: str) -> Optional[str]:
@@ -128,7 +134,7 @@ async def _call_openai_with_images(
     """Call OpenAI API with images (vision model)."""
     from openai import AsyncOpenAI
     
-    logger.info(f"🔗 [QA CALL - OpenAI with Images] Using base_url: {base_url}")
+    # logger.info(f" [QA CALL - OpenAI with Images] Using base_url: {base_url}")
     client = AsyncOpenAI(api_key=api_key, base_url=base_url)
     
     messages = []
@@ -151,7 +157,7 @@ async def _call_openai_with_images(
             })
         
         messages.append({"role": "user", "content": content})
-        logger.info(f"📸 Sending {len(images)} images to {model_name}")
+        # logger.info(f" Sending {len(images)} images to {model_name}")
     else:
         # Text-only
         messages.append({"role": "user", "content": question})
@@ -191,7 +197,7 @@ async def call_model_with_vlm_messages(
     messages: List[Dict],
     api_key: str = None,
     base_url: str = None,
-    keep_alive: int = None
+    keep_alive: int = -1
 ) -> tuple:
     """
     Call a model with pre-built VLM messages (matching raganything approach).
@@ -207,7 +213,7 @@ async def call_model_with_vlm_messages(
     """
     # ===== TEMPORARY LOG: Verify images in VLM messages =====
     logger.info("=" * 60)
-    logger.info("🔍 API CALL: call_model_with_vlm_messages")
+    logger.info(" API CALL: call_model_with_vlm_messages")
     logger.info(f"   Model: {model_name}")
     logger.info(f"   Number of messages: {len(messages)}")
     
@@ -224,13 +230,13 @@ async def call_model_with_vlm_messages(
                         url = part.get("image_url", {}).get("url", "")
                         if url.startswith("data:"):
                             base64_len = len(url.split(",", 1)[1]) if "," in url else 0
-                            logger.info(f"   📷 Image found: base64 length = {base64_len} chars (~{base64_len * 3 // 4 // 1024} KB)")
+                            # logger.info(f"    Image found: base64 length = {base64_len} chars (~{base64_len * 3 // 4 // 1024} KB)")
     
     logger.info(f"   Total images in messages: {image_count}")
     if image_count == 0:
-        logger.warning("   ⚠️ NO IMAGES IN API CALL - text-only mode")
+        logger.warning("    NO IMAGES IN API CALL - text-only mode")
     else:
-        logger.info(f"   ✅ IMAGES WILL BE SENT TO MODEL: {image_count} image(s)")
+        logger.info(f"    IMAGES WILL BE SENT TO MODEL: {image_count} image(s)")
     logger.info("=" * 60)
     
     try:
@@ -257,8 +263,8 @@ async def _call_openai_with_vlm_messages(
     """Call OpenAI with pre-built VLM messages."""
     from openai import AsyncOpenAI
     
-    logger.info(f"� [QA CALL - OpenAI VLM Messages] Using base_url: {base_url}")
-    logger.info(f"�🚀 Sending request to OpenAI {model_name}...")
+    # logger.info(f" [QA CALL - OpenAI VLM Messages] Using base_url: {base_url}")
+    # logger.info(f" Sending request to OpenAI {model_name}...")
     
     client = AsyncOpenAI(api_key=api_key, base_url=base_url)
     
@@ -283,7 +289,7 @@ async def _call_openai_with_vlm_messages(
     output_tokens = response.usage.completion_tokens if response.usage else 0
     
     # ===== TEMPORARY LOG: Verify API response =====
-    logger.info("✅ OpenAI response received:")
+    logger.info(" OpenAI response received:")
     logger.info(f"   Input tokens: {input_tokens}")
     logger.info(f"   Output tokens: {output_tokens}")
     logger.info(f"   Inference time: {inference_time_ms:.0f}ms")
@@ -304,7 +310,7 @@ async def _call_ollama_with_vlm_messages(
     messages: List[Dict],
     keep_alive: int = None
 ) -> tuple:
-    """Call Ollama with pre-built VLM messages."""
+    """Call Ollama with pre-built VLM messages, with retry logic for failures."""
     ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
     if ollama_url and not ollama_url.startswith(("http://", "https://")):
         ollama_url = f"http://{ollama_url}"
@@ -338,41 +344,72 @@ async def _call_ollama_with_vlm_messages(
             else:
                 ollama_messages.append({"role": "user", "content": content})
     
-    start_time = time.perf_counter()
     request_json = {
         "model": model_name,
         "messages": ollama_messages,
         "stream": False,
-        "options": {"num_predict": 4096, "num_ctx": 32768},
+        # "options": {"num_predict": 4096, "num_ctx": 32768},
+        "options": {"num_predict": 8192, "num_ctx": 130000},
         "logprobs": True,
         "top_logprobs": 1
     }
     if keep_alive is not None:
         request_json["keep_alive"] = keep_alive
-    async with httpx.AsyncClient(timeout=300.0) as client:
-        resp = await client.post(
-            f"{ollama_url}/api/chat",
-            json=request_json
-        )
-        resp.raise_for_status()
-        result = resp.json()
     
-    inference_time_ms = (time.perf_counter() - start_time) * 1000
+    # Retry loop for Ollama calls
+    last_error = None
+    for attempt in range(OLLAMA_MAX_RETRIES):
+        try:
+            start_time = time.perf_counter()
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                resp = await client.post(
+                    f"{ollama_url}/api/chat",
+                    json=request_json
+                )
+                resp.raise_for_status()
+                result = resp.json()
+            
+            inference_time_ms = (time.perf_counter() - start_time) * 1000
+            
+            response_text = result.get('message', {}).get('content', '')
+            input_tokens = result.get('prompt_eval_count', 0)
+            output_tokens = result.get('eval_count', 0)
+            
+            # Check for empty or error responses that warrant a retry
+            if not response_text or response_text.strip() == '':
+                if attempt < OLLAMA_MAX_RETRIES - 1:
+                    delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                    logger.warning(f" Ollama returned empty response for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}). Retrying in {delay:.1f}s...")
+                    await asyncio.sleep(delay)
+                    continue
+                else:
+                    logger.error(f" Ollama returned empty response after {OLLAMA_MAX_RETRIES} attempts")
+            
+            # Extract logprobs from top-level result
+            logprobs_data = None
+            logprobs_raw = result.get('logprobs')
+            if logprobs_raw:
+                logprobs_data = [
+                    {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
+                    for lp in logprobs_raw
+                ]
+            
+            return response_text, logprobs_data, input_tokens, output_tokens, inference_time_ms
+            
+        except (httpx.HTTPStatusError, httpx.ConnectError, httpx.ReadTimeout) as e:
+            last_error = e
+            if attempt < OLLAMA_MAX_RETRIES - 1:
+                delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                logger.warning(f" Ollama error for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}): {e}. Retrying in {delay:.1f}s...")
+                await asyncio.sleep(delay)
+            else:
+                logger.error(f" Ollama failed after {OLLAMA_MAX_RETRIES} attempts: {e}")
+                raise
     
-    response_text = result.get('message', {}).get('content', '')
-    input_tokens = result.get('prompt_eval_count', 0)
-    output_tokens = result.get('eval_count', 0)
-    
-    # Extract logprobs from top-level result
-    logprobs_data = None
-    logprobs_raw = result.get('logprobs')
-    if logprobs_raw:
-        logprobs_data = [
-            {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
-            for lp in logprobs_raw
-        ]
-    
-    return response_text, logprobs_data, input_tokens, output_tokens, inference_time_ms
+    # Should not reach here, but just in case
+    if last_error:
+        raise last_error
+    return '', None, 0, 0, 0
 
 
 async def _call_ollama_with_images(
@@ -381,17 +418,14 @@ async def _call_ollama_with_images(
     system_prompt: str,
     images: List[Dict[str, str]]
 ) -> tuple:
-    """Call Ollama API with images (vision model like llava)."""
+    """Call Ollama API with images (vision model like llava), with retry logic."""
     ollama_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
     # Ensure URL has protocol prefix
     if ollama_url and not ollama_url.startswith(("http://", "https://")):
         ollama_url = f"http://{ollama_url}"
     
-    start_time = time.perf_counter()
-    
     if images:
         # Use /api/chat endpoint for multimodal (images)
-        # Ollama expects images as base64 strings in the "images" field
         image_base64_list = [img['base64'] for img in images]
         
         messages = []
@@ -404,77 +438,125 @@ async def _call_ollama_with_images(
             "images": image_base64_list
         })
         
-        logger.info(f"📸 Sending {len(images)} images to Ollama {model_name}")
+        logger.info(f" Sending {len(images)} images to Ollama {model_name}")
         
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            resp = await client.post(
-                f"{ollama_url}/api/chat",
-                json={
-                    "model": model_name,
-                    "messages": messages,
-                    "stream": False,
-                    # "options": {"num_predict": 8192, "num_ctx": 65536},
-                    "options": {"num_predict": 4096, "num_ctx": 32768},
-                    "logprobs": True,
-                    "top_logprobs": 1
-                }
-            )
-            resp.raise_for_status()
-            result = resp.json()
+        request_json = {
+            "model": model_name,
+            "messages": messages,
+            "stream": False,
+            "options": {"num_predict": 8192, "num_ctx": 130000},
+            "logprobs": True,
+            "top_logprobs": 1
+        }
         
-        inference_time_ms = (time.perf_counter() - start_time) * 1000
+        # Retry loop
+        last_error = None
+        for attempt in range(OLLAMA_MAX_RETRIES):
+            try:
+                start_time = time.perf_counter()
+                async with httpx.AsyncClient(timeout=300.0) as client:
+                    resp = await client.post(f"{ollama_url}/api/chat", json=request_json)
+                    resp.raise_for_status()
+                    result = resp.json()
+                
+                inference_time_ms = (time.perf_counter() - start_time) * 1000
+                response_text = result.get('message', {}).get('content', '')
+                
+                # Check for empty response
+                if not response_text or response_text.strip() == '':
+                    if attempt < OLLAMA_MAX_RETRIES - 1:
+                        delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                        logger.warning(f" Ollama returned empty response for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}). Retrying in {delay:.1f}s...")
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        logger.error(f" Ollama returned empty response after {OLLAMA_MAX_RETRIES} attempts")
+                
+                # Extract logprobs
+                logprobs_data = None
+                logprobs_raw = result.get('logprobs')
+                if logprobs_raw:
+                    logprobs_data = [
+                        {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
+                        for lp in logprobs_raw
+                    ]
+                
+                input_tokens = result.get('prompt_eval_count', 0)
+                output_tokens = result.get('eval_count', 0)
+                return response_text, logprobs_data, input_tokens, output_tokens, inference_time_ms
+                
+            except (httpx.HTTPStatusError, httpx.ConnectError, httpx.ReadTimeout) as e:
+                last_error = e
+                if attempt < OLLAMA_MAX_RETRIES - 1:
+                    delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                    logger.warning(f" Ollama error for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}): {e}. Retrying in {delay:.1f}s...")
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(f" Ollama failed after {OLLAMA_MAX_RETRIES} attempts: {e}")
+                    raise
         
-        # Extract response from chat format
-        response_text = result.get('message', {}).get('content', '')
-        
-        # Extract logprobs from top-level result
-        logprobs_data = None
-        logprobs_raw = result.get('logprobs')
-        if logprobs_raw:
-            logprobs_data = [
-                {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
-                for lp in logprobs_raw
-            ]
-        
-        # Token counts
-        input_tokens = result.get('prompt_eval_count', 0)
-        output_tokens = result.get('eval_count', 0)
+        if last_error:
+            raise last_error
+        return '', None, 0, 0, 0
         
     else:
         # Text-only: use /api/generate endpoint
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            resp = await client.post(
-                f"{ollama_url}/api/generate",
-                json={
-                    "model": model_name,
-                    "prompt": question,
-                    "system": system_prompt,
-                    "stream": False,
-                    "options": {"num_predict": 4096, "num_ctx": 32768},
-                    # "options": {"num_predict": 8192, "num_ctx": 65536},
-                    "logprobs": True,
-                    "top_logprobs": 1
-                }
-            )
-            resp.raise_for_status()
-            result = resp.json()
+        request_json = {
+            "model": model_name,
+            "prompt": question,
+            "system": system_prompt,
+            "stream": False,
+            "options": {"num_predict": 8192, "num_ctx": 130000},
+            "logprobs": True,
+            "top_logprobs": 1
+        }
         
-        inference_time_ms = (time.perf_counter() - start_time) * 1000
+        # Retry loop
+        last_error = None
+        for attempt in range(OLLAMA_MAX_RETRIES):
+            try:
+                start_time = time.perf_counter()
+                async with httpx.AsyncClient(timeout=300.0) as client:
+                    resp = await client.post(f"{ollama_url}/api/generate", json=request_json)
+                    resp.raise_for_status()
+                    result = resp.json()
+                
+                inference_time_ms = (time.perf_counter() - start_time) * 1000
+                response_text = result.get('response', '')
+                
+                # Check for empty response
+                if not response_text or response_text.strip() == '':
+                    if attempt < OLLAMA_MAX_RETRIES - 1:
+                        delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                        logger.warning(f" Ollama returned empty response for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}). Retrying in {delay:.1f}s...")
+                        await asyncio.sleep(delay)
+                        continue
+                    else:
+                        logger.error(f" Ollama returned empty response after {OLLAMA_MAX_RETRIES} attempts")
+                
+                # Extract logprobs
+                logprobs_data = None
+                logprobs_raw = result.get('logprobs')
+                if logprobs_raw is not None:
+                    logprobs_data = [
+                        {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
+                        for lp in logprobs_raw
+                    ]
+                
+                input_tokens = result.get('prompt_eval_count', 0)
+                output_tokens = result.get('eval_count', 0)
+                return response_text, logprobs_data, input_tokens, output_tokens, inference_time_ms
+                
+            except (httpx.HTTPStatusError, httpx.ConnectError, httpx.ReadTimeout) as e:
+                last_error = e
+                if attempt < OLLAMA_MAX_RETRIES - 1:
+                    delay = OLLAMA_RETRY_BASE_DELAY * (OLLAMA_RETRY_BACKOFF_FACTOR ** attempt)
+                    logger.warning(f" Ollama error for {model_name} (attempt {attempt + 1}/{OLLAMA_MAX_RETRIES}): {e}. Retrying in {delay:.1f}s...")
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(f" Ollama failed after {OLLAMA_MAX_RETRIES} attempts: {e}")
+                    raise
         
-        # Extract logprobs from response
-        logprobs_raw = result.get('logprobs')
-        
-        logprobs_data = None
-        if logprobs_raw is not None:
-            logprobs_data = [
-                {"token": lp.get("token", ""), "logprob": lp.get("logprob", 0.0)}
-                for lp in logprobs_raw
-            ]
-        
-        # Token counts
-        input_tokens = result.get('prompt_eval_count', 0)
-        output_tokens = result.get('eval_count', 0)
-        
-        response_text = result.get('response', '')
-    
-    return response_text, logprobs_data, input_tokens, output_tokens, inference_time_ms
+        if last_error:
+            raise last_error
+        return '', None, 0, 0, 0

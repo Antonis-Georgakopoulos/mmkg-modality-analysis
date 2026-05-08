@@ -1,0 +1,37 @@
+The given question needs to be mapped to exactly one of the question intent categories described below.
+
+Description: This category covers mostly "what is X" or "what is X of Y" questions, where the user aims to obtain a definition or description of an object or one of its attributes.
+
+Process: These are typically "how to do X" questions that seek instructions, guidelines, or procedures which will facilitate an action to be performed by the user in real life.
+
+Advice: This category includes questions where the user aims to obtain personal advice on a particular topic. The Advice category differs from Process in that the former expects a somewhat subjective recommendation, whereas the latter expects an objective, step-by-step process description.
+
+Opinion: These are questions seeking to get a subjective opinion about a topic of interest, such as "what do you think about X" or "is X good/bad". This class excludes Advice questions, where the subject is the user issuing the question.
+
+Verification: These are fact-checking questions that seek an affirmative yes/no answer which cannot be disputed.
+
+Attribute: These are "what is Y of X" questions that seek a particular property of a given named entity. Questions whose answers are named entities are excluded to avoid possible overlap with the Quantity and Entity category.
+
+Reason: The expected answer to these questions includes an explanation of causes underlying a certain action or event. Most questions of type "why is/do X Y" are in this category.
+
+Location: These are typically "where is X" questions that seek the position, address, or location of a given object or entity. The answers are not limited to geo-locations. For example, "where is X in human body" falls in this category.
+
+Quantity: These questions expect a numeric value as answer, such as price, frequency, duration, speed, age, length, or weight.
+
+Entity: The expected answer to a question in this category is a named entity, excluding numeric entities.
+
+Language: These questions usually provide a name or description, and the expected answer is another name or object, such as "how is X called" or "what is X in the Y language". Questions seeking a named entity as answer are excluded.
+
+Temporal: These are typically "when is X" questions, which expect to obtain a date or time of an event as answer.
+
+List: The expected answer is an itemized list whose items can have any type, such as entity, quantity, or a mix. For example, "which countries won the world cup" is a List question.
+
+Calculation: These are questions aiming to use the search engine as a calculator for arithmetic operations or unit conversion. Similar to the Quantity category, the expected answer is a numeric value, but the Calculation category contains one or more numeric values as input in the question.
+
+Weather: These are questions about weather forecast.
+
+Resource: Non-informational questions where the goal is to obtain an online or offline resource are in this category, excluding questions with Calculation and Weather intent.
+
+Question: {}
+
+Intent:

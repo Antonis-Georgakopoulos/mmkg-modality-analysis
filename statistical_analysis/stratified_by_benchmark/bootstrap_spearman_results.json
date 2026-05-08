@@ -1,0 +1,324 @@
+{
+  "D": {
+    "Gemma3-4B vs Gemma3-27B": {
+      "mean_rho": 0.7052314285714287,
+      "std_rho": 0.2180925367913392,
+      "ci_lo": 0.14285714285714288,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs GPT-4o-mini": {
+      "mean_rho": 0.5975874285714288,
+      "std_rho": 0.26808891288784725,
+      "ci_lo": 0.028571428571428574,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs Qwen3-VL-8B": {
+      "mean_rho": 0.644137142857143,
+      "std_rho": 0.24297945316677394,
+      "ci_lo": 0.08571428571428573,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs Qwen3-VL-30B": {
+      "mean_rho": 0.709221142857143,
+      "std_rho": 0.21255310768283925,
+      "ci_lo": 0.2,
+      "ci_hi": 1.0
+    },
+    "Gemma3-27B vs GPT-4o-mini": {
+      "mean_rho": 0.808915428571429,
+      "std_rho": 0.11907230195377695,
+      "ci_lo": 0.6,
+      "ci_hi": 1.0
+    },
+    "Gemma3-27B vs Qwen3-VL-8B": {
+      "mean_rho": 0.8807394285714287,
+      "std_rho": 0.1031307560198435,
+      "ci_lo": 0.6571428571428573,
+      "ci_hi": 1.0
+    },
+    "Gemma3-27B vs Qwen3-VL-30B": {
+      "mean_rho": 0.9188965714285716,
+      "std_rho": 0.07920604231537705,
+      "ci_lo": 0.7142857142857143,
+      "ci_hi": 1.0
+    },
+    "GPT-4o-mini vs Qwen3-VL-8B": {
+      "mean_rho": 0.9205302857142859,
+      "std_rho": 0.0729953396689662,
+      "ci_lo": 0.7714285714285715,
+      "ci_hi": 1.0
+    },
+    "GPT-4o-mini vs Qwen3-VL-30B": {
+      "mean_rho": 0.8624297142857146,
+      "std_rho": 0.07460984340814389,
+      "ci_lo": 0.7714285714285715,
+      "ci_hi": 1.0
+    },
+    "Qwen3-VL-8B vs Qwen3-VL-30B": {
+      "mean_rho": 0.9212051428571431,
+      "std_rho": 0.07196455390293872,
+      "ci_lo": 0.7714285714285715,
+      "ci_hi": 1.0
+    }
+  },
+  "C12": {
+    "Gemma3-4B vs Gemma3-27B": {
+      "mean_rho": 0.7016617142857144,
+      "std_rho": 0.25477829884583086,
+      "ci_lo": 0.028571428571428574,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs GPT-4o-mini": {
+      "mean_rho": 0.8158668571428573,
+      "std_rho": 0.13546062756357793,
+      "ci_lo": 0.48571428571428577,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs Qwen3-VL-8B": {
+      "mean_rho": 0.7189005714285716,
+      "std_rho": 0.19739658887030612,
+      "ci_lo": 0.2571428571428572,
+      "ci_hi": 1.0
+    },
+    "Gemma3-4B vs Qwen3-VL-30B": {
+      "mean_rho": 0.7751154285714288,
+      "std_rho": 0.18141176227734362,
+      "ci_lo": 0.3142857142857143,
+      "ci_hi": 1.0
+    },
+    "Gemma3-27B vs GPT-4o-mini": {
+      "mean_rho": 0.6911948571428573,
+      "std_rho": 0.23348980677414718,
+      "ci_lo": 0.08571428571428573,
+      "ci_hi": 0.942857142857143
+    },
+    "Gemma3-27B vs Qwen3-VL-8B": {
+      "mean_rho": 0.6279885714285715,
+      "std_rho": 0.24128902787202858,
+      "ci_lo": 0.028571428571428574,
+      "ci_hi": 0.942857142857143
+    },
+    "Gemma3-27B vs Qwen3-VL-30B": {
+      "mean_rho": 0.7204205714285714,
+      "std_rho": 0.22291584450621355,
+      "ci_lo": 0.14285714285714288,
+      "ci_hi": 1.0
+    },
+    "GPT-4o-mini vs Qwen3-VL-8B": {
+      "mean_rho": 0.7861874285714288,
+      "std_rho": 0.14138292413823372,
+      "ci_lo": 0.4285714285714286,
+      "ci_hi": 0.942857142857143
+    },
+    "GPT-4o-mini vs Qwen3-VL-30B": {
+      "mean_rho": 0.827377142857143,
+      "std_rho": 0.11543483985808284,
+      "ci_lo": 0.6,
+      "ci_hi": 1.0
+    },
+    "Qwen3-VL-8B vs Qwen3-VL-30B": {
+      "mean_rho": 0.777417142857143,
+      "std_rho": 0.16426476348398333,
+      "ci_lo": 0.3714285714285715,
+      "ci_hi": 1.0
+    }
+  },
+  "per_pair_cross_model": {
+    "D": {
+      "Image vs Layout": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.10331691034765156,
+          "Gemma3-4B vs GPT-4o-mini": 0.196240331159991,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.24325943364478603,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.18947233126002352,
+          "Gemma3-27B vs GPT-4o-mini": 0.29659757035405554,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.14926490256396271,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.10056958713360625,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.2856225283293351,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.34917517582024565,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.3335802998164719
+        },
+        "cross_model_mean_rho": 0.2247099070430129,
+        "cross_model_std_rho": 0.08628897086686887
+      },
+      "Image vs Text": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.2673915150863432,
+          "Gemma3-4B vs GPT-4o-mini": 0.12447697664807172,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.1954117682760532,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.15849358532692537,
+          "Gemma3-27B vs GPT-4o-mini": 0.14136887906664092,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.24878960216687102,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.23202019329627005,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.28860935751104494,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.25944111628946415,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.586298779750462
+        },
+        "cross_model_mean_rho": 0.25023017734181463,
+        "cross_model_std_rho": 0.1241826915131497
+      },
+      "Image vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.2344536313846294,
+          "Gemma3-4B vs GPT-4o-mini": -0.0477149748564075,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.09937163795461317,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.11031477488922349,
+          "Gemma3-27B vs GPT-4o-mini": 0.1724545800260895,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.2460547603631455,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.24489046465335307,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.2727438120618824,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.20970242268733827,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.49164705197188874
+        },
+        "cross_model_mean_rho": 0.20339181611357562,
+        "cross_model_std_rho": 0.13264349634375414
+      },
+      "Layout vs Text": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.20624379371198037,
+          "Gemma3-4B vs GPT-4o-mini": 0.1834346206056195,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.1685385021847859,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.23137631014824167,
+          "Gemma3-27B vs GPT-4o-mini": 0.3684774989548398,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.29895471907095955,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.38315613559244366,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.37771039005628304,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.3162379328007398,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.40102831267922284
+        },
+        "cross_model_mean_rho": 0.2935158215805116,
+        "cross_model_std_rho": 0.08488998935031222
+      },
+      "Layout vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.10332917230868494,
+          "Gemma3-4B vs GPT-4o-mini": 0.21124260045822427,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.25248923684641295,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.18886125347860616,
+          "Gemma3-27B vs GPT-4o-mini": 0.20730815235551486,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.2606417193375962,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.14793108678812114,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.25257715948624576,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.28768684605059275,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.34440619408636863
+        },
+        "cross_model_mean_rho": 0.22564734211963677,
+        "cross_model_std_rho": 0.06597079927585141
+      },
+      "Text vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.3277303174901832,
+          "Gemma3-4B vs GPT-4o-mini": 0.23038444721871618,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.21496735082370505,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.18033567694191263,
+          "Gemma3-27B vs GPT-4o-mini": 0.4078668136613413,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.21644360809489444,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.3380247081752215,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.5933779259136359,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.5340301030651396,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.6127206110597823
+        },
+        "cross_model_mean_rho": 0.36558815624445323,
+        "cross_model_std_rho": 0.1558348518867658
+      }
+    },
+    "C12": {
+      "Image vs Layout": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.5115992172504206,
+          "Gemma3-4B vs GPT-4o-mini": 0.5179102692336316,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.33874497148592536,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.15434775925245045,
+          "Gemma3-27B vs GPT-4o-mini": 0.4608480906913831,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.32183270830105515,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.30709605915508414,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.4540659859220138,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.3633821373599449,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.2988169875906784
+        },
+        "cross_model_mean_rho": 0.3728644186242588,
+        "cross_model_std_rho": 0.10772036927774246
+      },
+      "Image vs Text": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.29424321777951634,
+          "Gemma3-4B vs GPT-4o-mini": 0.312389330594823,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.3124042890792405,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.345639340463896,
+          "Gemma3-27B vs GPT-4o-mini": 0.34476820304451683,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.4599288703883249,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.38908281645368836,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.30686744819837075,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.37814720431549476,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.5721459343629226
+        },
+        "cross_model_mean_rho": 0.37156166546807934,
+        "cross_model_std_rho": 0.08182143542263544
+      },
+      "Image vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.24451491682907556,
+          "Gemma3-4B vs GPT-4o-mini": 0.14832414997371643,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.08351266308617929,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.16772514540376457,
+          "Gemma3-27B vs GPT-4o-mini": 0.03394525499257053,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.050983948605034406,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.2978587239396139,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.1736734957139914,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.368378890542526,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.16479004864939503
+        },
+        "cross_model_mean_rho": 0.1733707237735867,
+        "cross_model_std_rho": 0.10090209200981837
+      },
+      "Layout vs Text": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.2579288846146609,
+          "Gemma3-4B vs GPT-4o-mini": 0.13032148275169217,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.12241878836446989,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.2033048201992105,
+          "Gemma3-27B vs GPT-4o-mini": 0.19591424490150747,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.17922813146733083,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.23159129858836716,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.29261214459850127,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.32049244904684127,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.3862630159036184
+        },
+        "cross_model_mean_rho": 0.23200752604362,
+        "cross_model_std_rho": 0.07951812699076292
+      },
+      "Layout vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.4045406881078221,
+          "Gemma3-4B vs GPT-4o-mini": 0.4045503052844791,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.2652402105438041,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.3189181196800759,
+          "Gemma3-27B vs GPT-4o-mini": 0.40281156394215323,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.4356732438538994,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.21132965881604499,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.28203385997781943,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.20100603776490064,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.339068673523315
+        },
+        "cross_model_mean_rho": 0.3265172361494314,
+        "cross_model_std_rho": 0.08054988893305733
+      },
+      "Text vs Table": {
+        "model_pairs": {
+          "Gemma3-4B vs Gemma3-27B": 0.3415441687416312,
+          "Gemma3-4B vs GPT-4o-mini": 0.44364832975724333,
+          "Gemma3-4B vs Qwen3-VL-8B": 0.3120791940662037,
+          "Gemma3-4B vs Qwen3-VL-30B": 0.32437567063702805,
+          "Gemma3-27B vs GPT-4o-mini": 0.3691823860703586,
+          "Gemma3-27B vs Qwen3-VL-8B": 0.3264089765924401,
+          "Gemma3-27B vs Qwen3-VL-30B": 0.3790076831379839,
+          "GPT-4o-mini vs Qwen3-VL-8B": 0.48019579086832304,
+          "GPT-4o-mini vs Qwen3-VL-30B": 0.3805787016826979,
+          "Qwen3-VL-8B vs Qwen3-VL-30B": 0.4549855347300969
+        },
+        "cross_model_mean_rho": 0.38120064362840067,
+        "cross_model_std_rho": 0.056458137021240286
+      }
+    }
+  }
+}

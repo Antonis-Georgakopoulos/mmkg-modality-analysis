@@ -57,7 +57,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
     """
     # Check if ALL questions are already answered before processing document
     if check_all_questions_answered_for_document(doc_no, questions, results_by_model):
-        logger.info(f"✅ ALL questions for {doc_no} are already answered. Skipping document processing entirely!")
+        logger.info(f" ALL questions for {doc_no} are already answered. Skipping document processing entirely!")
         return []
     
     # Setup directories with new structure: processed_documents/{doc_no}/[output,rag_storage]
@@ -85,10 +85,10 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
     
     if content_list_exists and len(rag_storage_files) > 0:
         fully_processed = True
-        logger.info(f"📂 Document fully processed! Using existing data from {doc_base_dir}")
+        logger.info(f" Document fully processed! Using existing data from {doc_base_dir}")
     elif content_list_exists:
         mineru_only = True
-        logger.info(f"📄 MinerU output exists, will do KG construction only for {doc_no}")
+        logger.info(f" MinerU output exists, will do KG construction only for {doc_no}")
     
     # Find PDF path for this document
     doc_path = find_pdf_path(doc_no, args.documents)
@@ -116,7 +116,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
         extraction_prompt = f.read()
     
     logger.info(f"\n{'='*80}")
-    logger.info(f"Processing (WITH IMAGES): {doc_no}")
+    logger.info(f"Processing: {doc_no}")
     logger.info(f"Questions: {len(questions)}")
     logger.info(f"{'='*80}")
     
@@ -133,7 +133,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
         
         # Create LLM functions
         def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
-            logger.info(f"🔗 [LLM CALL - Entity/Relation Extraction] Using base_url: {args.base_url}")
+            # logger.info(f" [LLM CALL - Entity/Relation Extraction] Using base_url: {args.base_url}")
             return openai_complete_if_cache(
                 "gpt-4o-mini",
                 prompt,
@@ -152,7 +152,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
             messages=None,
             **kwargs,
         ):
-            logger.info(f"🔗 [VISION CALL - Document Processing] Using base_url: {args.base_url}")
+            # logger.info(f" [VISION CALL - Document Processing] Using base_url: {args.base_url}")
             if messages:
                 return openai_complete_if_cache(
                     "gpt-5.1",
@@ -330,7 +330,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
                             raise
         else:
             # Document already processed, just initialize LightRAG to load existing data
-            logger.info("📂 Skipping MinerU parsing - loading existing processed data...")
+            logger.info(" Skipping MinerU parsing - loading existing processed data...")
             await rag._ensure_lightrag_initialized()
         
         # RQ3: Test all modality subsets for each question
@@ -375,7 +375,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
                     is_last_question = (i == len(questions))
                     keep_alive = 0 if is_last_question else -1
                     
-                    logger.info(f"  🖼️ {model_name} (WITH IMAGES)")
+                    logger.info(f"   {model_name} (WITH IMAGES)")
                     logger.info(f"    Subset: {subset_list}")
                     
                     raw_response, extracted_result, prediction, logprobs, retrieval_metadata, timing_metadata = await answer_with_modality_subset(
@@ -479,7 +479,7 @@ async def process_document_rq3(doc_no: str, questions: List[Dict], args, results
         return results
         
     except RateLimitError as e:
-        logger.error(f"🛑 RATE LIMIT ERROR - Stopping pipeline completely: {e}")
+        logger.error(f" RATE LIMIT ERROR - Stopping pipeline completely: {e}")
         raise
     except Exception as e:
         logger.error(f"Error processing document {doc_no}: {e}", exc_info=True)
@@ -516,7 +516,7 @@ async def main_async(args):
                 with open(model_file, 'r') as f:
                     loaded_results = json.load(f)
                 results_by_model[model] = loaded_results
-                logger.info(f"📂 Loaded {len(results_by_model[model])} existing results for {model}")
+                logger.info(f" Loaded {len(results_by_model[model])} existing results for {model}")
             except Exception as e:
                 logger.warning(f"Could not load existing results for {model}: {e}")
         
@@ -526,7 +526,7 @@ async def main_async(args):
             try:
                 with open(logprobs_file, 'r') as f:
                     results_logprobs[model] = json.load(f)
-                logger.info(f"📂 Loaded {len(results_logprobs[model])} existing logprobs for {model}")
+                logger.info(f" Loaded {len(results_logprobs[model])} existing logprobs for {model}")
             except Exception as e:
                 logger.warning(f"Could not load existing logprobs for {model}: {e}")
     
@@ -541,19 +541,17 @@ async def main_async(args):
         key=lambda x: int(x),
     )
     total_all_docs = len(all_pdf_doc_nos)
-    logger.info(f"📂 Found {total_all_docs} PDFs on disk in {args.documents}")
+    logger.info(f" Found {total_all_docs} PDFs on disk in {args.documents}")
     
-    # Reverse for backwards processing
-    all_pdf_doc_nos.reverse()
-    
-    # Slice by --doc-start / --doc-end
+    # Slice by --doc-start / --doc-end (1-based, inclusive)
+    # E.g. --doc-start 1 --doc-end 50 processes docs 1, 2, ..., 50
     if doc_start is not None or doc_end is not None:
-        rev_start = total_all_docs - doc_start if doc_start else 0
-        rev_end = (total_all_docs - doc_end + 1) if doc_end else total_all_docs
-        all_pdf_doc_nos = all_pdf_doc_nos[rev_start:rev_end]
-        logger.info(f"📋 Processing documents {doc_start} -> {doc_end} (BACKWARDS), {len(all_pdf_doc_nos)} documents")
+        slice_start = (doc_start - 1) if doc_start else 0
+        slice_end = doc_end if doc_end else total_all_docs
+        all_pdf_doc_nos = all_pdf_doc_nos[slice_start:slice_end]
+        logger.info(f" Processing documents {doc_start} -> {doc_end}, {len(all_pdf_doc_nos)} documents")
     else:
-        logger.info(f"📋 Processing ALL {len(all_pdf_doc_nos)} documents (BACKWARDS)")
+        logger.info(f" Processing ALL {len(all_pdf_doc_nos)} documents")
     
     # Pair each doc_no with its questions from the JSONL (empty list if no questions)
     doc_items = [(doc_no, doc_questions.get(doc_no, [])) for doc_no in all_pdf_doc_nos]
@@ -567,16 +565,16 @@ async def main_async(args):
     
     for doc_idx, (doc_no, questions) in enumerate(doc_items, 1):
         logger.info(f"\n\n{'#'*80}")
-        logger.info(f"Document {doc_idx}/{total_docs}: {doc_no} (WITH IMAGES, BACKWARDS)")
+        logger.info(f"Document {doc_idx}/{total_docs}: {doc_no} (WITH IMAGES)")
         logger.info(f"{'#'*80}")
         
         _ = await process_document_rq3(doc_no, questions, args, results_by_model, results_logprobs)
         
-        logger.info(f"\n✅ Document {doc_idx}/{total_docs} completed. Results saved to {results_dir}/")
+        logger.info(f"\n Document {doc_idx}/{total_docs} completed. Results saved to {results_dir}/")
     
     # Summary stats
     logger.info(f"\n\n{'='*80}")
-    logger.info("MODALITY CONTRIBUTIONS ANALYSIS (WITH IMAGES, BACKWARDS)")
+    logger.info("MODALITY CONTRIBUTIONS ANALYSIS (WITH IMAGES)")
     logger.info(f"{'='*80}")
     
     for model in MODELS_TO_EVALUATE:

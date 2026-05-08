@@ -4,13 +4,11 @@ Configuration and constants for modality contribution analysis - LongDocURL benc
 
 # Models to evaluate - using vision-capable models for image support
 MODELS_TO_EVALUATE = [
-    "gpt-4o-mini",  # Vision-capable model
-    "qwen3-vl:8b",
-    "qwen3-vl:30b",
+#    "gpt-4o-mini",  # Vision-capable model
+#    "qwen3-vl:8b",
+#    "qwen3-vl:30b",
     "gemma3:4b",
-    "gemma3:27b",
-    "llava:13b",
-    "minicpm-v:8b"
+#    "gemma3:27b"
 ]
 
 # Modalities that have images (these will be sent as actual images to the model)

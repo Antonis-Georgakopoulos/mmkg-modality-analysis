@@ -461,6 +461,74 @@ async def track_evidence_for_document(
         summary = build_evidence_summary(agg or {})
         summaries[(src_id, tgt_id, keywords)] = (fact, summary)
     
+    # ---------------------------------------------------------------
+    # FIX: Propagate orphan multimodal chunk modalities to edges.
+    #
+    # Layout content (headers, footers, page numbers) is processed as
+    # multimodal chunks but often doesn't produce entities/relationships
+    # during LLM extraction.  Their chunk IDs therefore never appear in
+    # any relationship's source_id, so evidence tracking never records
+    # their modality on graph edges — causing 0-context retrieval when
+    # filtering by layout modalities.
+    #
+    # Layout content is document-level metadata that applies to every
+    # relationship in the document, so we augment ALL summaries for
+    # this document with the orphan multimodal chunks.
+    # ---------------------------------------------------------------
+    referenced_chunk_ids = {rec[2] for rec in evidence_records}  # chunk_id at index 2
+    orphan_chunk_ids = chunk_ids - referenced_chunk_ids
+
+    if orphan_chunk_ids:
+        orphan_multimodal: Dict[str, str] = {}
+        for cid in orphan_chunk_ids:
+            mod = modality_cache.get(cid, "text")
+            if mod != "text":
+                orphan_multimodal[cid] = mod
+
+        if orphan_multimodal:
+            orphan_mod_counts = {}
+            for m in orphan_multimodal.values():
+                orphan_mod_counts[m] = orphan_mod_counts.get(m, 0) + 1
+            logger.info(
+                f"[EVIDENCE] Found {len(orphan_multimodal)} orphan multimodal chunks "
+                f"not referenced by any relationship: {orphan_mod_counts}"
+            )
+
+            # Build the extra source entries once (shared across all summaries)
+            extra_sources = [
+                {
+                    "chunk_id": cid,
+                    "file_path": None,
+                    "modality": mod,
+                    "doc_id": doc_id,
+                    "timestamp": None,
+                }
+                for cid, mod in orphan_multimodal.items()
+            ]
+
+            for key, (fact, summary) in summaries.items():
+                # Merge modalities
+                existing_mods = set(
+                    m.strip() for m in summary.get("modality", "").split(",") if m.strip()
+                )
+                all_mods = existing_mods | set(orphan_multimodal.values())
+                summary["modality"] = ",".join(sorted(all_mods))
+
+                # Append orphan sources
+                summary.setdefault("sources", []).extend(extra_sources)
+
+                # Update by_modality counts
+                by_mod = summary.setdefault("by_modality", {})
+                for m, cnt in orphan_mod_counts.items():
+                    by_mod[m] = by_mod.get(m, 0) + cnt
+
+                summary["total_count"] = len(summary.get("sources", []))
+                summaries[key] = (fact, summary)
+
+            logger.info(
+                f"[EVIDENCE] Augmented {len(summaries)} edge summaries with orphan modalities"
+            )
+    
     # OPTIMIZATION 5: Batch update relationships VDB
     rel_updates = {}
     for src_id, tgt_id, keywords, item, chunk_id, file_path in unique_triples.values():

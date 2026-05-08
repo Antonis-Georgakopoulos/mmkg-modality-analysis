@@ -51,6 +51,8 @@ rag_storage*/
 examples/input/
 examples/output/
 output*/
+longdocurl/pdfs/
+mmlongbench/data/documents/
 
 # Miscellaneous
 .DS_Store
@@ -80,3 +82,7 @@ memory-bank/
 CLAUDE.md
 uv.lock
 supersimplepdf.pdf
+
+# Large logprobs files (exceed GitHub 100MB limit)
+results_longdocurl/qwen3-vl_8b_logprobs.json
+results_longdocurl/qwen3-vl_30b_logprobs.json

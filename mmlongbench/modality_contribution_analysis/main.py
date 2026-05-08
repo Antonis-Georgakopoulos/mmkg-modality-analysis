@@ -31,7 +31,7 @@ def main():
     )
     parser.add_argument(
         "--samples",
-        default="./mmlongbench/data/samples.json",
+        default="./mmlongbench/data/samples_2modalities.json",
         help="Path to samples.json"
     )
     parser.add_argument(
@@ -41,12 +41,12 @@ def main():
     )
     parser.add_argument(
         "--processed-docs-dir",
-        default="./processed_documents",
+        default="./processed_documents_mmlongbench",
         help="Base directory for processed documents (each doc will have output/ and rag_storage/ subdirs)"
     )
     parser.add_argument(
         "--results-dir",
-        default="./results",
+        default="./results_mmlongbench",
         help="Directory for evaluation results (separate file per model)"
     )
     parser.add_argument(
@@ -78,7 +78,7 @@ def main():
     )
     parser.add_argument(
         "--device",
-        default="mps",
+        default="cpu",
         choices=["cpu", "cuda", "mps"],
         help="Device for MinerU parsing"
     )

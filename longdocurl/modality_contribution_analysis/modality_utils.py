@@ -104,7 +104,7 @@ def check_all_questions_answered_for_document(
         for subset_idx in range(1, len(subsets) + 1):
             expected_question_ids.add(f"{base_id}_{subset_idx}")
     
-    logger.info(f"🔍 Checking skip for doc: {doc_no}...")
+    logger.info(f" Checking skip for doc: {doc_no}...")
     logger.info(f"   Expected {len(expected_question_ids)} question IDs (including subset variants)")
     
     # Check if all question IDs exist for ALL models
@@ -128,8 +128,8 @@ def check_all_questions_answered_for_document(
             all_models_complete = False
     
     if all_models_complete:
-        logger.info(f"   ✅ All {len(expected_question_ids)} questions found for ALL models - SKIPPING!")
+        logger.info(f"  All {len(expected_question_ids)} questions found for ALL models - SKIPPING!")
         return True
     
-    logger.info("   ⚠️  Document needs processing - not all models have all questions answered")
+    logger.info("    Document needs processing - not all models have all questions answered")
     return False

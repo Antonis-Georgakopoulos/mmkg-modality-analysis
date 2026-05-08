@@ -1,0 +1,2134 @@
+==============================================================================================================
+BENCHMARK: LongDocURL
+==============================================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gemma3_27b
+Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gemma3_27b_results_vlm.json
+Total questions: 3135
+Questions with 2 gold modalities: 2505
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 102
+  Unique question IDs: 34
+  Common questions (matched across all conditions): 34
+
+  RAW COUNTS (before matching):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2334
+    V1 (image only):         0.2276
+    V2 (layout only):         0.0980
+    V0 (majority baseline): 0.0588
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1521
+    Shapley value φ_layout: 0.0225
+    SHAPE score S_image:   0.6514 (65.14%)
+    SHAPE score S_layout:   0.0965 (9.65%)
+    Cooperation C12:      -0.0334
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 456
+  Unique question IDs: 152
+  Common questions (matched across all conditions): 152
+
+  RAW COUNTS (before matching):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4113
+    V1 (image only):         0.3130
+    V2 (plain_text only):         0.3459
+    V0 (majority baseline): 0.1184
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1300
+    Shapley value φ_plain_text: 0.1629
+    SHAPE score S_image:   0.3162 (31.62%)
+    SHAPE score S_plain_text:   0.3959 (39.59%)
+    Cooperation C12:      -0.1292
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 840
+  Unique question IDs: 280
+  Common questions (matched across all conditions): 280
+
+  RAW COUNTS (before matching):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3486
+    V1 (layout only):         0.1617
+    V2 (plain_text only):         0.2810
+    V0 (majority baseline): 0.0643
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0825
+    Shapley value φ_plain_text: 0.2018
+    SHAPE score S_layout:   0.2366 (23.66%)
+    SHAPE score S_plain_text:   0.5790 (57.90%)
+    Cooperation C12:      -0.0299
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 165
+  Unique question IDs: 55
+  Common questions (matched across all conditions): 55
+
+  RAW COUNTS (before matching):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5010
+    V1 (plain_text only):         0.3743
+    V2 (table only):         0.3569
+    V0 (majority baseline): 0.1091
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.2047
+    Shapley value φ_table: 0.1873
+    SHAPE score S_plain_text:   0.4085 (40.85%)
+    SHAPE score S_table:   0.3738 (37.38%)
+    Cooperation C12:      -0.1211
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 492
+  Unique question IDs: 164
+  Common questions (matched across all conditions): 164
+
+  RAW COUNTS (before matching):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1397
+    V1 (image only):         0.0771
+    V2 (table only):         0.0917
+    V0 (majority baseline): 0.0183
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0534
+    Shapley value φ_table: 0.0680
+    SHAPE score S_image:   0.3824 (38.24%)
+    SHAPE score S_table:   0.4867 (48.67%)
+    Cooperation C12:      -0.0107
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 450
+  Unique question IDs: 150
+  Common questions (matched across all conditions): 150
+
+  RAW COUNTS (before matching):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1769
+    V1 (layout only):         0.0099
+    V2 (table only):         0.2055
+    V0 (majority baseline): 0.0333
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0260
+    Shapley value φ_table: 0.1696
+    SHAPE score S_layout:   -0.1468 (-14.68%)
+    SHAPE score S_table:   0.9584 (95.84%)
+    Cooperation C12:      -0.0051
+    → Independent: modalities contribute independently
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gemma3_4b
+Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gemma3_4b_results_vlm.json
+Total questions: 3133
+Questions with 2 gold modalities: 2505
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 102
+  Unique question IDs: 34
+  Common questions (matched across all conditions): 34
+
+  RAW COUNTS (before matching):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2674
+    V1 (image only):         0.2157
+    V2 (layout only):         0.1631
+    V0 (majority baseline): 0.0588
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1306
+    Shapley value φ_layout: 0.0780
+    SHAPE score S_image:   0.4884 (48.84%)
+    SHAPE score S_layout:   0.2916 (29.16%)
+    Cooperation C12:      -0.0526
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 456
+  Unique question IDs: 152
+  Common questions (matched across all conditions): 152
+
+  RAW COUNTS (before matching):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2810
+    V1 (image only):         0.2416
+    V2 (plain_text only):         0.2856
+    V0 (majority baseline): 0.1184
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0593
+    Shapley value φ_plain_text: 0.1032
+    SHAPE score S_image:   0.2110 (21.10%)
+    SHAPE score S_plain_text:   0.3675 (36.75%)
+    Cooperation C12:      -0.1278
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 840
+  Unique question IDs: 280
+  Common questions (matched across all conditions): 280
+
+  RAW COUNTS (before matching):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2225
+    V1 (layout only):         0.1229
+    V2 (plain_text only):         0.2030
+    V0 (majority baseline): 0.0643
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0391
+    Shapley value φ_plain_text: 0.1191
+    SHAPE score S_layout:   0.1756 (17.56%)
+    SHAPE score S_plain_text:   0.5355 (53.55%)
+    Cooperation C12:      -0.0391
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 165
+  Unique question IDs: 55
+  Common questions (matched across all conditions): 55
+
+  RAW COUNTS (before matching):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2823
+    V1 (plain_text only):         0.3287
+    V2 (table only):         0.3206
+    V0 (majority baseline): 0.1091
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.0906
+    Shapley value φ_table: 0.0826
+    SHAPE score S_plain_text:   0.3210 (32.10%)
+    SHAPE score S_table:   0.2925 (29.25%)
+    Cooperation C12:      -0.2579
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 492
+  Unique question IDs: 164
+  Common questions (matched across all conditions): 164
+
+  RAW COUNTS (before matching):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0686
+    V1 (image only):         0.0381
+    V2 (table only):         0.0545
+    V0 (majority baseline): 0.0183
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0169
+    Shapley value φ_table: 0.0333
+    SHAPE score S_image:   0.2467 (24.67%)
+    SHAPE score S_table:   0.4865 (48.65%)
+    Cooperation C12:      -0.0058
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 450
+  Unique question IDs: 150
+  Common questions (matched across all conditions): 150
+
+  RAW COUNTS (before matching):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1271
+    V1 (layout only):         0.0609
+    V2 (table only):         0.1020
+    V0 (majority baseline): 0.0333
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0264
+    Shapley value φ_table: 0.0674
+    SHAPE score S_layout:   0.2073 (20.73%)
+    SHAPE score S_table:   0.5305 (53.05%)
+    Cooperation C12:      -0.0024
+    → Independent: modalities contribute independently
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gpt-4o-mini
+Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/gpt-4o-mini_results_vlm.json
+Total questions: 3207
+Questions with 2 gold modalities: 2505
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 102
+  Unique question IDs: 34
+  Common questions (matched across all conditions): 34
+
+  RAW COUNTS (before matching):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4536
+    V1 (image only):         0.4804
+    V2 (layout only):         0.1106
+    V0 (majority baseline): 0.0588
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.3822
+    Shapley value φ_layout: 0.0125
+    SHAPE score S_image:   0.8428 (84.28%)
+    SHAPE score S_layout:   0.0275 (2.75%)
+    Cooperation C12:      -0.0787
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 456
+  Unique question IDs: 152
+  Common questions (matched across all conditions): 152
+
+  RAW COUNTS (before matching):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5277
+    V1 (image only):         0.3971
+    V2 (plain_text only):         0.5341
+    V0 (majority baseline): 0.1184
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1362
+    Shapley value φ_plain_text: 0.2731
+    SHAPE score S_image:   0.2580 (25.80%)
+    SHAPE score S_plain_text:   0.5176 (51.76%)
+    Cooperation C12:      -0.2851
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 840
+  Unique question IDs: 280
+  Common questions (matched across all conditions): 280
+
+  RAW COUNTS (before matching):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4728
+    V1 (layout only):         0.1745
+    V2 (plain_text only):         0.4640
+    V0 (majority baseline): 0.0643
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0595
+    Shapley value φ_plain_text: 0.3490
+    SHAPE score S_layout:   0.1258 (12.58%)
+    SHAPE score S_plain_text:   0.7382 (73.82%)
+    Cooperation C12:      -0.1014
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 165
+  Unique question IDs: 55
+  Common questions (matched across all conditions): 55
+
+  RAW COUNTS (before matching):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.6451
+    V1 (plain_text only):         0.5498
+    V2 (table only):         0.5471
+    V0 (majority baseline): 0.1091
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.2694
+    Shapley value φ_table: 0.2666
+    SHAPE score S_plain_text:   0.4176 (41.76%)
+    SHAPE score S_table:   0.4133 (41.33%)
+    Cooperation C12:      -0.3427
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 492
+  Unique question IDs: 164
+  Common questions (matched across all conditions): 164
+
+  RAW COUNTS (before matching):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3341
+    V1 (image only):         0.0736
+    V2 (table only):         0.0459
+    V0 (majority baseline): 0.0183
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1717
+    Shapley value φ_table: 0.1441
+    SHAPE score S_image:   0.5140 (51.40%)
+    SHAPE score S_table:   0.4313 (43.13%)
+    Cooperation C12:      0.2329
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 450
+  Unique question IDs: 150
+  Common questions (matched across all conditions): 150
+
+  RAW COUNTS (before matching):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3229
+    V1 (layout only):         0.0336
+    V2 (table only):         0.3155
+    V0 (majority baseline): 0.0333
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0038
+    Shapley value φ_table: 0.2858
+    SHAPE score S_layout:   0.0119 (1.19%)
+    SHAPE score S_table:   0.8849 (88.49%)
+    Cooperation C12:      0.0071
+    → Independent: modalities contribute independently
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: qwen3-vl_30b
+Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/qwen3-vl_30b_results_vlm.json
+Total questions: 3095
+Questions with 2 gold modalities: 2505
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 102
+  Unique question IDs: 34
+  Common questions (matched across all conditions): 34
+
+  RAW COUNTS (before matching):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5490
+    V1 (image only):         0.5686
+    V2 (layout only):         0.1631
+    V0 (majority baseline): 0.0588
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.4479
+    Shapley value φ_layout: 0.0423
+    SHAPE score S_image:   0.8158 (81.58%)
+    SHAPE score S_layout:   0.0771 (7.71%)
+    Cooperation C12:      -0.1238
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 456
+  Unique question IDs: 152
+  Common questions (matched across all conditions): 152
+
+  RAW COUNTS (before matching):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5914
+    V1 (image only):         0.4491
+    V2 (plain_text only):         0.4913
+    V0 (majority baseline): 0.1184
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.2154
+    Shapley value φ_plain_text: 0.2575
+    SHAPE score S_image:   0.3643 (36.43%)
+    SHAPE score S_plain_text:   0.4355 (43.55%)
+    Cooperation C12:      -0.2306
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 840
+  Unique question IDs: 280
+  Common questions (matched across all conditions): 280
+
+  RAW COUNTS (before matching):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4364
+    V1 (layout only):         0.1807
+    V2 (plain_text only):         0.4313
+    V0 (majority baseline): 0.0643
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0607
+    Shapley value φ_plain_text: 0.3114
+    SHAPE score S_layout:   0.1391 (13.91%)
+    SHAPE score S_plain_text:   0.7135 (71.35%)
+    Cooperation C12:      -0.1113
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 165
+  Unique question IDs: 55
+  Common questions (matched across all conditions): 55
+
+  RAW COUNTS (before matching):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.7840
+    V1 (plain_text only):         0.5279
+    V2 (table only):         0.6085
+    V0 (majority baseline): 0.1091
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.2972
+    Shapley value φ_table: 0.3777
+    SHAPE score S_plain_text:   0.3790 (37.90%)
+    SHAPE score S_table:   0.4818 (48.18%)
+    Cooperation C12:      -0.2433
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 492
+  Unique question IDs: 164
+  Common questions (matched across all conditions): 164
+
+  RAW COUNTS (before matching):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3795
+    V1 (image only):         0.1738
+    V2 (table only):         0.2379
+    V0 (majority baseline): 0.0183
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1485
+    Shapley value φ_table: 0.2126
+    SHAPE score S_image:   0.3915 (39.15%)
+    SHAPE score S_table:   0.5603 (56.03%)
+    Cooperation C12:      -0.0139
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 450
+  Unique question IDs: 150
+  Common questions (matched across all conditions): 150
+
+  RAW COUNTS (before matching):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3557
+    V1 (layout only):         0.0425
+    V2 (table only):         0.3597
+    V0 (majority baseline): 0.0333
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0026
+    Shapley value φ_table: 0.3198
+    SHAPE score S_layout:   0.0072 (0.72%)
+    SHAPE score S_table:   0.8991 (89.91%)
+    Cooperation C12:      -0.0132
+    → Redundancy: modalities interfere/overlap
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: qwen3-vl_8b
+Results file: /Users/antonis/mmkg-modality-analysis/results_longdocurl/qwen3-vl_8b_results_vlm.json
+Total questions: 3032
+Questions with 2 gold modalities: 2505
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 102
+  Unique question IDs: 34
+  Common questions (matched across all conditions): 34
+
+  RAW COUNTS (before matching):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 34
+    image only: 34
+    layout only: 34
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5021
+    V1 (image only):         0.5353
+    V2 (layout only):         0.1767
+    V0 (majority baseline): 0.0588
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.4009
+    Shapley value φ_layout: 0.0424
+    SHAPE score S_image:   0.7985 (79.85%)
+    SHAPE score S_layout:   0.0843 (8.43%)
+    Cooperation C12:      -0.1510
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 456
+  Unique question IDs: 152
+  Common questions (matched across all conditions): 152
+
+  RAW COUNTS (before matching):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 152
+    image only: 152
+    plain_text only: 152
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5810
+    V1 (image only):         0.4351
+    V2 (plain_text only):         0.4936
+    V0 (majority baseline): 0.1184
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.2020
+    Shapley value φ_plain_text: 0.2606
+    SHAPE score S_image:   0.3477 (34.77%)
+    SHAPE score S_plain_text:   0.4485 (44.85%)
+    Cooperation C12:      -0.2293
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 840
+  Unique question IDs: 280
+  Common questions (matched across all conditions): 280
+
+  RAW COUNTS (before matching):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 280
+    layout only: 280
+    plain_text only: 280
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4981
+    V1 (layout only):         0.1682
+    V2 (plain_text only):         0.4424
+    V0 (majority baseline): 0.0643
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0798
+    Shapley value φ_plain_text: 0.3540
+    SHAPE score S_layout:   0.1603 (16.03%)
+    SHAPE score S_plain_text:   0.7107 (71.07%)
+    Cooperation C12:      -0.0483
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 165
+  Unique question IDs: 55
+  Common questions (matched across all conditions): 55
+
+  RAW COUNTS (before matching):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 55
+    plain_text only: 55
+    table only: 55
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.7439
+    V1 (plain_text only):         0.4506
+    V2 (table only):         0.6338
+    V0 (majority baseline): 0.1091
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.2258
+    Shapley value φ_table: 0.4090
+    SHAPE score S_plain_text:   0.3035 (30.35%)
+    SHAPE score S_table:   0.5498 (54.98%)
+    Cooperation C12:      -0.2314
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 492
+  Unique question IDs: 164
+  Common questions (matched across all conditions): 164
+
+  RAW COUNTS (before matching):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 164
+    image only: 164
+    table only: 164
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3905
+    V1 (image only):         0.1986
+    V2 (table only):         0.2216
+    V0 (majority baseline): 0.0183
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1747
+    Shapley value φ_table: 0.1976
+    SHAPE score S_image:   0.4472 (44.72%)
+    SHAPE score S_table:   0.5059 (50.59%)
+    Cooperation C12:      -0.0113
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 450
+  Unique question IDs: 150
+  Common questions (matched across all conditions): 150
+
+  RAW COUNTS (before matching):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 150
+    layout only: 150
+    table only: 150
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3710
+    V1 (layout only):         0.0382
+    V2 (table only):         0.3434
+    V0 (majority baseline): 0.0333
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0162
+    Shapley value φ_table: 0.3214
+    SHAPE score S_layout:   0.0437 (4.37%)
+    SHAPE score S_table:   0.8665 (86.65%)
+    Cooperation C12:      0.0227
+    → Synergy: modalities cooperate positively
+
+================================================================================
+END OF REPORT
+================================================================================
+
+==============================================================================================================
+BENCHMARK: MMLongBench-Doc
+==============================================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gemma3_27b
+Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gemma3_27b_results_vlm.json
+Total questions: 819
+Questions with 2 gold modalities: 648
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 141
+  Unique question IDs: 47
+  Common questions (matched across all conditions): 47
+
+  RAW COUNTS (before matching):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1454
+    V1 (image only):         0.1241
+    V2 (layout only):         0.0213
+    V0 (majority baseline): 0.1064
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0709
+    Shapley value φ_layout: -0.0319
+    SHAPE score S_image:   0.4878 (48.78%)
+    SHAPE score S_layout:   -0.2195 (-21.95%)
+    Cooperation C12:      0.1064
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 276
+  Unique question IDs: 92
+  Common questions (matched across all conditions): 92
+
+  RAW COUNTS (before matching):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1848
+    V1 (image only):         0.1836
+    V2 (plain_text only):         0.1087
+    V0 (majority baseline): 0.0543
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1026
+    Shapley value φ_plain_text: 0.0278
+    SHAPE score S_image:   0.5555 (55.55%)
+    SHAPE score S_plain_text:   0.1504 (15.04%)
+    Cooperation C12:      -0.0531
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2500
+    V1 (layout only):         0.0625
+    V2 (plain_text only):         0.1875
+    V0 (majority baseline): 0.1250
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0000
+    Shapley value φ_plain_text: 0.1250
+    SHAPE score S_layout:   0.0000 (0.00%)
+    SHAPE score S_plain_text:   0.5000 (50.00%)
+    Cooperation C12:      0.1250
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 108
+  Unique question IDs: 36
+  Common questions (matched across all conditions): 36
+
+  RAW COUNTS (before matching):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3611
+    V1 (plain_text only):         0.0833
+    V2 (table only):         0.2986
+    V0 (majority baseline): 0.0556
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.0451
+    Shapley value φ_table: 0.2604
+    SHAPE score S_plain_text:   0.1250 (12.50%)
+    SHAPE score S_table:   0.7212 (72.12%)
+    Cooperation C12:      0.0347
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2500
+    V1 (image only):         0.0000
+    V2 (table only):         0.2500
+    V0 (majority baseline): 0.0625
+
+  SHAPE METRICS:
+    Shapley value φ_image: -0.0312
+    Shapley value φ_table: 0.2188
+    SHAPE score S_image:   -0.1250 (-12.50%)
+    SHAPE score S_table:   0.8750 (87.50%)
+    Cooperation C12:      0.0625
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 27
+  Unique question IDs: 9
+  Common questions (matched across all conditions): 9
+
+  RAW COUNTS (before matching):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1111
+    V1 (layout only):         0.1111
+    V2 (table only):         0.2137
+    V0 (majority baseline): 0.1111
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0513
+    Shapley value φ_table: 0.0513
+    SHAPE score S_layout:   -0.4615 (-46.15%)
+    SHAPE score S_table:   0.4615 (46.15%)
+    Cooperation C12:      -0.1026
+    → Redundancy: modalities interfere/overlap
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gemma3_4b
+Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gemma3_4b_results_vlm.json
+Total questions: 819
+Questions with 2 gold modalities: 648
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 141
+  Unique question IDs: 47
+  Common questions (matched across all conditions): 47
+
+  RAW COUNTS (before matching):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0851
+    V1 (image only):         0.1028
+    V2 (layout only):         0.0426
+    V0 (majority baseline): 0.1064
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0195
+    Shapley value φ_layout: -0.0408
+    SHAPE score S_image:   0.2292 (22.92%)
+    SHAPE score S_layout:   -0.4792 (-47.92%)
+    Cooperation C12:      0.0461
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 276
+  Unique question IDs: 92
+  Common questions (matched across all conditions): 92
+
+  RAW COUNTS (before matching):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1394
+    V1 (image only):         0.1222
+    V2 (plain_text only):         0.1071
+    V0 (majority baseline): 0.0543
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0500
+    Shapley value φ_plain_text: 0.0350
+    SHAPE score S_image:   0.3589 (35.89%)
+    SHAPE score S_plain_text:   0.2513 (25.13%)
+    Cooperation C12:      -0.0355
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0625
+    V1 (layout only):         0.1250
+    V2 (plain_text only):         0.2500
+    V0 (majority baseline): 0.1250
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0938
+    Shapley value φ_plain_text: 0.0312
+    SHAPE score S_layout:   -1.5000 (-150.00%)
+    SHAPE score S_plain_text:   0.5000 (50.00%)
+    Cooperation C12:      -0.1875
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 108
+  Unique question IDs: 36
+  Common questions (matched across all conditions): 36
+
+  RAW COUNTS (before matching):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2222
+    V1 (plain_text only):         0.1111
+    V2 (table only):         0.1823
+    V0 (majority baseline): 0.0556
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.0477
+    Shapley value φ_table: 0.1189
+    SHAPE score S_plain_text:   0.2148 (21.48%)
+    SHAPE score S_table:   0.5352 (53.52%)
+    Cooperation C12:      -0.0156
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0361
+    V1 (image only):         0.0625
+    V2 (table only):         0.1250
+    V0 (majority baseline): 0.0625
+
+  SHAPE METRICS:
+    Shapley value φ_image: -0.0445
+    Shapley value φ_table: 0.0180
+    SHAPE score S_image:   -1.2333 (-123.33%)
+    SHAPE score S_table:   0.5000 (50.00%)
+    Cooperation C12:      -0.0889
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 27
+  Unique question IDs: 9
+  Common questions (matched across all conditions): 9
+
+  RAW COUNTS (before matching):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1966
+    V1 (layout only):         0.1741
+    V2 (table only):         0.3904
+    V0 (majority baseline): 0.1111
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0654
+    Shapley value φ_table: 0.1509
+    SHAPE score S_layout:   -0.3328 (-33.28%)
+    SHAPE score S_table:   0.7676 (76.76%)
+    Cooperation C12:      -0.2568
+    → Redundancy: modalities interfere/overlap
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: gpt-4o-mini
+Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/gpt-4o-mini_results_vlm.json
+Total questions: 819
+Questions with 2 gold modalities: 648
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 141
+  Unique question IDs: 47
+  Common questions (matched across all conditions): 47
+
+  RAW COUNTS (before matching):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1418
+    V1 (image only):         0.1591
+    V2 (layout only):         0.0000
+    V0 (majority baseline): 0.1064
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0973
+    Shapley value φ_layout: -0.0618
+    SHAPE score S_image:   0.6857 (68.57%)
+    SHAPE score S_layout:   -0.4357 (-43.57%)
+    Cooperation C12:      0.0892
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 276
+  Unique question IDs: 92
+  Common questions (matched across all conditions): 92
+
+  RAW COUNTS (before matching):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2345
+    V1 (image only):         0.2061
+    V2 (plain_text only):         0.0870
+    V0 (majority baseline): 0.0543
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1496
+    Shapley value φ_plain_text: 0.0305
+    SHAPE score S_image:   0.6382 (63.82%)
+    SHAPE score S_plain_text:   0.1300 (13.00%)
+    Cooperation C12:      -0.0042
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3125
+    V1 (layout only):         0.0625
+    V2 (plain_text only):         0.3750
+    V0 (majority baseline): 0.1250
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0625
+    Shapley value φ_plain_text: 0.2500
+    SHAPE score S_layout:   -0.2000 (-20.00%)
+    SHAPE score S_plain_text:   0.8000 (80.00%)
+    Cooperation C12:      0.0000
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 108
+  Unique question IDs: 36
+  Common questions (matched across all conditions): 36
+
+  RAW COUNTS (before matching):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.5023
+    V1 (plain_text only):         0.1818
+    V2 (table only):         0.3763
+    V0 (majority baseline): 0.0556
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.1262
+    Shapley value φ_table: 0.3206
+    SHAPE score S_plain_text:   0.2512 (25.12%)
+    SHAPE score S_table:   0.6382 (63.82%)
+    Cooperation C12:      -0.0002
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1875
+    V1 (image only):         0.0625
+    V2 (table only):         0.1875
+    V0 (majority baseline): 0.0625
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0000
+    Shapley value φ_table: 0.1250
+    SHAPE score S_image:   0.0000 (0.00%)
+    SHAPE score S_table:   0.6667 (66.67%)
+    Cooperation C12:      0.0000
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 27
+  Unique question IDs: 9
+  Common questions (matched across all conditions): 9
+
+  RAW COUNTS (before matching):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1111
+    V1 (layout only):         0.0000
+    V2 (table only):         0.0000
+    V0 (majority baseline): 0.1111
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0000
+    Shapley value φ_table: 0.0000
+    SHAPE score S_layout:   0.0000 (0.00%)
+    SHAPE score S_table:   0.0000 (0.00%)
+    Cooperation C12:      0.2222
+    → Synergy: modalities cooperate positively
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: qwen3-vl_30b
+Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/qwen3-vl_30b_results_vlm.json
+Total questions: 819
+Questions with 2 gold modalities: 648
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 141
+  Unique question IDs: 47
+  Common questions (matched across all conditions): 47
+
+  RAW COUNTS (before matching):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1447
+    V1 (image only):         0.1241
+    V2 (layout only):         0.0213
+    V0 (majority baseline): 0.1064
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0706
+    Shapley value φ_layout: -0.0323
+    SHAPE score S_image:   0.4877 (48.77%)
+    SHAPE score S_layout:   -0.2230 (-22.30%)
+    Cooperation C12:      0.1057
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 276
+  Unique question IDs: 92
+  Common questions (matched across all conditions): 92
+
+  RAW COUNTS (before matching):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2618
+    V1 (image only):         0.1801
+    V2 (plain_text only):         0.1496
+    V0 (majority baseline): 0.0543
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.1190
+    Shapley value φ_plain_text: 0.0885
+    SHAPE score S_image:   0.4545 (45.45%)
+    SHAPE score S_plain_text:   0.3379 (33.79%)
+    Cooperation C12:      -0.0135
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.4375
+    V1 (layout only):         0.0625
+    V2 (plain_text only):         0.3125
+    V0 (majority baseline): 0.1250
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0312
+    Shapley value φ_plain_text: 0.2812
+    SHAPE score S_layout:   0.0714 (7.14%)
+    SHAPE score S_plain_text:   0.6429 (64.29%)
+    Cooperation C12:      0.1875
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 108
+  Unique question IDs: 36
+  Common questions (matched across all conditions): 36
+
+  RAW COUNTS (before matching):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3333
+    V1 (plain_text only):         0.1667
+    V2 (table only):         0.2399
+    V0 (majority baseline): 0.0556
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.1023
+    Shapley value φ_table: 0.1755
+    SHAPE score S_plain_text:   0.3068 (30.68%)
+    SHAPE score S_table:   0.5265 (52.65%)
+    Cooperation C12:      -0.0177
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1250
+    V1 (image only):         0.0000
+    V2 (table only):         0.1250
+    V0 (majority baseline): 0.0625
+
+  SHAPE METRICS:
+    Shapley value φ_image: -0.0312
+    Shapley value φ_table: 0.0938
+    SHAPE score S_image:   -0.2500 (-25.00%)
+    SHAPE score S_table:   0.7500 (75.00%)
+    Cooperation C12:      0.0625
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 27
+  Unique question IDs: 9
+  Common questions (matched across all conditions): 9
+
+  RAW COUNTS (before matching):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3333
+    V1 (layout only):         0.0000
+    V2 (table only):         0.1111
+    V0 (majority baseline): 0.1111
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0556
+    Shapley value φ_table: 0.1667
+    SHAPE score S_layout:   0.1667 (16.67%)
+    SHAPE score S_table:   0.5000 (50.00%)
+    Cooperation C12:      0.3333
+    → Synergy: modalities cooperate positively
+
+================================================================================
+END OF REPORT
+================================================================================
+================================================================================
+SHAPE METRIC ANALYSIS REPORT
+================================================================================
+
+Model: qwen3-vl_8b
+Results file: /Users/antonis/mmkg-modality-analysis/results_mmlongbench/qwen3-vl_8b_results_vlm.json
+Total questions: 819
+Questions with 2 gold modalities: 648
+Number of modality groups: 6
+
+--------------------------------------------------------------------------------
+MODALITY GROUP ANALYSIS
+--------------------------------------------------------------------------------
+
+============================================================
+Modality Pair: {image, layout}
+============================================================
+  Total questions in group: 141
+  Unique question IDs: 47
+  Common questions (matched across all conditions): 47
+
+  RAW COUNTS (before matching):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 47
+    image only: 47
+    layout only: 47
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0851
+    V1 (image only):         0.1489
+    V2 (layout only):         0.0000
+    V0 (majority baseline): 0.1064
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0638
+    Shapley value φ_layout: -0.0851
+    SHAPE score S_image:   0.7500 (75.00%)
+    SHAPE score S_layout:   -1.0000 (-100.00%)
+    Cooperation C12:      0.0426
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, plain_text}
+============================================================
+  Total questions in group: 276
+  Unique question IDs: 92
+  Common questions (matched across all conditions): 92
+
+  RAW COUNTS (before matching):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 92
+    image only: 92
+    plain_text only: 92
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2126
+    V1 (image only):         0.1584
+    V2 (plain_text only):         0.1281
+    V0 (majority baseline): 0.0543
+
+  SHAPE METRICS:
+    Shapley value φ_image: 0.0943
+    Shapley value φ_plain_text: 0.0640
+    SHAPE score S_image:   0.4434 (44.34%)
+    SHAPE score S_plain_text:   0.3010 (30.10%)
+    Cooperation C12:      -0.0195
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, plain_text}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    layout only: 16
+    plain_text only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.3125
+    V1 (layout only):         0.0625
+    V2 (plain_text only):         0.3750
+    V0 (majority baseline): 0.1250
+
+  SHAPE METRICS:
+    Shapley value φ_layout: -0.0625
+    Shapley value φ_plain_text: 0.2500
+    SHAPE score S_layout:   -0.2000 (-20.00%)
+    SHAPE score S_plain_text:   0.8000 (80.00%)
+    Cooperation C12:      0.0000
+    → Independent: modalities contribute independently
+
+============================================================
+Modality Pair: {plain_text, table}
+============================================================
+  Total questions in group: 108
+  Unique question IDs: 36
+  Common questions (matched across all conditions): 36
+
+  RAW COUNTS (before matching):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 36
+    plain_text only: 36
+    table only: 36
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.2934
+    V1 (plain_text only):         0.1111
+    V2 (table only):         0.1944
+    V0 (majority baseline): 0.0556
+
+  SHAPE METRICS:
+    Shapley value φ_plain_text: 0.0773
+    Shapley value φ_table: 0.1606
+    SHAPE score S_plain_text:   0.2633 (26.33%)
+    SHAPE score S_table:   0.5473 (54.73%)
+    Cooperation C12:      0.0434
+    → Synergy: modalities cooperate positively
+
+============================================================
+Modality Pair: {image, table}
+============================================================
+  Total questions in group: 48
+  Unique question IDs: 16
+  Common questions (matched across all conditions): 16
+
+  RAW COUNTS (before matching):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 16
+    image only: 16
+    table only: 16
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.0347
+    V1 (image only):         0.0000
+    V2 (table only):         0.1250
+    V0 (majority baseline): 0.0625
+
+  SHAPE METRICS:
+    Shapley value φ_image: -0.0764
+    Shapley value φ_table: 0.0486
+    SHAPE score S_image:   -2.2000 (-220.00%)
+    SHAPE score S_table:   1.4000 (140.00%)
+    Cooperation C12:      -0.0278
+    → Redundancy: modalities interfere/overlap
+
+============================================================
+Modality Pair: {layout, table}
+============================================================
+  Total questions in group: 27
+  Unique question IDs: 9
+  Common questions (matched across all conditions): 9
+
+  RAW COUNTS (before matching):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  MATCHED COUNTS (same question_ids):
+    Both modalities: 9
+    layout only: 9
+    table only: 9
+
+  ACCURACY METRICS (on matched questions):
+    V12 (both modalities):  0.1111
+    V1 (layout only):         0.1111
+    V2 (table only):         0.0000
+    V0 (majority baseline): 0.1111
+
+  SHAPE METRICS:
+    Shapley value φ_layout: 0.0556
+    Shapley value φ_table: -0.0556
+    SHAPE score S_layout:   0.5000 (50.00%)
+    SHAPE score S_table:   -0.5000 (-50.00%)
+    Cooperation C12:      0.1111
+    → Synergy: modalities cooperate positively
+
+================================================================================
+END OF REPORT
+================================================================================
+
+
+==========================================================================================================================================================
+Marginal Contribution Scores (S) — LongDocURL
+==========================================================================================================================================================
+
+                         Img + Lay                Img + Txt                Lay + Txt                Txt + Tab                Img + Tab                Lay + Tab       
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+           Model      S(img)     S(lay)      S(img)     S(txt)      S(lay)     S(txt)      S(txt)   S(table)      S(img)   S(table)      S(lay)   S(table)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+       Gemma3-4B     0.4884*     0.2916      0.2110    0.3675*      0.1756    0.5355*     0.3210*     0.2925      0.2467    0.4865*      0.2073    0.5305*
+      Gemma3-27B     0.6514*     0.0965      0.3162    0.3959*      0.2366    0.5790*     0.4085*     0.3738      0.3824    0.4867*     -0.1468    0.9584*
+     GPT-4o-mini     0.8428*     0.0275      0.2580    0.5176*      0.1258    0.7382*     0.4176*     0.4133     0.5140*     0.4313      0.0119    0.8849*
+     Qwen3-VL-8B     0.7985*     0.0843      0.3477    0.4485*      0.1603    0.7107*      0.3035    0.5498*      0.4472    0.5059*      0.0437    0.8665*
+    Qwen3-VL-30B     0.8158*     0.0771      0.3643    0.4355*      0.1391    0.7135*      0.3790    0.4818*      0.3915    0.5603*      0.0072    0.8991*
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+                     (* = dominant modality in the pair)
+
+
+==========================================================================================================================================================
+Absolute Shapley Contributions (φ) — LongDocURL
+==========================================================================================================================================================
+
+                         Img + Lay                Img + Txt                Lay + Txt                Txt + Tab                Img + Tab                Lay + Tab       
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+           Model      φ(img)     φ(lay)      φ(img)     φ(txt)      φ(lay)     φ(txt)      φ(txt)   φ(table)      φ(img)   φ(table)      φ(lay)   φ(table)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+       Gemma3-4B     0.1306*     0.0780      0.0593    0.1032*      0.0391    0.1191*     0.0906*     0.0826      0.0169    0.0333*      0.0264    0.0674*
+      Gemma3-27B     0.1521*     0.0225      0.1300    0.1629*      0.0825    0.2018*     0.2047*     0.1873      0.0534    0.0680*     -0.0260    0.1696*
+     GPT-4o-mini     0.3822*     0.0125      0.1362    0.2731*      0.0595    0.3490*     0.2694*     0.2666     0.1717*     0.1441      0.0038    0.2858*
+     Qwen3-VL-8B     0.4009*     0.0424      0.2020    0.2606*      0.0798    0.3540*      0.2258    0.4090*      0.1747    0.1976*      0.0162    0.3214*
+    Qwen3-VL-30B     0.4479*     0.0423      0.2154    0.2575*      0.0607    0.3114*      0.2972    0.3777*      0.1485    0.2126*      0.0026    0.3198*
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+                     (* = dominant modality in the pair)
+
+
+====================================================================================================
+Cooperation Scores (C12) — LongDocURL
+====================================================================================================
+
+           Model     Img + Lay     Img + Txt     Lay + Txt     Txt + Tab     Img + Tab     Lay + Tab
+----------------------------------------------------------------------------------------------------
+       Gemma3-4B       -0.0526       -0.1278       -0.0391       -0.2579       -0.0058       -0.0024
+      Gemma3-27B       -0.0334       -0.1292       -0.0299       -0.1211       -0.0107       -0.0051
+     GPT-4o-mini       -0.0787       -0.2851       -0.1014       -0.3427        0.2329        0.0071
+     Qwen3-VL-8B       -0.1510       -0.2293       -0.0483       -0.2314       -0.0113        0.0227
+    Qwen3-VL-30B       -0.1238       -0.2306       -0.1113       -0.2433       -0.0139       -0.0132
+----------------------------------------------------------------------------------------------------
+
+
+==========================================================================================================================================================
+Marginal Contribution Scores (S) — MMLongBench-Doc
+==========================================================================================================================================================
+
+                         Img + Lay                Img + Txt                Lay + Txt                Txt + Tab                Img + Tab                Lay + Tab       
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+           Model      S(img)     S(lay)      S(img)     S(txt)      S(lay)     S(txt)      S(txt)   S(table)      S(img)   S(table)      S(lay)   S(table)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+       Gemma3-4B     0.2292*    -0.4792     0.3589*     0.2513     -1.5000    0.5000*      0.2148    0.5352*     -1.2333    0.5000*     -0.3328    0.7676*
+      Gemma3-27B     0.4878*    -0.2195     0.5555*     0.1504      0.0000    0.5000*      0.1250    0.7212*     -0.1250    0.8750*     -0.4615    0.4615*
+     GPT-4o-mini     0.6857*    -0.4357     0.6382*     0.1300     -0.2000    0.8000*      0.2512    0.6382*      0.0000    0.6667*      0.0000     0.0000
+     Qwen3-VL-8B     0.7500*    -1.0000     0.4434*     0.3010     -0.2000    0.8000*      0.2633    0.5473*     -2.2000    1.4000*     0.5000*    -0.5000
+    Qwen3-VL-30B     0.4877*    -0.2230     0.4545*     0.3379      0.0714    0.6429*      0.3068    0.5265*     -0.2500    0.7500*      0.1667    0.5000*
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+                     (* = dominant modality in the pair)
+
+
+==========================================================================================================================================================
+Absolute Shapley Contributions (φ) — MMLongBench-Doc
+==========================================================================================================================================================
+
+                         Img + Lay                Img + Txt                Lay + Txt                Txt + Tab                Img + Tab                Lay + Tab       
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+           Model      φ(img)     φ(lay)      φ(img)     φ(txt)      φ(lay)     φ(txt)      φ(txt)   φ(table)      φ(img)   φ(table)      φ(lay)   φ(table)
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+       Gemma3-4B     0.0195*    -0.0408     0.0500*     0.0350     -0.0938    0.0312*      0.0477    0.1189*     -0.0445    0.0180*     -0.0654    0.1509*
+      Gemma3-27B     0.0709*    -0.0319     0.1026*     0.0278      0.0000    0.1250*      0.0451    0.2604*     -0.0312    0.2188*     -0.0513    0.0513*
+     GPT-4o-mini     0.0973*    -0.0618     0.1496*     0.0305     -0.0625    0.2500*      0.1262    0.3206*      0.0000    0.1250*      0.0000     0.0000
+     Qwen3-VL-8B     0.0638*    -0.0851     0.0943*     0.0640     -0.0625    0.2500*      0.0773    0.1606*     -0.0764    0.0486*     0.0556*    -0.0556
+    Qwen3-VL-30B     0.0706*    -0.0323     0.1190*     0.0885      0.0312    0.2812*      0.1023    0.1755*     -0.0312    0.0938*      0.0556    0.1667*
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+                     (* = dominant modality in the pair)
+
+
+====================================================================================================
+Cooperation Scores (C12) — MMLongBench-Doc
+====================================================================================================
+
+           Model     Img + Lay     Img + Txt     Lay + Txt     Txt + Tab     Img + Tab     Lay + Tab
+----------------------------------------------------------------------------------------------------
+       Gemma3-4B        0.0461       -0.0355       -0.1875       -0.0156       -0.0889       -0.2568
+      Gemma3-27B        0.1064       -0.0531        0.1250        0.0347        0.0625       -0.1026
+     GPT-4o-mini        0.0892       -0.0042        0.0000       -0.0002        0.0000        0.2222
+     Qwen3-VL-8B        0.0426       -0.0195        0.0000        0.0434       -0.0278        0.1111
+    Qwen3-VL-30B        0.1057       -0.0135        0.1875       -0.0177        0.0625        0.3333
+----------------------------------------------------------------------------------------------------
+

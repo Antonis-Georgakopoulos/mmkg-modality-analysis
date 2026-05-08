@@ -36,12 +36,20 @@ markdown = [
     "weasyprint>=60.0",
     "pygments>=2.10.0",
 ]
+eval = [
+    "plotly>=5.0.0",
+    "kaleido>=0.2.0",
+    "matplotlib>=3.7.0",
+]
 all = [
     "Pillow>=10.0.0",
     "reportlab>=4.0.0",
     "markdown>=3.4.0",
     "weasyprint>=60.0",
-    "pygments>=2.10.0"
+    "pygments>=2.10.0",
+    "plotly>=5.0.0",
+    "kaleido>=0.2.0",
+    "matplotlib>=3.7.0",
 ]
 
 [project.urls]

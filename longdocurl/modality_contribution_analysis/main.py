@@ -26,16 +26,16 @@ os.environ["ORT_LOG_LEVEL"] = "3"  # Suppress ONNX Runtime warnings/errors
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env", override=False)
 
-from longdocurl.modality_contribution.pipeline import main_async
+from longdocurl.modality_contribution_analysis.pipeline import main_async
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="RQ3: Modality Minimalism Evaluation - LongDocURL Benchmark (WITH IMAGES)"
+        description="LongDocURL Benchmark"
     )
     parser.add_argument(
         "--samples",
-        default="./longdocurl/LongDocURL_public_cleaned.jsonl",
+        default="./longdocurl/LongDocURL_public_cleaned_2modalities.jsonl",
         help="Path to cleaned LongDocURL JSONL file"
     )
     parser.add_argument(
@@ -60,7 +60,6 @@ def main():
     )
     parser.add_argument(
         "--base-url",
-        # default="https://llmproxy.uva.nl",
         default="https://api.openai.com/v1",
         help="Optional base URL for API"
     )
@@ -83,8 +82,8 @@ def main():
     )
     parser.add_argument(
         "--device",
-        default="cuda",
-        choices=["cpu", "cuda", "cuda:0", "cuda:1", "mps"],
+        default="cpu",
+        choices=["cpu", "cuda", "mps"],
         help="Device for MinerU parsing (default: mps for Mac)"
     )
     parser.add_argument(
@@ -121,13 +120,13 @@ def main():
         "--doc-start",
         type=int,
         default=None,
-        help="Start document index (1-based, inclusive). Processing goes BACKWARDS from doc-start to doc-end."
+        help="Start document index (1-based, inclusive). Processing goes from doc-start to doc-end. E.g. --doc-start 1 --doc-end 50"
     )
     parser.add_argument(
         "--doc-end",
         type=int,
         default=None,
-        help="End document index (1-based, inclusive). Processing goes BACKWARDS from doc-start to doc-end."
+        help="End document index (1-based, inclusive). Processing goes from doc-start to doc-end. E.g. --doc-start 1 --doc-end 50"
     )
     
     args = parser.parse_args()
