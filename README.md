@@ -112,6 +112,8 @@ Before running the experiments, add your OpenAI API key to the `.env` file:
 OPENAI_API_KEY=sk-...
 ```
 
+See the `env.example` file for an example of the `.env` file.
+
 The modality contribution analysis pipeline is run separately for each benchmark:
 
 ```bash
