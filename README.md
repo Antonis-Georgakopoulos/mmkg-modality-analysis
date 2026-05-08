@@ -306,6 +306,8 @@ For each scenario, always run the bootstrap script before the corresponding plot
 
 ## Question Intent Analysis
 
+### Intent Classification
+
 We adopt a question-intent taxonomy and perform zero-shot classification: each question is sent to GPT-5 with the taxonomy prompt, and the model assigns a single intent category based on the question's wording and communicative goal (not the domain or topic).
 
 To run the classification:
@@ -314,4 +316,80 @@ To run the classification:
 python question_intent_analysis/question_intent_classification/classify_intent.py
 ```
 
-This requires the `OPENAI_API_KEY` in your `.env` file. Output files are saved to `question_intent_analysis/`.
+This requires the `OPENAI_API_KEY` in your `.env` file. Output files are saved to `question_intent_analysis/`:
+
+- `samples_2modalities_zero_shot_gpt_5_final.json` — MMLongBench-Doc questions with the assigned `question_intent` field.
+- `LongDocURL_public_cleaned_2modalities_zero_shot_gpt_5_final.jsonl` — LongDocURL questions with the assigned `question_intent` field.
+
+### Intent Judging
+
+After classification, two LLM judges (GPT-5.5 and Claude Opus 4-7) independently verify each annotated intent. For every question, the judge either confirms the label or suggests a corrected intent from the taxonomy.
+
+To run the judging:
+
+```bash
+python question_intent_analysis/question_intent_classification/judge_intents.py
+```
+
+This requires both `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` in your `.env` file. Output files are saved to `question_intent_analysis/`:
+
+- `gpt5_5_judge_suggested_intents.json` — GPT-5.5 judgments for each question.
+- `claude_opus_4_7_judge_suggested_intents.json` — Claude Opus 4-7 judgments for each question.
+
+Each output record contains the `annotated_intent`, the `suggested_intent` from the judge, and an `agrees` flag indicating whether the judge confirmed the original label.
+
+### Judge Agreement Analysis
+
+After both judges have run, this script measures inter-judge agreement by computing Cohen's kappa, raw agreement rate, a confusion matrix between the two judges' suggested intents, and a breakdown of cases where one or both judges proposed a change from the original annotation.
+
+To run the analysis:
+
+```bash
+python question_intent_analysis/question_intent_classification/judge_agreement_analysis.py
+```
+
+This requires the judge output files from the previous step. Outputs saved to `question_intent_analysis/`:
+
+- `confusion_matrix_gpt55_vs_claude_opus47.png` — heatmap of the confusion matrix between the two judges' suggested intents.
+
+### Intent Reconciliation
+
+Where both judges disagree with the original GPT-5 classification **and** agree with each other on a replacement, the reconciliation script applies those consensus changes to produce final corrected datasets.
+
+To run the reconciliation:
+
+```bash
+python question_intent_analysis/question_intent_classification/reconcile_intents.py
+```
+
+This requires the judge output files and the classified datasets from the previous steps. Outputs saved to `question_intent_analysis/`:
+
+- `samples_2modalities_zero_shot_reconciled.json` — MMLongBench-Doc questions with reconciled `question_intent` labels.
+- `LongDocURL_public_cleaned_2modalities_zero_shot_reconciled.jsonl` — LongDocURL questions with reconciled `question_intent` labels.
+
+### Intent SHAPE Analysis
+
+Using the reconciled intent labels, this script pools all questions from both benchmarks and computes observed SHAPE contribution (S_m1, S_m2, D) and cooperation (C12) scores for every (intent × modality-pair) group, with bootstrap confidence intervals.
+
+To run the analysis:
+
+```bash
+python question_intent_analysis/intent_shape_analysis.py
+```
+
+This requires the reconciled intent files and the model results in `results_longdocurl/` and `results_mmlongbench/`. Outputs saved to `question_intent_analysis/`:
+
+- `intent_shape_results.json` — structured results per intent group.
+- `intent_shape_results.csv` — flat CSV for easy analysis.
+- `intent_shape_results.txt` — human-readable report.
+
+### Intent SHAPE Plots
+
+Generates line plots of D (modality contribution) and C (cooperation) scores across question intents for each modality pair. Figures are produced at three filtering thresholds to show how results change with minimum group size.
+
+To generate the plots:
+
+```bash
+python question_intent_analysis/plot_intent_lines.py
+```
+

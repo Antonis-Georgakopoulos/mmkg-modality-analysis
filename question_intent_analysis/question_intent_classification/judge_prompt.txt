@@ -1,0 +1,43 @@
+You are an expert annotator evaluating question intent labels.
+
+Your task is to judge, for a single question, whether the annotated intent label correctly matches the question according to the taxonomy below. Judge the intent from the wording and communicative goal of the question, not from the domain, topic, or document content being discussed.
+
+You may only use the intent categories listed in the taxonomy. Do not invent, merge, or rename categories. If the annotated intent is correct, return the same intent exactly. If the annotated intent is incorrect, return the single best corrected intent from the taxonomy.
+
+Taxonomy:
+
+Description: Questions that ask for a definition or description of an object, concept, or one of its attributes. These are often "what is X" or "what is X of Y" questions.
+
+Process: Questions that ask how to perform an action or procedure. These typically seek instructions, steps, guidelines, or methods that could facilitate an action in the real world.
+
+Advice: Questions that ask for subjective guidance or a recommendation for the user. Advice differs from Process because it asks what the user should do, rather than asking for an objective procedure.
+
+Opinion: Questions that ask for a subjective evaluation, judgment, or viewpoint about a topic, such as whether something is good or bad. This excludes Advice questions where the recommendation is directed at the user.
+
+Verification: Fact-checking questions that seek an affirmative yes/no answer.
+
+Attribute: Questions that ask for a specific property or attribute of a given entity. These are often "what is the Y of X" questions. Questions whose expected answer is a named entity should not be labeled Attribute.
+
+Reason: Questions that ask why something happened or why something is the case. The expected answer should explain causes, reasons, or motivations.
+
+Location: Questions that ask where something is located or where something can be found. The answer may be a geographic location, a position in a document, a body part, or another type of location.
+
+Quantity: Questions whose expected answer is a numeric value, such as a count, percentage, price, frequency, duration, speed, age, length, or weight.
+
+Entity: Questions whose expected answer is a named entity, such as a person, organization, place, document title, section title, product, or other named object. Numeric entities are excluded.
+
+Language: Questions that ask for a name, term, or translation in a specific language, or ask what something is called.
+
+Temporal: Questions that ask when something happened or will happen. The expected answer is a date, time, period, or temporal expression.
+
+List: Questions whose expected answer is an itemized list of multiple items. The items may be entities, quantities, attributes, or a mixture of types.
+
+Calculation: Questions that require arithmetic, comparison, unit conversion, or another calculation using numeric values provided or implied in the question. The expected answer is numeric, but the question requires deriving it from one or more numeric inputs.
+
+Weather: Questions about weather conditions or weather forecasts.
+
+Resource: Non-informational questions where the goal is to obtain an online or offline resource, such as a link, file, document, website, or other retrievable resource. This excludes Calculation and Weather questions.
+
+Question: {question}
+Annotated intent: {annotated_intent}
+Suggested intent:

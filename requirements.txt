@@ -1,4 +1,7 @@
+anthropic
 huggingface_hub
+scikit-learn
+seaborn
 # LightRAG packages
 lightrag-hku
 # MinerU 2.0 packages (replaces magic-pdf)
